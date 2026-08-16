@@ -1,0 +1,530 @@
+# GDD: NEON HOOK — v2
+
+**Кандидаты имени:** Hook Up / Крюк: Лети вверх / Neon Hook
+
+---
+
+## 0. Паспорт
+
+| Параметр | Значение |
+|---|---|
+| Платформа | Яндекс Игры (WebGL, браузер, мобильный трафик), портрет |
+| Движок | Unity, C#, без физического движка (чистая кинематика) |
+| Жанр | Вертикальная one-touch аркада, endless |
+| Сессия | 20–90 секунд, рестарт за 1 секунду |
+| Управление | Одна кнопка: держишь — захват и вращение, отпустил — полёт по касательной |
+| Сеттинг | Неон: светящиеся примитивы, трейлы, частицы. Без художника |
+| Референсы | Stickman Hook, Rope’n’Fly, Swing Loops, grappling-hook гиперказуалки |
+| USP | Ритм-вращение на одной кнопке + честная касательная + процедурный маршрут с битами + ось силы «ранний зацеп» |
+| Команда/срок | соло, ~неделя до играбельного билда |
+
+---
+
+## 1. Концепция
+
+Герой падает. Игрок зажимает экран — герой цепляется крюком к точке и **вращается по окружности** вокруг неё. Отпустил — срывается и летит по касательной. Задача — подниматься по цепочке точек, собирать монеты, не касаться шипов и не отстать от камеры.
+
+Фан — в двух таймингах: **когда отпустить** (окно направления) и **когда нажать** (сила: ранний зацеп = дальний полёт).
+
+**Формула игры:** `тап → вращение → релиз → полёт → едва не умер → ещё раз`.
+
+---
+
+## 2. Core loop и сессия
+
+1. Старт: герой на спавне, **первая точка всегда ниже спавна, на линии падения** — первый зацеп происходит сам при падении.
+2. Цепочка: захват → вращение → релиз → полёт → захват…
+3. Смерть: отстал ниже камеры / шип.
+4. Экран смерти: счёт, монеты, «ещё раз», «тот же маршрут», rewarded-опции.
+5. Мета: монеты → скины; маршрут дня; лидерборд.
+
+Прогрессия забега: скорость камеры и плотность опасностей растут через `diff`.
+
+---
+
+## 3. Управление, ввод, онбординг
+
+- **Держишь** — захват и вращение (ω растёт, пока держишь, до ωMax).
+- **Отпустил** — полёт по касательной. Мгновенно, без задержек ввода.
+- Нажатие вне радиуса захвата игнорируется без штрафа (особенно в онбординге).
+
+**Ввод (решение):** в Player Settings `Active Input Handling = Both`; код читает legacy `Input` (тач мапится в мышь автоматически). Чтение ввода изолировано в одном месте; альтернатива на новом Input System — в Приложении B, переключение стоит 2 минуты и не влияет на архитектуру.
+
+**Онбординг (первые 3–5 точек):**
+- точки близко, без шипов, камера медленная; grabRadius увеличен;
+- пульсирующая точка + подсказка «держи»;
+- круг радиуса захвата и полная траектория показываются **только здесь**.
+
+---
+
+## 4. Физика и математика (MVP-контракт, заморожен)
+
+### 4.1. Конвенция углов
+
+Тригонометрический круг: 0° вправо, 90° вверх, 180° влево, 270° вниз. Против часовой = рост θ. Unity world Y вверх — формулы без инверсий.
+
+**Терминология (фикс):** в MVP герой *вращается по окружности*; «окно» — сектор окружности. Слова «дуга/раскачивание» — только для пострелизной маятниковой физики.
+
+### 4.2. Уравнения
+
+```text
+орбита:   pos = anchor + (cosθ, sinθ) * r
+касательная (против часовой): t = (-sinθ, cosθ)
+релиз:    vel = t * (spinDir * ω * rPower) + (0, upAssist);   rPower = r или rNorm (тумблер)
+полёт:    vel.y -= g * dt;  pos += vel * dt
+зацеп:    |pos - anchor| < grabRadius, предыдущая точка исключена
+```
+
+### 4.3. Захват (Press)
+
+```text
+r = clamp(dist, rMin, rMax)
+w = cross(d, vel) / r²                      // знак и величина углового момента героя
+spinDir = |w| > 0.5 ? sign(w) : anchor.spinDir   // момент есть — продолжаем; радиальный подход — как задумал маршрут
+если |w| < ωMin → w = ωMin * spinDir        // ПОЛ: не висим, нулевой орбиты не бывает
+ω = clamp(w, -ωMax, ωMax)                   // ПОТОЛОК: окно не становится нечеловеческим
+```
+
+`anchor.spinDir` выставляется генератором при спавне (= сторона следующей точки). Кейс «в лоб»: w≈0 → пол ωMin на малом r → короткий слабый хопп: мягкий промах, ритм жив, обучает заходить сбоку.
+
+### 4.4. Окна отпускания
+
+| Вращение | Вверх-вправо | Вверх-влево |
+|---|---|---|
+| spinDir +1 (против часовой) | 270–360 | 0–90 |
+| spinDir −1 (по часовой) | 90–180 | 180–270 |
+
+Канонические фазы генератора: вправо θ=315° (sd +1), влево θ=225° (sd −1).
+**Ось скилла окна:** ближе к 270° — быстрее и площе; ближе к 0°/180° — круче, но слабее. Игрок читает движением, не углами.
+
+### 4.5. Оси сложности и связки
+
+- Сложность окна = ω; время окна ≈ (π/2)/ω.
+- Скорость запуска v = ω·rPower.
+- Связка для L-режима: rMin ≈ vMax/ωMax.
+
+### 4.6. Лестница исходов
+
+| Ситуация | Исход |
+|---|---|
+| В лоб, вплотную | слабый хопп (мягкий промах) |
+| Сбоку, далеко (ранний зацеп) | **длинная верёвка → дальний полёт** |
+| Сбоку, близко (поздний зацеп) | короткий хопп |
+| Держал долго | рампа ω до ωMax → дальше |
+
+### 4.7. Ось силы (фикс из плейтеста)
+
+`v = ω·r`: при той же ω больший радиус = большая линейная скорость. **Ранний зацеп (в момент вспышки точки) = максимальная сила; поздний = потеря мощности.** Это вторая ось скилла поверх окна. Конфигурации:
+
+| Режим | Релиз | Статус |
+|---|---|---|
+| Текущий | v = ω·r | MVP, по умолчанию |
+| Нормализованный | v = ω·rNorm | тумблер `normalizePower` в Profile — A/B на плейтестах, если ось путает |
+| L-режим | v = L/r | пострелиз, слингшот |
+
+Читаемость оси — без слов: яркость/толщина верёвки и трейла ∝ мощности; вспышка точки = «момент максимальной силы».
+
+---
+
+## 5. Достижимость и генератор
+
+### 5.1. Profile (единый тюнинг)
+
+```csharp
+[CreateAssetMenu(menuName = "Hook/Profile")]
+public class Profile : ScriptableObject
+{
+    [Header("Catch")]  public float grabRadius = 3f, rMin = 1.2f, rMax = 3f;
+    [Header("Spin")]   public float wMin = 3f, wMax = 6.5f, spinAccel = 2.5f;
+    [Header("Flight")] public float g = 14f, upAssist = 1f;
+    [Header("Power")]  public bool normalizePower = false; public float rNorm = 2.1f;
+}
+```
+
+### 5.2. FlightHits — общая баллистика
+
+```csharp
+public static bool FlightHits(Vector2 p, Vector2 v, Vector2 target, Profile pf,
+                              float dt = 0.05f, int steps = 30)
+{
+    for (int i = 0; i < steps; i++) {
+        v.y -= pf.g * dt; p += v * dt;
+        if ((p - target).sqrMagnitude < pf.grabRadius * pf.grabRadius) return true;
+    }
+    return false;
+}
+```
+
+Единственный источник правды: рантайм-подсветка и генератор используют одно и то же.
+
+### 5.3. ReachQuality
+
+Перебор 24 фаз релиза × ω ∈ {wMin, wMax}; доля успешных = достижимость + ширина окна. **Заметка:** при переходе к боевому генератору добавить в перебор r ∈ {rMin, rMax} (сила зависит от r — см. 4.7).
+
+### 5.4. PlaceNext — канонический выстрел + минимальные зазоры
+
+```csharp
+public static Vector2 PlaceNext(Vector2 a, int side, float diff, System.Random rng, Profile pf)
+{
+    float th = side > 0 ? 5.4978f : 3.927f;            // 315° / 225°
+    int   sd = side > 0 ? 1 : -1;
+    float r  = (pf.rMin + pf.rMax) * 0.5f;
+    float w  = Mathf.Lerp(pf.wMin, pf.wMax, 0.6f);
+
+    var pos = a + new Vector2(Mathf.Cos(th), Mathf.Sin(th)) * r;
+    var vel = HookHero.Tangent(th) * (sd * w * r);
+    vel.y  += pf.upAssist;
+
+    float T = Mathf.Lerp(0.7f, 1.0f, (float)rng.NextDouble());
+    for (float t = 0; t < T; t += 0.05f) { vel.y -= pf.g * 0.05f; pos += vel * 0.05f; }
+
+    pos += new Vector2((float)(rng.NextDouble()*2-1), (float)(rng.NextDouble()*2-1)) * 0.5f * (1f - diff);
+
+    // зазоры масштабируются от grabRadius: лесенка в одну линию невозможна
+    float minDx = Mathf.Max(1.5f, pf.grabRadius * 0.6f);
+    float minDy = pf.grabRadius + 1.5f;
+    if (Mathf.Abs(pos.x - a.x) < minDx) pos.x = a.x + sd * minDx;
+    if (pos.y - a.y < minDy)          pos.y = a.y + minDy;
+    return pos;
+}
+```
+
+Прямые вертикальные участки возвращаются **только осознанно** как calm-биты (ослабление minDx), не случайно.
+
+### 5.5. Биты маршрута
+
+| Бит | Смысл | MinQuality |
+|---|---|---|
+| calm | передышка/онбординг, можно ослабить minDx | 0.20 |
+| tension | основной геймплей, шипы | 0.05 |
+| bonus | награда за риск, коридор монет | 0.10 |
+| rest | пауза, 1–2 щадящие точки | 0.25 |
+
+Переходы: `bonus→tension`, `rest→tension`, `tension→{bonus если давно не было / rest при длинной серии / tension}`; веса как в v1.
+
+### 5.6. Стороны
+
+70% чередование / 20% серия 2 / 10% серия 3. **При спавне точки её `spinDir` = сторона СЛЕДУЮЩЕЙ точки** (направление вращения вокруг неё заранее известно маршруту).
+
+### 5.7. GenerateAhead, сиды, сложность — как в v1
+
+- Генерация вперёд с ретраями ≤10 по `ReachQuality ≥ MinQuality(bit)`, fallback — как есть.
+- `worldSeed` (маршрут) / `layoutSeed = seed*31` (шипы, монеты). Daily = сид из даты. «Ещё раз тот же маршрут» — реванш.
+- `diff = clamp01(time * k)`, старт k ≈ 1/120: T дольше, jitter меньше, коридор уже, шипы плотнее.
+
+---
+
+## 6. Камера, давление, смерть, счёт
+
+- Камера: `y = max(creep, lerp-follow к hero+lookahead)`, не опускается; creep = baseSpeed·dt (растёт с diff).
+- Смерть: герой ниже низа камеры + killMargin; шип.
+- Счёт = метры (макс. высота); монеты отдельно.
+- **Позже:** виляющий маршрут, счёт вдоль маршрута, камера/тьма по маршруту.
+
+---
+
+## 7. Подсказки и читаемость
+
+- Круг радиуса — только онбординг. Состояния точки: тусклая → **вспышка** (в радиусе; = момент максимальной силы).
+- Подсветка достижимости через `FlightHits`: при вращении — «релиз сейчас долетит»; при полёте — «входишь в зону захвата» (другой визуал). Тускло/жёлто — «слабый хопп» (учит не лететь в лоб).
+- Трейл всегда; направление вращения читается сразу после зацепа; яркость верёвки/трейла ∝ мощности.
+- Perfect-релиз: вспышка + комбо + множитель (обучение через награду).
+- Полная траектория — только онбординг.
+- Философия: сложность — скоростью/плотностью, не сокрытием информации.
+
+---
+
+## 8. Опасности и монеты
+
+Шипы на стенах коридора вне канонической траектории. Монеты — на канонической траектории и в bonus-коридорах (собираемость гарантирована тем же `FlightHits`). Позже: пилы, лазеры, ветер, хрупкие/движущиеся точки.
+
+---
+
+## 9. Мета и монетизация (решение по начальному трафику)
+
+Начальный трафик Яндекса проверяет ядро (CTR, онбординг, D1, сессия, рекламные просмотры); мета на D1 почти не влияет. Поэтому:
+
+**В релиз (дёшево, часы):** revive за rewarded (щит 3с), x2 монет за rewarded, кошелёк + сохранение, 3–5 скинов + витрина, лидерборд SDK.
+**Только при запасе времени:** маршрут дня (daily seed + кнопка).
+**Строго пострелиз:** всё дорогое из дорожной карты.
+**Правило:** ядро валидируется в Д2; если свинг не работает — чиним ядро, мета не спасает. При нехватке времени жертвуем витриной скинов, **не** джусом (feel важнее для D1).
+
+---
+
+## 10. Game feel и стиль
+
+Трейл, линия-верёвка (яркость ∝ мощности), искры, screen shake на смерти, лёгкое slow-mo, вспышка perfect; звуки захвата/релиза/монет/смерти; тёмный фон + неоновые примитивы. Всё мгновенно по вводу.
+
+---
+
+## 11. Стартовые числа (после плейтеста v0.1)
+
+```text
+grabRadius 3 (поднято на плейтесте)   rMin 1.2   rMax 3
+ωMin 3   ωMax 6.5   spinAccel 2.5   порог продолжения момента 0.5
+g 14   upAssist 1   rNorm 2.1 (тумблер normalizePower = off)
+minDx = max(1.5, grabRadius*0.6) = 1.8   minDy = grabRadius+1.5 = 4.5
+T = 0.7–1.0 с   vMax ≈ ωMax·rMax ≈ 19.5
+окно: (π/2)/ω → 0.52с … 0.24с
+камера baseSpeed 1.5, lookahead 2, killMargin 1
+```
+
+---
+
+## 12. Структура проекта и ядро (финальный код v0.2)
+
+```text
+Assets/_Game/
+  Core/        HookHero, Anchor, RopeRenderer, CameraController, KillZone(в камере)
+  Generation/  Reachability, AnchorGenerator(=TestSpawner→боевой), RouteDirector, SeedManager
+  Input/       (изолировано в HookHero.Update; см. Приложение B)
+  UI/          MainMenu, HUD, GameOver, Pause
+  Meta/        Wallet, SkinsCatalog, DailyChallenge, YandexBridge
+  Feel/        TrailController, Particles, ScreenShake, SoundManager
+  Data/        Profile.asset, Tuning.asset
+```
+
+**Anchor.cs**
+
+```csharp
+using UnityEngine;
+
+public class Anchor : MonoBehaviour
+{
+    public int spinDir = 1;                      // направление вращения вокруг этой точки — от генератора
+    public Vector2 Pos => transform.position;
+
+    public static Anchor FindNearest(Vector2 pos, float radius, Anchor exclude = null)
+    {
+        Anchor best = null; float bestD = radius;
+        foreach (var a in FindObjectsOfType<Anchor>())
+        {
+            if (a == exclude) continue;
+            float d = Vector2.Distance(a.Pos, pos);
+            if (d <= bestD) { bestD = d; best = a; }
+        }
+        return best;
+    }
+
+    void OnDrawGizmos() { Gizmos.color = Color.cyan; Gizmos.DrawWireSphere(transform.position, 0.15f); }
+}
+```
+
+**HookHero.cs**
+
+```csharp
+using UnityEngine;
+
+public class HookHero : MonoBehaviour
+{
+    public Profile profile;
+
+    public bool Attached { get; private set; }
+    public Vector2 AnchorPos => anchor;
+    public float Power => Attached ? omega * r : 0f;
+
+    Vector2 anchor, vel;
+    float theta, omega, r;
+    int spinDir;
+    Anchor currentAnchorObj, lastAnchor;
+
+    void Update()
+    {
+        if (Input.GetMouseButtonDown(0)) Press();
+        else if (Input.GetMouseButtonUp(0)) Release();
+
+        if (Attached)
+        {
+            omega = Mathf.Min(profile.wMax, omega + profile.spinAccel * Time.deltaTime);
+            theta += spinDir * omega * Time.deltaTime;
+            transform.position = anchor + new Vector2(Mathf.Cos(theta), Mathf.Sin(theta)) * r;
+        }
+        else
+        {
+            vel.y -= profile.g * Time.deltaTime;
+            transform.position += vel * Time.deltaTime;
+        }
+    }
+
+    void Press()
+    {
+        if (Attached) return;
+        var a = Anchor.FindNearest(transform.position, profile.grabRadius, lastAnchor);
+        if (a == null) return;
+
+        Attached = true;
+        currentAnchorObj = a;
+        anchor = a.Pos;
+        var d = (Vector2)transform.position - anchor;
+        r = Mathf.Clamp(d.magnitude, profile.rMin, profile.rMax);
+        theta = Mathf.Atan2(d.y, d.x);
+
+        float w = (d.x * vel.y - d.y * vel.x) / (r * r);                 // угловой момент героя
+        spinDir = Mathf.Abs(w) > 0.5f ? (w > 0 ? 1 : -1) : a.spinDir;    // момент → иначе замысел маршрута
+        if (Mathf.Abs(w) < profile.wMin) w = profile.wMin * spinDir;     // пол
+        omega = Mathf.Clamp(w, -profile.wMax, profile.wMax);             // потолок
+    }
+
+    void Release()
+    {
+        if (!Attached) return;
+        Attached = false;
+        lastAnchor = currentAnchorObj;                                   // не цеплять только что отпущенную
+        float rPower = profile.normalizePower ? profile.rNorm : r;
+        vel = Tangent(theta) * (spinDir * omega * rPower) + Vector2.up * profile.upAssist;
+    }
+
+    public static Vector2 Tangent(float th) => new Vector2(-Mathf.Sin(th), Mathf.Cos(th));
+
+    public void Respawn(Vector2 pos) { Attached = false; vel = Vector2.zero; transform.position = pos; }
+
+    // --- debug прототипа ---
+    void OnGUI()
+    {
+        GUI.Label(new Rect(10, 10, 600, 140),
+            $"attached={Attached} nearest={NearestDist():F2} radius={profile.grabRadius}\nomega={omega:F2} r={(Attached ? r : 0):F2} power={Power:F1}");
+    }
+    float NearestDist()
+    {
+        float d = float.MaxValue;
+        foreach (var a in FindObjectsOfType<Anchor>())
+            if (a != lastAnchor) d = Mathf.Min(d, Vector2.Distance(a.Pos, transform.position));
+        return d;
+    }
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, profile ? profile.grabRadius : 1f);
+    }
+}
+```
+
+**RopeRenderer.cs**
+
+```csharp
+using UnityEngine;
+
+[RequireComponent(typeof(LineRenderer))]
+public class RopeRenderer : MonoBehaviour
+{
+    public HookHero hero;
+    LineRenderer lr;
+
+    void Awake() { lr = GetComponent<LineRenderer>(); lr.positionCount = 2; }
+
+    void LateUpdate()
+    {
+        lr.enabled = hero.Attached;
+        if (hero.Attached)
+        {
+            lr.SetPosition(0, hero.transform.position);
+            lr.SetPosition(1, hero.AnchorPos);
+            lr.startWidth = 0.06f + hero.Power * 0.004f;   // читаемость оси силы
+        }
+    }
+}
+```
+
+**Reachability.cs** — `FlightHits` и `PlaceNext` как в 5.2/5.4; `ReachQuality` как в v1 + заметка про семплирование r.
+
+**TestSpawner.cs** (прототип боевого AnchorGenerator)
+
+```csharp
+using UnityEngine;
+
+public class TestSpawner : MonoBehaviour
+{
+    public Profile profile;
+    public GameObject anchorPrefab;
+    public Transform hero;
+
+    System.Random rng = new System.Random(42);
+    Vector2 lastPos;
+    int side = 1;
+    Anchor lastAnchorObj;
+
+    void Start()
+    {
+        lastPos = (Vector2)hero.position + Vector2.down * 2f;      // первая точка на линии падения
+        lastAnchorObj = Instantiate(anchorPrefab, lastPos, Quaternion.identity).GetComponent<Anchor>();
+        Spawn();
+    }
+
+    void Update() { if (hero.position.y > lastPos.y - 12f) Spawn(); }
+
+    void Spawn()
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            side = -side;
+            if (lastAnchorObj != null) lastAnchorObj.spinDir = side;   // вращение вокруг предыдущей — к новой
+            lastPos = Reachability.PlaceNext(lastPos, side, 0f, rng, profile);
+            lastPos.x = Mathf.Clamp(lastPos.x, -4f, 4f);
+            lastAnchorObj = Instantiate(anchorPrefab, lastPos, Quaternion.identity).GetComponent<Anchor>();
+        }
+    }
+}
+```
+
+**CameraController.cs** — как в v0.1 (creep/follow/kill + Respawn).
+
+---
+
+## 13. План разработки, отладка, тест-протокол
+
+**План (неделя):** Д1–2 ядро + feel-тесты; Д3 RouteDirector (биты/стороны/стрики/diff) поверх спавнера + камера; Д4 шипы/монеты/bonus + подсветки; Д5 джус и онбординг; Д6 дешёвая мета + SDK; Д7 тесты/тюнинг/билд.
+
+**Отладочный набор (прототип):** OnGUI-HUD (attached/nearest/radius/omega/r/power), логи MISS/GRAB/RELEASE, гизмо радиуса захвата и точек. Тюнинг — через Profile в инспекторе, без перекомпиляции.
+
+**Протокол:** после каждого изменения — сразу играть (30-секундные сессии). Чек-лист ощущений: мгновенное вращение при боковом зацепе; «в лоб» = слабый хопп, не висение; противоход продолжает момент; ранний зацеп летит дальше; окна 0.5с…0.25с; цепочка проходится «на ритме».
+
+---
+
+## 14. НЕ делать в MVP
+
+Реалистичная верёвка/ткань; прицеливание; хендкрафт-уровни; прокачка; боссы; онлайн; большой магазин; несколько режимов; постоянная траектория; текстовые туториалы; L-физика и виляющий маршрут (в дорожную карту).
+
+---
+
+## 15. Дорожная карта пострелиз
+
+**Физика (новый Profile, ядро не переписывается):** L-консервация (`L=v·r`, `ω=L/r²`, `v=L/r`); reel-in; «натягивающаяся» верёвка с рывком; «кнут» (в лоб на хардкоре → ωMax); слингшот-цепочки и комбо за плотные зацепы; хард-режим с поднятым ωMax; маятниковый режим (термины «дуга/раскачивание» живут здесь).
+**Маршрут/мир:** виляние (диагонали/горизонталь/S), счёт вдоль маршрута, камера/тьма по маршруту; хрупкие/движущиеся/односторонние точки; пилы/лазеры/ветер; хендкрафт-вставки; зоны-темы.
+**Мета:** daily-лидерборд, реванш, ачивки, расширение скинов.
+
+---
+
+## 16. Критерий готовности
+
+Игрок попадает в окна на ритме, не думая; смерть всегда читается как своя ошибка; после 10 заходов хочется «ещё один»; оси «окно» и «сила» ощущаются отдельно и обе вознаграждают мастерство.
+
+---
+
+## Приложение A. Changelog v1 → v2
+
+1. Терминология: «вращается по окружности/сектор окна»; «дуга/раскачивание» — только пострелиз.
+2. Press: направление = момент героя (порог 0.5) → иначе `anchor.spinDir` от генератора; `DefaultDir` удалён.
+3. Повторный захват: предыдущая точка исключена (lastAnchor). Альтернативы в копилке: кулдаун 0.15–0.2с; софт-запрет внутри старой орбиты.
+4. PlaceNext: minDx/minDy от grabRadius; T = 0.7–1.0. Прямые участки — только calm-биты.
+5. Первая точка — ниже спавна, на линии падения.
+6. Ось силы v=ω·r зафиксирована; тумблер `normalizePower`/`rNorm` для A/B; яркость верёвки ∝ мощности; вспышка = макс. сила.
+7. ReachQuality: заметка — семплировать также r ∈ {rMin, rMax}.
+8. Стартовый набор чисел обновлён после плейтеста (grabRadius 3 и производные зазоры).
+9. Решение по трафику: дешёвые крючки в релиз, дорогое — пострелиз; приоритет feel над витриной.
+10. Ввод: `Both`; альтернатива — Приложение B.
+
+## Приложение B. Ввод на новом Input System (опция)
+
+```csharp
+using UnityEngine.InputSystem;
+// в Update вместо legacy Input:
+bool down = false, up = false;
+if (Mouse.current != null) { down |= Mouse.current.leftButton.wasPressedThisFrame;
+                             up   |= Mouse.current.leftButton.wasReleasedThisFrame; }
+if (Touchscreen.current != null) { down |= Touchscreen.current.primaryTouch.press.wasPressedThisFrame;
+                                   up   |= Touchscreen.current.primaryTouch.press.wasReleasedThisFrame; }
+```
+
+---
+
+ГДД v2 готов. Когда закинешь правки кода и прогонишь — следующий шаг по плану: RouteDirector (биты, стрики, стороны, diff) поверх TestSpawner.
