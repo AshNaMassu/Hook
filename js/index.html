@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#05060f">
+<title>NEON HOOK</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/russo-one@5.0.20/index.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/exo-2@5.0.16/index.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="stage">
+  <canvas id="cv"></canvas>
+
+  <div id="hud" class="hidden">
+    <div id="hudTop">
+      <div><div id="meters">0 м</div><div id="mLbl">ВЫСОТА</div></div>
+      <div id="hudRight">
+        <div id="coinsHud">◈ 0</div>
+        <div class="row" style="gap:6px">
+          <button class="icoBtn" id="btnMute">🔊</button>
+          <button class="icoBtn" id="btnPause">Ⅱ</button>
+        </div>
+      </div>
+    </div>
+    <div id="combo"></div>
+    <div id="hint"></div>
+  </div>
+
+  <div id="menu" class="screen">
+    <div class="title"><span class="t1">NEON</span><br><span class="t2">HOOK</span></div>
+    <div class="sub">Одна кнопка.<br><b>Держи</b> — крюк и вращение.<br><b>Отпусти</b> — полёт по касательной.</div>
+    <button class="btn primary" id="btnPlay">ИГРАТЬ</button>
+    <div class="stat dim" id="bestLine">Рекорд: 0 м</div>
+    <div class="walletLine">Кошелёк: ◈ <span id="walletMenu">0</span></div>
+    <div id="skins"></div>
+    <div class="howto">лови <span style="color:#fff">вспышку</span> точки — это момент максимальной силы<br>ранний зацеп = дальний полёт</div>
+    <div class="foot">ПРОТОТИП · GDD v2 · ONE-TOUCH</div>
+  </div>
+
+  <div id="over" class="screen hidden">
+    <div class="title" style="font-size:clamp(30px,10vw,54px)"><span class="t2">СРЫВ</span></div>
+    <div id="recordBadge" class="hidden">★ НОВЫЙ РЕКОРД ★</div>
+    <div id="overMeters">0 м</div>
+    <div class="stat dim">высота</div>
+    <div class="row" style="gap:22px">
+      <div class="stat goldT" id="overCoins">◈ +0</div>
+      <div class="stat dim" id="overCombo">серия ×0</div>
+    </div>
+    <button class="btn gold hidden" id="btnRevive">▶ ПРОДОЛЖИТЬ <span style="font-size:.7em">(1 раз)</span></button>
+    <button class="btn primary" id="btnAgain">ЕЩЁ РАЗ</button>
+    <div class="row">
+      <button class="btn small" id="btnSame">ТОТ ЖЕ МАРШРУТ</button>
+      <button class="btn small" id="btnMenu1">МЕНЮ</button>
+    </div>
+  </div>
+
+  <div id="pauseScr" class="screen hidden">
+    <div class="title" style="font-size:clamp(26px,9vw,44px)"><span class="t1">ПАУЗА</span></div>
+    <button class="btn primary" id="btnResume">ПРОДОЛЖИТЬ</button>
+    <button class="btn" id="btnRestart">ЗАНОВО</button>
+    <button class="btn" id="btnMenu2">МЕНЮ</button>
+  </div>
+</div>
+
+<!-- ПОРЯДОК ВАЖЕН: сначала данные, потом логика, в конце UI и цикл -->
+<script src="js/config.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/canvas.js"></script>
+<script src="js/state.js"></script>
+<script src="js/gen.js"></script>
+<script src="js/world.js"></script>
+<script src="js/hero.js"></script>
+<script src="js/camera.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/bot.js"></script>
+<script src="js/step.js"></script>
+<script src="js/render.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/input.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
