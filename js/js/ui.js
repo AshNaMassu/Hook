@@ -61,7 +61,8 @@ function startRun(newSeed){
   resetWorld(newSeed,false);
   state='play';
   hide(el.menu);hide(el.over);hide(el.pauseScr);show(el.hud);
-  hudM=-1;hudC=-1;hudCombo=-1;
+    hudM = -1; hudC = -1; hudCombo = -1;
+    Snd.startMusic();
 }
 function toMenu(){
   resetWorld((Math.random()*2**31)|0,true);
@@ -69,10 +70,22 @@ function toMenu(){
   hide(el.over);hide(el.pauseScr);hide(el.hud);show(el.menu);
   el.bestLine.textContent='Рекорд: '+bestMeters+' м';
   el.walletMenu.textContent=wallet;
-  buildSkins();
+    buildSkins();
+    Snd.stopMusic();
 }
-function pauseGame(){ if(state!=='play')return; state='pause'; show(el.pauseScr); }
-function resumeGame(){ if(state!=='pause')return; state='play'; hide(el.pauseScr); last=performance.now(); }
+function pauseGame() {
+    if (state !== 'play') return;
+    state = 'pause';
+    show(el.pauseScr);
+    Snd.stopMusic();  // ← ДОБАВЬ ЭТУ СТРОКУ
+}
+function resumeGame() {
+    if (state !== 'pause') return;
+    state = 'play';
+    hide(el.pauseScr);
+    last = performance.now();
+    Snd.startMusic();  // ← ДОБАВЬ ЭТУ СТРОКУ
+}
 
 /* ---------- кнопки ---------- */
 el.btnPlay.addEventListener('click',()=>{Snd.ensure();Snd.ui();startRun((Math.random()*2**31)|0);});
@@ -84,9 +97,17 @@ el.btnRestart.addEventListener('click',()=>{Snd.ui();hide(el.pauseScr);startRun(
 el.btnResume.addEventListener('click',()=>{Snd.ui();resumeGame();});
 el.btnPause.addEventListener('click',()=>{Snd.ui();pauseGame();});
 el.btnRevive.addEventListener('click',()=>{doRevive();});
-el.btnMute.addEventListener('click',()=>{
-  muted=!muted; store.set('mute',muted);
-  el.btnMute.textContent=muted?'🔇':'🔊';
-  if(!muted){Snd.ensure();Snd.ui();}
+el.btnMute.addEventListener('click', () => {
+    muted = !muted;
+    store.set('mute', muted);
+    el.btnMute.textContent = muted ? '🔇' : '🔊';
+
+    if (muted) {
+        Snd.stopMusic();  // ← ДОБАВЬ
+    } else {
+        Snd.ensure();
+        Snd.ui();
+        if (state === 'play' && !dying) Snd.startMusic();  // ← ДОБАВЬ
+    }
 });
 el.btnMute.textContent=muted?'🔇':'🔊';

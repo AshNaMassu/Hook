@@ -72,4 +72,9 @@ function stepWorld(dt){
             p.x = (Math.random() * 2 - 1) * 8;
         }
     }
+
+    if (state === 'play' && !dying) {
+        const intensity = Math.min(1, runT / 120); // растёт со временем
+        Snd.setMusicIntensity(intensity);
+    }
 }

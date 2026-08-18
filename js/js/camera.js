@@ -5,7 +5,8 @@ function die(){
   burst(hero.x,hero.y,20,'#ffffff',5);
   if(state==='play') Snd.death();
 }
-function finishDeath(){
+function finishDeath() {
+    Snd.stopMusic(); 
   if(state==='menu'){ resetWorld((Math.random()*2**31)|0,true); return; }
   state='over';
   const m=Math.floor(maxAlt);
