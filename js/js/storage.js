@@ -6,7 +6,9 @@ let bestMeters=store.get('best',0);
 let wallet=store.get('wallet',0);
 let owned=store.get('owned',['cyan']);
 let skinId=store.get('skin','cyan');
-let muted=store.get('mute',false);
+let muted = store.get('mute', false);
+let musicVol = store.get('musicVol', 0.8);  // 0-1
+let sfxVol = store.get('sfxVol', 1.0);
 
 const SKINS=[
   {id:'cyan', name:'Импульс',  color:'#26e0ff', price:0},

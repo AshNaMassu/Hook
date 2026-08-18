@@ -1,5 +1,5 @@
-const Snd = {
-    ctx: null, noiseBuf: null, musicNodes: null, musicGain: null,
+ï»¿const Snd = {
+    ctx: null, noiseBuf: null, musicNodes: null, musicGain: null, sfxGain: null,
 
     ensure() {
         try {
@@ -11,8 +11,25 @@ const Snd = {
                 const d = this.noiseBuf.getChannelData(0);
                 for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
             }
+            if (!this.sfxGain) {
+                this.sfxGain = this.ctx.createGain();
+                this.sfxGain.gain.value = sfxVol;
+                this.sfxGain.connect(this.ctx.destination);
+            }
         } catch (e) { }
         return this.ctx;
+    },
+
+    setSfxVol(vol) {
+        sfxVol = Math.max(0, Math.min(1, vol));
+        store.set('sfxVol', sfxVol);
+        if (this.sfxGain) this.sfxGain.gain.value = sfxVol;
+    },
+
+    setMusicVol(vol) {
+        musicVol = Math.max(0, Math.min(1, vol));
+        store.set('musicVol', musicVol);
+        if (this.musicGain) this.musicGain.gain.value = musicVol * 0.1;
     },
 
     tone(type, f0, f1, dur, vol) {
@@ -22,7 +39,8 @@ const Snd = {
             o.type = type; o.frequency.setValueAtTime(f0, t);
             o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
             g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-            o.connect(g).connect(c.destination); o.start(t); o.stop(t + dur + .02);
+            o.connect(g).connect(this.sfxGain);  // â† Ð±Ñ‹Ð»Ð¾ c.destination
+            o.start(t); o.stop(t + dur + .02);
         } catch (e) { }
     },
 
@@ -32,11 +50,12 @@ const Snd = {
             const s = c.createBufferSource(), g = c.createGain(), f = c.createBiquadFilter(), t = c.currentTime;
             s.buffer = this.noiseBuf; f.type = type || 'highpass'; f.frequency.value = fq;
             g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-            s.connect(f).connect(g).connect(c.destination); s.start(t); s.stop(t + dur);
+            s.connect(f).connect(g).connect(this.sfxGain);  // â† Ð±Ñ‹Ð»Ð¾ c.destination
+            s.start(t); s.stop(t + dur);
         } catch (e) { }
     },
 
-    // ÓËÓ×ØÅÍÍÛÅ ÇÂÓÊÈ
+    // Ð£Ð›Ð£Ð§Ð¨Ð•ÐÐÐ«Ð• Ð—Ð’Ð£ÐšÐ˜
     grab() {
         this.tone('triangle', 280, 880, .12, .35);
         this.tone('sine', 440, 660, .08, .15);
@@ -80,14 +99,14 @@ const Snd = {
         this.noise(.08, .15, 400, 'lowpass');
     },
 
-    // ÔÎÍÎÂÀß ÌÓÇÛÊÀ (synthwave ambient)
+    // Ð¤ÐžÐÐžÐ’ÐÐ¯ ÐœÐ£Ð—Ð«ÐšÐ (synthwave ambient)
     startMusic() {
         if (muted) return;
         const c = this.ensure();
         if (!c || this.musicNodes) return;
 
         this.musicGain = c.createGain();
-        this.musicGain.gain.value = 0.08;
+        this.musicGain.gain.value = musicVol * 0.08;
         this.musicGain.connect(c.destination);
 
         // Bass drone
@@ -145,7 +164,7 @@ const Snd = {
             arpIndex++;
         }, 400);
 
-        // LFO äëÿ ïóëüñàöèè
+        // LFO Ð´Ð»Ñ Ð¿ÑƒÐ»ÑŒÑÐ°Ñ†Ð¸Ð¸
         const lfo = c.createOscillator();
         lfo.type = 'sine';
         lfo.frequency.value = 0.5;
@@ -176,13 +195,12 @@ const Snd = {
         }, 600);
     },
 
-    // Äèíàìè÷åñêàÿ ãðîìêîñòü ìóçûêè (óñêîðÿåòñÿ ñ ïðîãðåññîì)
+    // Ð”Ð¸Ð½Ð°Ð¼Ð¸Ñ‡ÐµÑÐºÐ°Ñ Ð³Ñ€Ð¾Ð¼ÐºÐ¾ÑÑ‚ÑŒ Ð¼ÑƒÐ·Ñ‹ÐºÐ¸ (ÑƒÑÐºÐ¾Ñ€ÑÐµÑ‚ÑÑ Ñ Ð¿Ñ€Ð¾Ð³Ñ€ÐµÑÑÐ¾Ð¼)
     setMusicIntensity(intensity) {
         if (!this.musicNodes || !this.musicGain) return;
-        const targetVol = 0.06 + intensity * 0.04; // 0.06 ïðè ñòàðòå, 0.10 ïðè max
+        const targetVol = (0.06 + intensity * 0.04) * musicVol;  // â† ÑƒÐ¼Ð½Ð¾Ð¶Ð°ÐµÐ¼ Ð½Ð° musicVol
         this.musicGain.gain.linearRampToValueAtTime(targetVol, this.ctx.currentTime + 0.3);
 
-        // Óñêîðÿåì LFO ïóëüñàöèþ
         if (this.musicNodes.lfo) {
             this.musicNodes.lfo.frequency.linearRampToValueAtTime(0.5 + intensity * 1.5, this.ctx.currentTime + 0.3);
         }

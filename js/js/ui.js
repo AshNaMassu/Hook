@@ -1,7 +1,9 @@
-const el={};
-['hud','meters','coinsHud','combo','hint','menu','over','pauseScr','bestLine','walletMenu','skins',
- 'overMeters','overCoins','overCombo','recordBadge','btnPlay','btnAgain','btnSame','btnMenu1','btnMenu2',
- 'btnRevive','btnResume','btnRestart','btnMute','btnPause'].forEach(id=>el[id]=document.getElementById(id));
+const el = {};
+['hud', 'meters', 'coinsHud', 'combo', 'hint', 'menu', 'over', 'pauseScr', 'bestLine', 'walletMenu', 'skins',
+    'overMeters', 'overCoins', 'overCombo', 'recordBadge', 'btnPlay', 'btnAgain', 'btnSame', 'btnMenu1', 'btnMenu2',
+    'btnRevive', 'btnResume', 'btnRestart', 'btnMute', 'btnPause',
+    'musicVolSlider', 'sfxVolSlider', 'musicVolLabel', 'sfxVolLabel'].forEach(id => el[id] = document.getElementById(id));
+
 const show=e=>e.classList.remove('hidden'), hide=e=>e.classList.add('hidden');
 
 let hudM=-1,hudC=-1,hudCombo=-1;
@@ -77,7 +79,8 @@ function pauseGame() {
     if (state !== 'play') return;
     state = 'pause';
     show(el.pauseScr);
-    Snd.stopMusic();  // ← ДОБАВЬ ЭТУ СТРОКУ
+    updateVolumeUI();  // ← ДОБАВЬ
+    Snd.stopMusic();
 }
 function resumeGame() {
     if (state !== 'pause') return;
@@ -85,6 +88,31 @@ function resumeGame() {
     hide(el.pauseScr);
     last = performance.now();
     Snd.startMusic();  // ← ДОБАВЬ ЭТУ СТРОКУ
+}
+
+/* ---------- настройки громкости ---------- */
+function updateVolumeUI() {
+    if (el.musicVolSlider) el.musicVolSlider.value = Math.round(musicVol * 100);
+    if (el.sfxVolSlider) el.sfxVolSlider.value = Math.round(sfxVol * 100);
+    if (el.musicVolLabel) el.musicVolLabel.textContent = Math.round(musicVol * 100) + '%';
+    if (el.sfxVolLabel) el.sfxVolLabel.textContent = Math.round(sfxVol * 100) + '%';
+}
+
+if (el.musicVolSlider) {
+    el.musicVolSlider.addEventListener('input', (e) => {
+        const vol = parseInt(e.target.value) / 100;
+        Snd.setMusicVol(vol);
+        if (el.musicVolLabel) el.musicVolLabel.textContent = Math.round(vol * 100) + '%';
+    });
+}
+
+if (el.sfxVolSlider) {
+    el.sfxVolSlider.addEventListener('input', (e) => {
+        const vol = parseInt(e.target.value) / 100;
+        Snd.setSfxVol(vol);
+        if (el.sfxVolLabel) el.sfxVolLabel.textContent = Math.round(vol * 100) + '%';
+        Snd.ui();  // проигрываем звук UI чтобы сразу услышать изменение
+    });
 }
 
 /* ---------- кнопки ---------- */
