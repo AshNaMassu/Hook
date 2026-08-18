@@ -23,23 +23,23 @@ function drawBG(c) {
   c.stroke();
 }
 function drawCoin(c_item, c) {
-    c = c || ctx;  
-  const px=SX(c.x), py=SY(c.y);
-  if(py<-40||py>H+40) return;
-  const w=Math.cos(uiT*4+c.phase);
-  const R=0.3*scale;
-  c.save(); c.translate(px,py);
-  c.globalCompositeOperation='lighter';
-  const g=c.createRadialGradient(0,0,0,0,0,R*2.2);
-  g.addColorStop(0,'rgba(255,194,61,0.5)'); g.addColorStop(1,'rgba(255,194,61,0)');
-  c.fillStyle=g; c.fillRect(-R*2.2,-R*2.2,R*4.4,R*4.4);
-  c.globalCompositeOperation='source-over';
-  c.scale(Math.max(0.15,Math.abs(w)),1);
-  c.fillStyle='#ffc23d';
-  c.beginPath(); c.moveTo(0,-R); c.lineTo(R*0.7,0); c.lineTo(0,R); c.lineTo(-R*0.7,0); c.closePath(); c.fill();
-  c.fillStyle='rgba(255,255,255,0.85)';
-  c.beginPath(); c.moveTo(0,-R*0.45); c.lineTo(R*0.3,0); c.lineTo(0,R*0.45); c.lineTo(-R*0.3,0); c.closePath(); c.fill();
-  c.restore();
+    c = c || ctx;
+    const px = SX(c_item.x), py = SY(c_item.y);
+    if (py < -40 || py > H + 40) return;
+    const w = Math.cos(uiT * 4 + c_item.phase);
+    const R = 0.3 * scale;
+    c.save(); c.translate(px, py);
+    c.globalCompositeOperation = 'lighter';
+    const g = c.createRadialGradient(0, 0, 0, 0, 0, R * 2.2);
+    g.addColorStop(0, 'rgba(255,194,61,0.5)'); g.addColorStop(1, 'rgba(255,194,61,0)');
+    c.fillStyle = g; c.fillRect(-R * 2.2, -R * 2.2, R * 4.4, R * 4.4);
+    c.globalCompositeOperation = 'source-over';
+    c.scale(Math.max(0.15, Math.abs(w)), 1);
+    c.fillStyle = '#ffc23d';
+    c.beginPath(); c.moveTo(0, -R); c.lineTo(R * 0.7, 0); c.lineTo(0, R); c.lineTo(-R * 0.7, 0); c.closePath(); c.fill();
+    c.fillStyle = 'rgba(255,255,255,0.85)';
+    c.beginPath(); c.moveTo(0, -R * 0.45); c.lineTo(R * 0.3, 0); c.lineTo(0, R * 0.45); c.lineTo(-R * 0.3, 0); c.closePath(); c.fill();
+    c.restore();
 }
 function drawSpike(s, c) {
     c = c || ctx;  
@@ -297,7 +297,7 @@ function render() {
     bloomCtx.save();
     if (shakeT > 0) {
         const intensity = shakeT * 15 * dpr;  // было 10
-        ctx.translate((Math.random() * 2 - 1) * intensity, (Math.random() * 2 - 1) * intensity);
+        bloomCtx.translate((Math.random() * 2 - 1) * intensity, (Math.random() * 2 - 1) * intensity);
     }
     for (const c of coins) drawCoin(c, bloomCtx);
     for (const s of spikes) drawSpike(s, bloomCtx);
@@ -320,8 +320,8 @@ function render() {
     drawBGParticles(ctx)
     ctx.save();
     if (shakeT > 0) {
-        const a = shakeT * 10 * dpr;
-        ctx.translate((Math.random() * 2 - 1) * a, (Math.random() * 2 - 1) * a);
+        const intensity = shakeT * 15 * dpr;  // было 10
+        ctx.translate((Math.random() * 2 - 1) * intensity, (Math.random() * 2 - 1) * intensity);
     }
     for (const c of coins) drawCoin(c, ctx);
     for (const s of spikes) drawSpike(s, ctx);
