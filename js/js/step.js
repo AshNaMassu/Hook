@@ -62,5 +62,14 @@ function stepWorld(dt){
     if(f.life<=0) floats.splice(i,1);
   }
   if(perfectFlash>0) perfectFlash-=dt;
-  if(shakeT>0) shakeT-=dt;
+    if (shakeT > 0) shakeT -= dt;
+
+    for (const p of bgParticles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.y < camY - viewH / 2 - 5) {
+            p.y = camY + viewH / 2 + 5;
+            p.x = (Math.random() * 2 - 1) * 8;
+        }
+    }
 }
