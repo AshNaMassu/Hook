@@ -64,7 +64,8 @@ function startRun(newSeed) {
     state = 'play';
     hide(el.menu); hide(el.over); hide(el.pauseScr); hide(el.settingsScr); show(el.hud);
     hudM = -1; hudC = -1; hudCombo = -1;
-    Snd.startMusic('game');   // было startMusic()
+    Snd.startMusic('game');
+    Snd.setMusicIntensity(0);
 }
 
 function toMenu() {
@@ -93,11 +94,18 @@ function resumeGame() {
 }
 
 /* ---------- настройки громкости ---------- */
+const musicSliders = document.querySelectorAll('.musicVolSlider');
+const sfxSliders = document.querySelectorAll('.sfxVolSlider');
+const musicLabels = document.querySelectorAll('.musicVolLabel');
+const sfxLabels = document.querySelectorAll('.sfxVolLabel');
+
 function updateVolumeUI() {
-    if (el.musicVolSlider) el.musicVolSlider.value = Math.round(musicVol * 100);
-    if (el.sfxVolSlider) el.sfxVolSlider.value = Math.round(sfxVol * 100);
-    if (el.musicVolLabel) el.musicVolLabel.textContent = Math.round(musicVol * 100) + '%';
-    if (el.sfxVolLabel) el.sfxVolLabel.textContent = Math.round(sfxVol * 100) + '%';
+    const musicVal = Math.round(musicVol * 100);
+    const sfxVal = Math.round(sfxVol * 100);
+    musicSliders.forEach(s => s.value = musicVal);
+    sfxSliders.forEach(s => s.value = sfxVal);
+    musicLabels.forEach(l => l.textContent = musicVal + '%');
+    sfxLabels.forEach(l => l.textContent = sfxVal + '%');
 }
 
 function showSettings() {
@@ -121,22 +129,24 @@ if (el.btnBackMenu) {
     el.btnBackMenu.addEventListener('click', hideSettings);
 }
 
-if (el.musicVolSlider) {
-    el.musicVolSlider.addEventListener('input', (e) => {
+musicSliders.forEach(slider => {
+    slider.addEventListener('input', (e) => {
         const vol = parseInt(e.target.value) / 100;
         Snd.setMusicVol(vol);
-        if (el.musicVolLabel) el.musicVolLabel.textContent = Math.round(vol * 100) + '%';
+        musicLabels.forEach(l => l.textContent = Math.round(vol * 100) + '%');
+        musicSliders.forEach(s => { if (s !== slider) s.value = e.target.value; });
     });
-}
+});
 
-if (el.sfxVolSlider) {
-    el.sfxVolSlider.addEventListener('input', (e) => {
+sfxSliders.forEach(slider => {
+    slider.addEventListener('input', (e) => {
         const vol = parseInt(e.target.value) / 100;
         Snd.setSfxVol(vol);
-        if (el.sfxVolLabel) el.sfxVolLabel.textContent = Math.round(vol * 100) + '%';
+        sfxLabels.forEach(l => l.textContent = Math.round(vol * 100) + '%');
+        sfxSliders.forEach(s => { if (s !== slider) s.value = e.target.value; });
         Snd.ui();
     });
-}
+});
 
 /* ---------- кнопки ---------- */
 el.btnPlay.addEventListener('click',()=>{Snd.ensure();Snd.ui();startRun((Math.random()*2**31)|0);});

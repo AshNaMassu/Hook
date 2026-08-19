@@ -36,7 +36,7 @@
     _applyMaster() {
         if (!this.musicGain || !this.ctx) return;
         const I = this.music.mode === 'menu' ? 0 : this.music.intensity;
-        this.musicGain.gain.linearRampToValueAtTime(musicVol * (0.55 + 0.45 * I), this.ctx.currentTime + 0.2);
+        this.musicGain.gain.linearRampToValueAtTime(musicVol * (0.65 + 0.25 * I), this.ctx.currentTime + 0.2);
     },
 
     /* ---------- SFX ---------- */
@@ -73,11 +73,14 @@
     startMusic(mode) {
         if (muted) return;
         const c = this.ensure(); if (!c) return;
-        if (mode) this.music.mode = mode;
+        if (mode) {
+            this.music.mode = mode;
+            if (mode === 'menu') this.music.intensity = 0;
+        }
         if (this.music.running) { this._applyMaster(); return; }
         if (!this.musicGain) {
             this.musicGain = c.createGain();
-            this.musicGain.gain.value = musicVol * 0.55;
+            this.musicGain.gain.value = musicVol * 0.65;
             this.musicGain.connect(c.destination);
         }
         this.music.running = true;
@@ -114,32 +117,27 @@
         const roots = [110, 87.31, 65.41, 98];
         const ch = chords[bar], root = roots[bar];
 
-        // пад: каждый такт, всегда
         if (s === 0) {
             for (const f of ch) this._voice('triangle', f, t, 2.0, 0.045, 0.4);
-            if (I < 0.25) this._voice('sine', root, t, 2.0, 0.12, 0.1); // меню: мягкий дрон
+            if (I < 0.25) this._voice('sine', root, t, 2.0, 0.12, 0.1);
         }
 
-        // бас: восьмые в игре
         if (I >= 0.25 && s % 2 === 0) this._bass(root * (s === 14 ? 2 : 1), t);
 
-        // ударные
         if (I >= 0.25 && s % 4 === 0) this._kick(t);
         if (I >= 0.5 && (s === 4 || s === 12)) this._clap(t);
         if (I >= 0.5 && s % 2 === 1) this._hat(t, s % 4 === 3 ? 0.18 : 0.1);
         else if (I >= 0.15 && s % 4 === 2) this._hat(t, 0.06);
 
-        // арпеджио
         if (I >= 0.15) {
             const seq = [0, 1, 2, 1, 0, 2, 1, 2];
             const n = ch[seq[s % 8]] * (s >= 8 ? 2 : 1);
             this._voice('square', n, t, 0.14, 0.035 + 0.05 * I, 0.01);
         } else if (s % 8 === 0) {
-            this._voice('sine', ch[(s / 8) | 0], t, 0.4, 0.05, 0.05); // меню: редкие ноты
+            this._voice('sine', ch[(s / 8) | 0], t, 0.4, 0.05, 0.05);
         }
     },
 
-    /* ---------- голоса ---------- */
     _voice(type, f, t, dur, vol, attack) {
         const c = this.ctx; if (!c) return;
         try {
