@@ -1,4 +1,13 @@
-﻿const Snd = {
+﻿/* ---------- баланс слоёв музыки: [начало проявления, полная громкость] ---------- */
+const MUSIC_LAYERS = {
+    bass: [0.02, 0.3],
+    kick: [0.02, 0.35],
+    hat: [0.2, 0.55],
+    clap: [0.35, 0.7],
+    arp: [0.02, 0.3],
+};
+
+const Snd = {
     ctx: null, noiseBuf: null, sfxGain: null, musicGain: null,
     music: { running: false, timer: null, step: 0, next: 0, bpm: 122, intensity: 0, mode: 'menu' },
 
@@ -38,6 +47,8 @@
         const I = this.music.mode === 'menu' ? 0 : this.music.intensity;
         this.musicGain.gain.linearRampToValueAtTime(musicVol * (0.65 + 0.25 * I), this.ctx.currentTime + 0.2);
     },
+
+    _fade(I, a, b) { return Math.max(0, Math.min(1, (I - a) / (b - a))); },
 
     /* ---------- SFX ---------- */
     tone(type, f0, f1, dur, vol) {
@@ -117,23 +128,30 @@
         const roots = [110, 87.31, 65.41, 98];
         const ch = chords[bar], root = roots[bar];
 
+        // каждый слой плавно проявляется в своём диапазоне
+        const gBass = this._fade(I, MUSIC_LAYERS.bass[0], MUSIC_LAYERS.bass[1]);
+        const gKick = this._fade(I, MUSIC_LAYERS.kick[0], MUSIC_LAYERS.kick[1]);
+        const gHat = this._fade(I, MUSIC_LAYERS.hat[0], MUSIC_LAYERS.hat[1]);
+        const gClap = this._fade(I, MUSIC_LAYERS.clap[0], MUSIC_LAYERS.clap[1]);
+        const gArp = this._fade(I, MUSIC_LAYERS.arp[0], MUSIC_LAYERS.arp[1]);
+
+        // пад: всегда; дрон уходит, когда приходит бас
         if (s === 0) {
             for (const f of ch) this._voice('triangle', f, t, 2.0, 0.045, 0.4);
-            if (I < 0.25) this._voice('sine', root, t, 2.0, 0.12, 0.1);
+            if (gBass < 1) this._voice('sine', root, t, 2.0, 0.12 * (1 - gBass), 0.1);
         }
 
-        if (I >= 0.25 && s % 2 === 0) this._bass(root * (s === 14 ? 2 : 1), t);
+        if (gBass > 0 && s % 2 === 0) this._bass(root * (s === 14 ? 2 : 1), t, gBass);
 
-        // ударные
-        if (I >= 0.15 && s % 4 === 0) this._kick(t);
-        if (I >= 0.35 && (s === 4 || s === 12)) this._clap(t);
-        if (I >= 0.35 && s % 2 === 1) this._hat(t, s % 4 === 3 ? 0.18 : 0.1);
-        else if (I >= 0.1 && s % 4 === 2) this._hat(t, 0.06);
+        if (gKick > 0 && s % 4 === 0) this._kick(t, gKick);
+        if (gClap > 0 && (s === 4 || s === 12)) this._clap(t, gClap);
+        if (gHat > 0 && s % 2 === 1) this._hat(t, (s % 4 === 3 ? 0.18 : 0.1) * gHat);
+        else if (gHat > 0 && s % 4 === 2) this._hat(t, 0.06 * gHat);
 
-        if (I >= 0.15) {
+        if (gArp > 0) {
             const seq = [0, 1, 2, 1, 0, 2, 1, 2];
             const n = ch[seq[s % 8]] * (s >= 8 ? 2 : 1);
-            this._voice('square', n, t, 0.14, 0.035 + 0.05 * I, 0.01);
+            this._voice('square', n, t, 0.14, (0.03 + 0.06 * I) * gArp, 0.01);
         } else if (s % 8 === 0) {
             this._voice('sine', ch[(s / 8) | 0], t, 0.4, 0.05, 0.05);
         }
@@ -151,27 +169,40 @@
             o.start(t); o.stop(t + dur + 0.05);
         } catch (e) { }
     },
-    _bass(f, t) {
+    _bass(f, t, g) {
+        g = g === undefined ? 1 : g;
         const c = this.ctx; if (!c) return;
         try {
-            const o = c.createOscillator(), g = c.createGain(), fl = c.createBiquadFilter();
+            const o = c.createOscillator(), g2 = c.createGain(), fl = c.createBiquadFilter();
             o.type = 'sawtooth'; o.frequency.value = f;
             fl.type = 'lowpass'; fl.frequency.value = 420;
-            g.gain.setValueAtTime(0.2, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
-            o.connect(fl).connect(g).connect(this.musicGain);
+            g2.gain.setValueAtTime(0.2 * g, t); g2.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+            o.connect(fl).connect(g2).connect(this.musicGain);
             o.start(t); o.stop(t + 0.22);
         } catch (e) { }
     },
-    _kick(t) {
+    _kick(t, g) {
+        g = g === undefined ? 1 : g;
         const c = this.ctx; if (!c) return;
         try {
-            const o = c.createOscillator(), g = c.createGain();
+            const o = c.createOscillator(), g2 = c.createGain();
             o.type = 'sine';
             o.frequency.setValueAtTime(150, t);
             o.frequency.exponentialRampToValueAtTime(40, t + 0.12);
-            g.gain.setValueAtTime(0.8, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
-            o.connect(g).connect(this.musicGain);
+            g2.gain.setValueAtTime(0.8 * g, t); g2.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+            o.connect(g2).connect(this.musicGain);
             o.start(t); o.stop(t + 0.3);
+        } catch (e) { }
+    },
+    _clap(t, g) {
+        g = g === undefined ? 1 : g;
+        const c = this.ctx; if (!c || !this.noiseBuf) return;
+        try {
+            const s = c.createBufferSource(), g2 = c.createGain(), f = c.createBiquadFilter();
+            s.buffer = this.noiseBuf; f.type = 'bandpass'; f.frequency.value = 1800;
+            g2.gain.setValueAtTime(0.25 * g, t); g2.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+            s.connect(f).connect(g2).connect(this.musicGain);
+            s.start(t); s.stop(t + 0.16);
         } catch (e) { }
     },
     _hat(t, vol) {
@@ -182,16 +213,6 @@
             g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
             s.connect(f).connect(g).connect(this.musicGain);
             s.start(t); s.stop(t + 0.05);
-        } catch (e) { }
-    },
-    _clap(t) {
-        const c = this.ctx; if (!c || !this.noiseBuf) return;
-        try {
-            const s = c.createBufferSource(), g = c.createGain(), f = c.createBiquadFilter();
-            s.buffer = this.noiseBuf; f.type = 'bandpass'; f.frequency.value = 1800;
-            g.gain.setValueAtTime(0.25, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
-            s.connect(f).connect(g).connect(this.musicGain);
-            s.start(t); s.stop(t + 0.16);
         } catch (e) { }
     }
 };

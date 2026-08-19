@@ -74,10 +74,8 @@ function stepWorld(dt){
     }
 
     if (state === 'play' && !dying) {
-        // интенсивность растёт от времени И от высоты (быстрее)
-        const timeIntensity = Math.min(1, runT / 90);  // 90 секунд вместо 120
-        const heightIntensity = Math.min(1, maxAlt / 200);  // каждые 200м добавляет
-        const intensity = Math.min(1, (timeIntensity + heightIntensity) / 1.5);
+        // растёт с первых метров: время + высота
+        const intensity = Math.min(1, runT / 90 + maxAlt / 120);
         Snd.setMusicIntensity(intensity);
     }
 }
