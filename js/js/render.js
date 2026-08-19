@@ -264,6 +264,46 @@ function drawDanger(c) {
     c.fillStyle=g; c.fillRect(0,H*0.55,W,H*0.45);
   }
 }
+function drawLava(c) {
+    if (state !== 'play' || dying) return;
+    const lavaScreenY = SY(lavaY);
+    if (lavaScreenY < -50 || lavaScreenY > H + 50) return;
+
+    const distToLava = hero.y - lavaY;
+    const dangerLevel = Math.max(0, 1 - distToLava / 5);
+
+    // свечение лавы
+    c.save();
+    c.globalCompositeOperation = 'lighter';
+    const glowGrad = c.createLinearGradient(0, lavaScreenY, 0, lavaScreenY - 100);
+    glowGrad.addColorStop(0, 'rgba(255,46,95,' + (0.6 + 0.3 * Math.sin(uiT * 8)) + ')');
+    glowGrad.addColorStop(1, 'rgba(255,46,95,0)');
+    c.fillStyle = glowGrad;
+    c.fillRect(0, lavaScreenY - 100, W, 100);
+    c.restore();
+
+    // линия лавы
+    c.save();
+    c.globalCompositeOperation = 'lighter';
+    c.strokeStyle = 'rgba(255,46,95,' + (0.8 + 0.2 * Math.sin(uiT * 10)) + ')';
+    c.lineWidth = 4 * dpr;
+    c.shadowColor = '#ff2e5f';
+    c.shadowBlur = 20 * dpr;
+    c.beginPath();
+    c.moveTo(0, lavaScreenY);
+    c.lineTo(W, lavaScreenY);
+    c.stroke();
+    c.shadowBlur = 0;
+    c.restore();
+
+    // рамка по периметру при близости
+    if (dangerLevel > 0.3) {
+        const a = dangerLevel * 0.5;
+        c.strokeStyle = 'rgba(255,46,95,' + a + ')';
+        c.lineWidth = 6 * dpr;
+        c.strokeRect(0, 0, W, H);
+    }
+}
 function drawVignette(c) {
     c = c || ctx; 
   const g=c.createRadialGradient(W/2,H/2,Math.min(W,H)*0.35,W/2,H/2,Math.max(W,H)*0.75);
@@ -310,6 +350,7 @@ function render() {
     drawFloats(bloomCtx);
     bloomCtx.restore();
     drawDanger(bloomCtx);
+    drawLava(ctx);
     drawVignette(bloomCtx);
 
     // 2. Рисуем основную сцену на главном canvas
@@ -334,6 +375,7 @@ function render() {
     drawFloats(ctx);
     ctx.restore();
     drawDanger(ctx);
+    drawLava(ctx)
     drawVignette(ctx);
 
     // 3. Накладываем bloom с размытием

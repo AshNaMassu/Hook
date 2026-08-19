@@ -1,5 +1,6 @@
 function stepWorld(dt){
-  if(state==='pause') return;
+    if (state === 'pause') return;
+    if (state === 'play' && runT === 0) lavaY = LAVA.startY;
   uiT+=dt;
   if(bot) botThink();
   runT+=dt;
@@ -20,11 +21,18 @@ function stepWorld(dt){
   }
   if(shieldT>0) shieldT-=dt;
   if(state==='play'&&!dying) maxAlt=Math.max(maxAlt,hero.y);
-  // камера (GDD §6)
-  if(camFreeze>0) camFreeze-=dt;
-  else { const diff=Math.min(1,runT/120); camY+=(0.9+1.7*diff)*dt; }
-  const tgt=hero.y+2;
-  if(!dying&&tgt>camY) camY+=(tgt-camY)*Math.min(1,6*dt);
+    // камера v2: окно + лава как палач
+    if (camFreeze > 0) camFreeze -= dt;
+    else {
+        const diff = Math.min(1, runT / 180);
+        const lavaSpeed = LAVA.baseSpeed + LAVA.speedRamp * diff;
+        const distToLava = hero.y - lavaY;
+        const nearLava = distToLava < LAVA.rubberBand;
+        camY += (0.8 + 1.4 * diff) * (nearLava ? 0.55 : 1) * dt;
+        lavaY += lavaSpeed * dt;
+    }
+    const tgt = hero.y + PF.lookahead;
+    if (!dying && tgt > camY) camY += (tgt - camY) * Math.min(1, 6 * dt);
   // монеты
   if(!dying) for(const c of coins){
     if(c.taken) continue;
@@ -39,8 +47,8 @@ function stepWorld(dt){
   if(!dying&&shieldT<=0) for(const s of spikes){
     if(Math.hypot(s.x-hero.x,s.y-hero.y)<0.5){ die(); break; }
   }
-  // смерть: отстал от камеры
-  if(!dying&&hero.y<camY-viewH/2-1) die();
+    // смерть: лава
+    if (!dying && hero.y < lavaY - LAVA.killMargin) die();
   if(dying){ deathT-=dt; if(deathT<=0) finishDeath(); }
   // генерация и чистка
   spawnAhead();

@@ -5,6 +5,7 @@ let topAnchor=null, anchorIdx=0, prevSide=1, streakLeft=0;
 let camY=2, camFreeze=0, runT=0, maxAlt=0, coinsRun=0, combo=0, maxCombo=0;
 let shieldT=0, dying=false, deathT=0, reviveAvail=false, revivePoint={x:0,y:-2.5};
 let perfectFlash=0, shakeT=0, uiT=0, bot=false;
+let lavaY = LAVA.startY;
 
 const hero={x:0,y:0,vx:0,vy:0,attached:false,anchor:null,lastAnchor:null,
             theta:0,omega:0,r:2,spinDir:1,attachT:0,grabs:0};

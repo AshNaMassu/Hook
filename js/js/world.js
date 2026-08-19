@@ -1,4 +1,5 @@
-function resetWorld(newSeed,isBot){
+function resetWorld(newSeed, isBot) {
+    lavaY = LAVA.startY;
   seed=newSeed>>>0; rng=mulberry32(seed);
   anchors.length=0;coins.length=0;spikes.length=0;particles.length=0;floats.length=0;trail.length=0;
   anchorIdx=1; prevSide=1; streakLeft=0;
