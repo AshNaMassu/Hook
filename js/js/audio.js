@@ -124,10 +124,11 @@
 
         if (I >= 0.25 && s % 2 === 0) this._bass(root * (s === 14 ? 2 : 1), t);
 
-        if (I >= 0.25 && s % 4 === 0) this._kick(t);
-        if (I >= 0.5 && (s === 4 || s === 12)) this._clap(t);
-        if (I >= 0.5 && s % 2 === 1) this._hat(t, s % 4 === 3 ? 0.18 : 0.1);
-        else if (I >= 0.15 && s % 4 === 2) this._hat(t, 0.06);
+        // ударные
+        if (I >= 0.15 && s % 4 === 0) this._kick(t);
+        if (I >= 0.35 && (s === 4 || s === 12)) this._clap(t);
+        if (I >= 0.35 && s % 2 === 1) this._hat(t, s % 4 === 3 ? 0.18 : 0.1);
+        else if (I >= 0.1 && s % 4 === 2) this._hat(t, 0.06);
 
         if (I >= 0.15) {
             const seq = [0, 1, 2, 1, 0, 2, 1, 2];
