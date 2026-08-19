@@ -1,8 +1,8 @@
 const el = {};
-['hud', 'meters', 'coinsHud', 'combo', 'hint', 'menu', 'over', 'pauseScr', 'bestLine', 'walletMenu', 'skins',
+['hud', 'meters', 'coinsHud', 'combo', 'hint', 'menu', 'over', 'pauseScr', 'settingsScr', 'bestLine', 'walletMenu', 'skins',
     'overMeters', 'overCoins', 'overCombo', 'recordBadge', 'btnPlay', 'btnAgain', 'btnSame', 'btnMenu1', 'btnMenu2',
     'btnRevive', 'btnResume', 'btnRestart', 'btnMute', 'btnPause',
-    'musicVolSlider', 'sfxVolSlider', 'musicVolLabel', 'sfxVolLabel'].forEach(id => el[id] = document.getElementById(id));
+    'btnSettings', 'btnBackMenu', 'musicVolSlider', 'sfxVolSlider', 'musicVolLabel', 'sfxVolLabel'].forEach(id => el[id] = document.getElementById(id));
 
 const show=e=>e.classList.remove('hidden'), hide=e=>e.classList.add('hidden');
 
@@ -98,6 +98,27 @@ function updateVolumeUI() {
     if (el.sfxVolLabel) el.sfxVolLabel.textContent = Math.round(sfxVol * 100) + '%';
 }
 
+function showSettings() {
+    hide(el.menu);
+    show(el.settingsScr);
+    updateVolumeUI();
+    Snd.ui();
+}
+
+function hideSettings() {
+    hide(el.settingsScr);
+    show(el.menu);
+    Snd.ui();
+}
+
+if (el.btnSettings) {
+    el.btnSettings.addEventListener('click', showSettings);
+}
+
+if (el.btnBackMenu) {
+    el.btnBackMenu.addEventListener('click', hideSettings);
+}
+
 if (el.musicVolSlider) {
     el.musicVolSlider.addEventListener('input', (e) => {
         const vol = parseInt(e.target.value) / 100;
@@ -111,7 +132,7 @@ if (el.sfxVolSlider) {
         const vol = parseInt(e.target.value) / 100;
         Snd.setSfxVol(vol);
         if (el.sfxVolLabel) el.sfxVolLabel.textContent = Math.round(vol * 100) + '%';
-        Snd.ui();  // проигрываем звук UI чтобы сразу услышать изменение
+        Snd.ui();
     });
 }
 

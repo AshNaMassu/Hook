@@ -1,5 +1,5 @@
 ﻿const Snd = {
-    ctx: null, noiseBuf: null, musicNodes: null, musicGain: null, sfxGain: null,
+    ctx: null, noiseBuf: null, musicNodes: null, musicGain: null, sfxGain: null, currentIntensity: 0,
 
     ensure() {
         try {
@@ -29,7 +29,10 @@
     setMusicVol(vol) {
         musicVol = Math.max(0, Math.min(1, vol));
         store.set('musicVol', musicVol);
-        if (this.musicGain) this.musicGain.gain.value = musicVol * 0.1;
+        if (this.musicGain) {
+            const targetVol = (0.15 + this.currentIntensity * 0.1) * musicVol;
+            this.musicGain.gain.linearRampToValueAtTime(targetVol, this.ctx.currentTime + 0.1);
+        }
     },
 
     tone(type, f0, f1, dur, vol) {
@@ -39,7 +42,7 @@
             o.type = type; o.frequency.setValueAtTime(f0, t);
             o.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + dur);
             g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-            o.connect(g).connect(this.sfxGain);  // ← было c.destination
+            o.connect(g).connect(this.sfxGain);
             o.start(t); o.stop(t + dur + .02);
         } catch (e) { }
     },
@@ -50,12 +53,11 @@
             const s = c.createBufferSource(), g = c.createGain(), f = c.createBiquadFilter(), t = c.currentTime;
             s.buffer = this.noiseBuf; f.type = type || 'highpass'; f.frequency.value = fq;
             g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-            s.connect(f).connect(g).connect(this.sfxGain);  // ← было c.destination
+            s.connect(f).connect(g).connect(this.sfxGain);
             s.start(t); s.stop(t + dur);
         } catch (e) { }
     },
 
-    // УЛУЧШЕННЫЕ ЗВУКИ
     grab() {
         this.tone('triangle', 280, 880, .12, .35);
         this.tone('sine', 440, 660, .08, .15);
@@ -99,17 +101,15 @@
         this.noise(.08, .15, 400, 'lowpass');
     },
 
-    // ФОНОВАЯ МУЗЫКА (synthwave ambient)
     startMusic() {
         if (muted) return;
         const c = this.ensure();
         if (!c || this.musicNodes) return;
 
         this.musicGain = c.createGain();
-        this.musicGain.gain.value = musicVol * 0.08;
+        this.musicGain.gain.value = musicVol * 0.25;
         this.musicGain.connect(c.destination);
 
-        // Bass drone
         const bass = c.createOscillator();
         bass.type = 'sine';
         bass.frequency.value = 55;
@@ -118,7 +118,6 @@
         bass.connect(bassGain).connect(this.musicGain);
         bass.start();
 
-        // Pad chord (Am)
         const pad1 = c.createOscillator();
         pad1.type = 'triangle';
         pad1.frequency.value = 220;
@@ -143,7 +142,6 @@
         pad3.connect(pad3Gain).connect(this.musicGain);
         pad3.start();
 
-        // Arp (high plucks)
         const arpNotes = [440, 554, 659, 880, 1109];
         let arpIndex = 0;
         const arpInterval = setInterval(() => {
@@ -164,7 +162,6 @@
             arpIndex++;
         }, 400);
 
-        // LFO для пульсации
         const lfo = c.createOscillator();
         lfo.type = 'sine';
         lfo.frequency.value = 0.5;
@@ -195,10 +192,10 @@
         }, 600);
     },
 
-    // Динамическая громкость музыки (ускоряется с прогрессом)
     setMusicIntensity(intensity) {
         if (!this.musicNodes || !this.musicGain) return;
-        const targetVol = (0.06 + intensity * 0.04) * musicVol;  // ← умножаем на musicVol
+        this.currentIntensity = intensity;
+        const targetVol = (0.15 + intensity * 0.1) * musicVol;
         this.musicGain.gain.linearRampToValueAtTime(targetVol, this.ctx.currentTime + 0.3);
 
         if (this.musicNodes.lfo) {

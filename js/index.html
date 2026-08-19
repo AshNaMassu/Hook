@@ -32,11 +32,30 @@
             <div class="title"><span class="t1">NEON</span><br><span class="t2">HOOK</span></div>
             <div class="sub">Одна кнопка.<br><b>Держи</b> — крюк и вращение.<br><b>Отпусти</b> — полёт по касательной.</div>
             <button class="btn primary" id="btnPlay">ИГРАТЬ</button>
+            <button class="btn" id="btnSettings">⚙ НАСТРОЙКИ</button>
             <div class="stat dim" id="bestLine">Рекорд: 0 м</div>
             <div class="walletLine">Кошелёк: ◈ <span id="walletMenu">0</span></div>
             <div id="skins"></div>
             <div class="howto">лови <span style="color:#fff">вспышку</span> точки — это момент максимальной силы<br>ранний зацеп = дальний полёт</div>
             <div class="foot">ПРОТОТИП · GDD v2 · ONE-TOUCH</div>
+        </div>
+
+        <div id="settingsScr" class="screen hidden">
+            <div class="title" style="font-size:clamp(26px,9vw,44px)"><span class="t1">НАСТРОЙКИ</span></div>
+
+            <div style="width:100%;max-width:320px;margin:10px 0">
+                <div style="color:#9fc6e8;font-size:14px;margin-bottom:8px">🎵 Музыка: <span id="musicVolLabel">80%</span></div>
+                <input type="range" id="musicVolSlider" min="0" max="100" value="80"
+                       style="width:100%;accent-color:#26e0ff;height:6px">
+            </div>
+
+            <div style="width:100%;max-width:320px;margin:10px 0 20px">
+                <div style="color:#9fc6e8;font-size:14px;margin-bottom:8px">🔊 Эффекты: <span id="sfxVolLabel">100%</span></div>
+                <input type="range" id="sfxVolSlider" min="0" max="100" value="100"
+                       style="width:100%;accent-color:#ff3fd4;height:6px">
+            </div>
+
+            <button class="btn primary" id="btnBackMenu">← НАЗАД</button>
         </div>
 
         <div id="over" class="screen hidden">
