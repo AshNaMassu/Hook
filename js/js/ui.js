@@ -58,36 +58,38 @@ function buildSkins(){
 }
 
 /* ---------- потоки состояний ---------- */
-function startRun(newSeed){
-  lastSeed=newSeed;
-  resetWorld(newSeed,false);
-  state='play';
-  hide(el.menu);hide(el.over);hide(el.pauseScr);show(el.hud);
+function startRun(newSeed) {
+    lastSeed = newSeed;
+    resetWorld(newSeed, false);
+    state = 'play';
+    hide(el.menu); hide(el.over); hide(el.pauseScr); hide(el.settingsScr); show(el.hud);
     hudM = -1; hudC = -1; hudCombo = -1;
-    Snd.startMusic();
+    Snd.startMusic('game');   // было startMusic()
 }
-function toMenu(){
-  resetWorld((Math.random()*2**31)|0,true);
-  state='menu';
-  hide(el.over);hide(el.pauseScr);hide(el.hud);show(el.menu);
-  el.bestLine.textContent='Рекорд: '+bestMeters+' м';
-  el.walletMenu.textContent=wallet;
+
+function toMenu() {
+    resetWorld((Math.random() * 2 ** 31) | 0, true);
+    state = 'menu';
+    hide(el.over); hide(el.pauseScr); hide(el.hud); hide(el.settingsScr); show(el.menu);
+    el.bestLine.textContent = 'Рекорд: ' + bestMeters + ' м';
+    el.walletMenu.textContent = wallet;
     buildSkins();
-    Snd.stopMusic();
+    Snd.startMusic('menu');   // было stopMusic() — теперь музыка играет спокойно
 }
+
 function pauseGame() {
     if (state !== 'play') return;
     state = 'pause';
     show(el.pauseScr);
-    updateVolumeUI();  // ← ДОБАВЬ
-    Snd.stopMusic();
+    Snd.startMusic('menu');   // ударные пропадают, музыка «приседает»
 }
+
 function resumeGame() {
     if (state !== 'pause') return;
     state = 'play';
     hide(el.pauseScr);
     last = performance.now();
-    Snd.startMusic();  // ← ДОБАВЬ ЭТУ СТРОКУ
+    Snd.startMusic('game');
 }
 
 /* ---------- настройки громкости ---------- */
@@ -150,13 +152,17 @@ el.btnMute.addEventListener('click', () => {
     muted = !muted;
     store.set('mute', muted);
     el.btnMute.textContent = muted ? '🔇' : '🔊';
-
     if (muted) {
-        Snd.stopMusic();  // ← ДОБАВЬ
+        Snd.stopMusic();
     } else {
         Snd.ensure();
         Snd.ui();
-        if (state === 'play' && !dying) Snd.startMusic();  // ← ДОБАВЬ
+        Snd.startMusic(state === 'play' && !dying ? 'game' : 'menu');
     }
 });
-el.btnMute.textContent=muted?'🔇':'🔊';
+el.btnMute.textContent = muted ? '🔇' : '🔊';
+
+window.addEventListener('pointerdown', function once() {
+    if (!muted && state !== 'play') Snd.startMusic('menu');
+    window.removeEventListener('pointerdown', once);
+});
