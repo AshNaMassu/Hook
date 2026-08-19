@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<meta name="theme-color" content="#05060f">
-<title>NEON HOOK</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/russo-one@5.0.20/index.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/exo-2@5.0.16/index.css">
-<link rel="stylesheet" href="css/style.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#05060f">
+    <title>NEON HOOK</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/russo-one@5.0.20/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/exo-2@5.0.16/index.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div id="stage">
@@ -40,24 +40,6 @@
             <div class="foot">ПРОТОТИП · GDD v2 · ONE-TOUCH</div>
         </div>
 
-        <div id="settingsScr" class="screen hidden">
-            <div class="title" style="font-size:clamp(26px,9vw,44px)"><span class="t1">НАСТРОЙКИ</span></div>
-
-            <div style="width:100%;max-width:320px;margin:10px 0">
-                <div style="color:#9fc6e8;font-size:14px;margin-bottom:8px">🎵 Музыка: <span class="musicVolLabel">80%</span></div>
-                <input type="range" class="musicVolSlider" min="0" max="100" value="80"
-                       style="width:100%;accent-color:#26e0ff;height:6px">
-            </div>
-
-            <div style="width:100%;max-width:320px;margin:10px 0 20px">
-                <div style="color:#9fc6e8;font-size:14px;margin-bottom:8px">🔊 Эффекты: <span class="sfxVolLabel">100%</span></div>
-                <input type="range" class="sfxVolSlider" min="0" max="100" value="100"
-                       style="width:100%;accent-color:#ff3fd4;height:6px">
-            </div>
-
-            <button class="btn primary" id="btnBackMenu">← НАЗАД</button>
-        </div>
-
         <div id="over" class="screen hidden">
             <div class="title" style="font-size:clamp(30px,10vw,54px)"><span class="t2">СРЫВ</span></div>
             <div id="recordBadge" class="hidden">★ НОВЫЙ РЕКОРД ★</div>
@@ -75,6 +57,36 @@
             </div>
         </div>
 
+        <div id="settingsScr" class="screen hidden">
+            <div class="title" style="font-size:clamp(26px,9vw,44px)"><span class="t1">НАСТРОЙКИ</span></div>
+
+            <div style="width:100%;max-width:320px;margin:10px 0">
+                <div style="color:#9fc6e8;font-size:14px;margin-bottom:8px">🎵 Музыка: <span class="musicVolLabel">80%</span></div>
+                <input type="range" class="musicVolSlider" min="0" max="100" value="80"
+                       style="width:100%;accent-color:#26e0ff;height:6px">
+            </div>
+
+            <div style="width:100%;max-width:320px;margin:10px 0">
+                <div style="color:#9fc6e8;font-size:14px;margin-bottom:8px">🔊 Эффекты: <span class="sfxVolLabel">100%</span></div>
+                <input type="range" class="sfxVolSlider" min="0" max="100" value="100"
+                       style="width:100%;accent-color:#ff3fd4;height:6px">
+            </div>
+
+            <div style="width:100%;max-width:320px;margin:10px 0">
+                <div style="color:#9fc6e8;font-size:14px;margin-bottom:8px">📳 Тряска: <span class="shakeLabel">100%</span></div>
+                <input type="range" class="shakeSlider" min="0" max="100" value="100"
+                       style="width:100%;accent-color:#9dff3d;height:6px">
+            </div>
+
+            <div style="width:100%;max-width:320px;margin:10px 0 20px">
+                <div style="color:#9fc6e8;font-size:14px;margin-bottom:8px">✨ Вспышки: <span class="flashLabel">100%</span></div>
+                <input type="range" class="flashSlider" min="0" max="100" value="100"
+                       style="width:100%;accent-color:#ffc23d;height:6px">
+            </div>
+
+            <button class="btn primary" id="btnBackMenu">← НАЗАД</button>
+        </div>
+
         <div id="pauseScr" class="screen hidden">
             <div class="title" style="font-size:clamp(26px,9vw,44px)"><span class="t1">ПАУЗА</span></div>
 
@@ -84,10 +96,22 @@
                        style="width:100%;accent-color:#26e0ff;height:6px">
             </div>
 
-            <div style="width:100%;max-width:320px;margin:10px 0 20px">
+            <div style="width:100%;max-width:320px;margin:10px 0">
                 <div style="color:#9fc6e8;font-size:14px;margin-bottom:8px">🔊 Эффекты: <span class="sfxVolLabel">100%</span></div>
                 <input type="range" class="sfxVolSlider" min="0" max="100" value="100"
                        style="width:100%;accent-color:#ff3fd4;height:6px">
+            </div>
+
+            <div style="width:100%;max-width:320px;margin:10px 0">
+                <div style="color:#9fc6e8;font-size:14px;margin-bottom:8px">📳 Тряска: <span class="shakeLabel">100%</span></div>
+                <input type="range" class="shakeSlider" min="0" max="100" value="100"
+                       style="width:100%;accent-color:#9dff3d;height:6px">
+            </div>
+
+            <div style="width:100%;max-width:320px;margin:10px 0 20px">
+                <div style="color:#9fc6e8;font-size:14px;margin-bottom:8px">✨ Вспышки: <span class="flashLabel">100%</span></div>
+                <input type="range" class="flashSlider" min="0" max="100" value="100"
+                       style="width:100%;accent-color:#ffc23d;height:6px">
             </div>
 
             <button class="btn primary" id="btnResume">ПРОДОЛЖИТЬ</button>
@@ -96,22 +120,21 @@
         </div>
     </div>
 
-<!-- ПОРЯДОК ВАЖЕН: сначала данные, потом логика, в конце UI и цикл -->
-<script src="js/config.js"></script>
-<script src="js/storage.js"></script>
-<script src="js/audio.js"></script>
-<script src="js/canvas.js"></script>
-<script src="js/state.js"></script>
-<script src="js/gen.js"></script>
-<script src="js/world.js"></script>
-<script src="js/hero.js"></script>
-<script src="js/camera.js"></script>
-<script src="js/fx.js"></script>
-<script src="js/bot.js"></script>
-<script src="js/step.js"></script>
-<script src="js/render.js"></script>
-<script src="js/ui.js"></script>
-<script src="js/input.js"></script>
-<script src="js/main.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/canvas.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/gen.js"></script>
+    <script src="js/world.js"></script>
+    <script src="js/hero.js"></script>
+    <script src="js/camera.js"></script>
+    <script src="js/fx.js"></script>
+    <script src="js/bot.js"></script>
+    <script src="js/step.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>

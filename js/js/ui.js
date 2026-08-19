@@ -2,62 +2,61 @@ const el = {};
 ['hud', 'meters', 'coinsHud', 'combo', 'hint', 'menu', 'over', 'pauseScr', 'settingsScr', 'bestLine', 'walletMenu', 'skins',
     'overMeters', 'overCoins', 'overCombo', 'recordBadge', 'btnPlay', 'btnAgain', 'btnSame', 'btnMenu1', 'btnMenu2',
     'btnRevive', 'btnResume', 'btnRestart', 'btnMute', 'btnPause',
-    'btnSettings', 'btnBackMenu', 'musicVolSlider', 'sfxVolSlider', 'musicVolLabel', 'sfxVolLabel'].forEach(id => el[id] = document.getElementById(id));
+    'btnSettings', 'btnBackMenu'].forEach(id => el[id] = document.getElementById(id));
 
-const show=e=>e.classList.remove('hidden'), hide=e=>e.classList.add('hidden');
+const show = e => e.classList.remove('hidden'), hide = e => e.classList.add('hidden');
 
-let hudM=-1,hudC=-1,hudCombo=-1;
-function hudSync(){
-  if(state!=='play') return;
-  const m=Math.floor(maxAlt);
-  if(m!==hudM){hudM=m;el.meters.textContent=m+' м';}
-  if(coinsRun!==hudC){hudC=coinsRun;el.coinsHud.textContent='◈ '+coinsRun;}
-  if(combo!==hudCombo){
-    hudCombo=combo;
-    if(combo>=2){el.combo.textContent='СЕРИЯ ×'+combo;el.combo.classList.add('show');
-      el.combo.classList.remove('pop');void el.combo.offsetWidth;el.combo.classList.add('pop');}
-    else el.combo.classList.remove('show');
-  }
-  // подсказки онбординга (GDD §3)
-  let txt='',hot=false;
-  if(!dying){
-    if(hero.grabs===0&&!hero.attached){
-      let near=false;
-      for(const a of anchors) if(a!==hero.lastAnchor&&Math.hypot(a.x-hero.x,a.y-hero.y)<=PF.grabRadius){near=true;break;}
-      txt=near?'ДЕРЖИ!!!':'ДЕРЖИ ЭКРАН — ЗАЦЕПИТЬСЯ КРЮКОМ'; hot=near;
-    } else if(hero.attached&&hero.grabs<=1&&hero.attachT>0.5){
-      txt='ОТПУСТИ — ПОЛЁТ ПО КАСАТЕЛЬНОЙ';
-    } else if(hero.grabs===2&&!hero.attached){
-      txt='ЖМИ, КОГДА ТОЧКА ВСПЫХНЕТ';
+let hudM = -1, hudC = -1, hudCombo = -1;
+function hudSync() {
+    if (state !== 'play') return;
+    const m = Math.floor(maxAlt);
+    if (m !== hudM) { hudM = m; el.meters.textContent = m + ' м'; }
+    if (coinsRun !== hudC) { hudC = coinsRun; el.coinsHud.textContent = '◈ ' + coinsRun; }
+    if (combo !== hudCombo) {
+        hudCombo = combo;
+        if (combo >= 2) {
+            el.combo.textContent = 'СЕРИЯ ×' + combo; el.combo.classList.add('show');
+            el.combo.classList.remove('pop'); void el.combo.offsetWidth; el.combo.classList.add('pop');
+        }
+        else el.combo.classList.remove('show');
     }
-  }
-  if(txt){el.hint.textContent=txt;el.hint.classList.add('show');el.hint.classList.toggle('hot',hot);}
-  else el.hint.classList.remove('show');
+    let txt = '', hot = false;
+    if (!dying) {
+        if (hero.grabs === 0 && !hero.attached) {
+            let near = false;
+            for (const a of anchors) if (a !== hero.lastAnchor && Math.hypot(a.x - hero.x, a.y - hero.y) <= PF.grabRadius) { near = true; break; }
+            txt = near ? 'ДЕРЖИ!!!' : 'ДЕРЖИ ЭКРАН — ЗАЦЕПИТЬСЯ КРЮКОМ'; hot = near;
+        } else if (hero.attached && hero.grabs <= 1 && hero.attachT > 0.5) {
+            txt = 'ОТПУСТИ — ПОЛЁТ ПО КАСАТЕЛЬНОЙ';
+        } else if (hero.grabs === 2 && !hero.attached) {
+            txt = 'ЖМИ, КОГДА ТОЧКА ВСПЫХНЕТ';
+        }
+    }
+    if (txt) { el.hint.textContent = txt; el.hint.classList.add('show'); el.hint.classList.toggle('hot', hot); }
+    else el.hint.classList.remove('show');
 }
 
-/* ---------- скины ---------- */
-function buildSkins(){
-  el.skins.innerHTML='';
-  SKINS.forEach(s=>{
-    const d=document.createElement('div');
-    d.className='skin'+(s.id===skinId?' sel':'');
-    const own=owned.includes(s.id);
-    d.innerHTML='<div class="sw" style="background:'+s.color+';box-shadow:0 0 14px '+s.color+'"></div>'+
-      '<div class="p">'+(own?(s.id===skinId?'✓':''):('◈ '+s.price))+'</div>';
-    d.addEventListener('click',()=>{
-      if(owned.includes(s.id)){ skinId=s.id; store.set('skin',skinId); Snd.ui(); }
-      else if(wallet>=s.price){
-        wallet-=s.price; store.set('wallet',wallet);
-        owned.push(s.id); store.set('owned',owned);
-        skinId=s.id; store.set('skin',skinId); Snd.coin();
-      } else { Snd.deny(); d.classList.remove('deny'); void d.offsetWidth; d.classList.add('deny'); return; }
-      el.walletMenu.textContent=wallet; buildSkins();
+function buildSkins() {
+    el.skins.innerHTML = '';
+    SKINS.forEach(s => {
+        const d = document.createElement('div');
+        d.className = 'skin' + (s.id === skinId ? ' sel' : '');
+        const own = owned.includes(s.id);
+        d.innerHTML = '<div class="sw" style="background:' + s.color + ';box-shadow:0 0 14px ' + s.color + '"></div>' +
+            '<div class="p">' + (own ? (s.id === skinId ? '✓' : '') : ('◈ ' + s.price)) + '</div>';
+        d.addEventListener('click', () => {
+            if (owned.includes(s.id)) { skinId = s.id; store.set('skin', skinId); Snd.ui(); }
+            else if (wallet >= s.price) {
+                wallet -= s.price; store.set('wallet', wallet);
+                owned.push(s.id); store.set('owned', owned);
+                skinId = s.id; store.set('skin', skinId); Snd.coin();
+            } else { Snd.deny(); d.classList.remove('deny'); void d.offsetWidth; d.classList.add('deny'); return; }
+            el.walletMenu.textContent = wallet; buildSkins();
+        });
+        el.skins.appendChild(d);
     });
-    el.skins.appendChild(d);
-  });
 }
 
-/* ---------- потоки состояний ---------- */
 function startRun(newSeed) {
     lastSeed = newSeed;
     resetWorld(newSeed, false);
@@ -75,14 +74,15 @@ function toMenu() {
     el.bestLine.textContent = 'Рекорд: ' + bestMeters + ' м';
     el.walletMenu.textContent = wallet;
     buildSkins();
-    Snd.startMusic('menu');   // было stopMusic() — теперь музыка играет спокойно
+    Snd.startMusic('menu');
 }
 
 function pauseGame() {
     if (state !== 'play') return;
     state = 'pause';
     show(el.pauseScr);
-    Snd.startMusic('menu');   // ударные пропадают, музыка «приседает»
+    updateVolumeUI();
+    Snd.startMusic('menu');
 }
 
 function resumeGame() {
@@ -93,11 +93,15 @@ function resumeGame() {
     Snd.startMusic('game');
 }
 
-/* ---------- настройки громкости ---------- */
 const musicSliders = document.querySelectorAll('.musicVolSlider');
 const sfxSliders = document.querySelectorAll('.sfxVolSlider');
 const musicLabels = document.querySelectorAll('.musicVolLabel');
 const sfxLabels = document.querySelectorAll('.sfxVolLabel');
+
+const shakeSliders = document.querySelectorAll('.shakeSlider');
+const flashSliders = document.querySelectorAll('.flashSlider');
+const shakeLabels = document.querySelectorAll('.shakeLabel');
+const flashLabels = document.querySelectorAll('.flashLabel');
 
 function updateVolumeUI() {
     const musicVal = Math.round(musicVol * 100);
@@ -106,6 +110,16 @@ function updateVolumeUI() {
     sfxSliders.forEach(s => s.value = sfxVal);
     musicLabels.forEach(l => l.textContent = musicVal + '%');
     sfxLabels.forEach(l => l.textContent = sfxVal + '%');
+    updateSettingsUI();
+}
+
+function updateSettingsUI() {
+    const shakeVal = Math.round(shakeIntensity * 100);
+    const flashVal = Math.round(flashIntensity * 100);
+    shakeSliders.forEach(s => s.value = shakeVal);
+    flashSliders.forEach(s => s.value = flashVal);
+    shakeLabels.forEach(l => l.textContent = shakeVal + '%');
+    flashLabels.forEach(l => l.textContent = flashVal + '%');
 }
 
 function showSettings() {
@@ -148,16 +162,35 @@ sfxSliders.forEach(slider => {
     });
 });
 
-/* ---------- кнопки ---------- */
-el.btnPlay.addEventListener('click',()=>{Snd.ensure();Snd.ui();startRun((Math.random()*2**31)|0);});
-el.btnAgain.addEventListener('click',()=>{Snd.ui();startRun((Math.random()*2**31)|0);});
-el.btnSame.addEventListener('click',()=>{Snd.ui();startRun(lastSeed);});   // реванш: тот же сид
-el.btnMenu1.addEventListener('click',()=>{Snd.ui();toMenu();});
-el.btnMenu2.addEventListener('click',()=>{Snd.ui();toMenu();});
-el.btnRestart.addEventListener('click',()=>{Snd.ui();hide(el.pauseScr);startRun((Math.random()*2**31)|0);});
-el.btnResume.addEventListener('click',()=>{Snd.ui();resumeGame();});
-el.btnPause.addEventListener('click',()=>{Snd.ui();pauseGame();});
-el.btnRevive.addEventListener('click',()=>{doRevive();});
+shakeSliders.forEach(slider => {
+    slider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value) / 100;
+        shakeIntensity = val;
+        store.set('shakeIntensity', val);
+        shakeLabels.forEach(l => l.textContent = Math.round(val * 100) + '%');
+        shakeSliders.forEach(s => { if (s !== slider) s.value = e.target.value; });
+    });
+});
+
+flashSliders.forEach(slider => {
+    slider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value) / 100;
+        flashIntensity = val;
+        store.set('flashIntensity', val);
+        flashLabels.forEach(l => l.textContent = Math.round(val * 100) + '%');
+        flashSliders.forEach(s => { if (s !== slider) s.value = e.target.value; });
+    });
+});
+
+el.btnPlay.addEventListener('click', () => { Snd.ensure(); Snd.ui(); startRun((Math.random() * 2 ** 31) | 0); });
+el.btnAgain.addEventListener('click', () => { Snd.ui(); startRun((Math.random() * 2 ** 31) | 0); });
+el.btnSame.addEventListener('click', () => { Snd.ui(); startRun(lastSeed); });
+el.btnMenu1.addEventListener('click', () => { Snd.ui(); toMenu(); });
+el.btnMenu2.addEventListener('click', () => { Snd.ui(); toMenu(); });
+el.btnRestart.addEventListener('click', () => { Snd.ui(); hide(el.pauseScr); startRun((Math.random() * 2 ** 31) | 0); });
+el.btnResume.addEventListener('click', () => { Snd.ui(); resumeGame(); });
+el.btnPause.addEventListener('click', () => { Snd.ui(); pauseGame(); });
+el.btnRevive.addEventListener('click', () => { doRevive(); });
 el.btnMute.addEventListener('click', () => {
     muted = !muted;
     store.set('mute', muted);
@@ -167,7 +200,8 @@ el.btnMute.addEventListener('click', () => {
     } else {
         Snd.ensure();
         Snd.ui();
-        Snd.startMusic(state === 'play' && !dying ? 'game' : 'menu');
+        if (state === 'play' && !dying) Snd.startMusic('game');
+        else Snd.startMusic('menu');
     }
 });
 el.btnMute.textContent = muted ? '🔇' : '🔊';
