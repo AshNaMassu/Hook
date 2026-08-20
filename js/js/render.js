@@ -251,6 +251,7 @@ function drawDanger(c) {
     }
 }
 function drawLava(c) {
+    c = c || ctx;
     if (state !== 'play' || dying) return;
     const lavaScreenY = SY(lavaY);
     if (lavaScreenY < -50 || lavaScreenY > H + 50) return;
@@ -336,7 +337,7 @@ function render() {
     drawFloats(bloomCtx);
     bloomCtx.restore();
     drawDanger(bloomCtx);
-    drawLava(bloomCtx);  // ← ИСПРАВЛЕНО: было ctx, теперь bloomCtx
+    drawLava(bloomCtx);
     drawVignette(bloomCtx);
 
     // 2. Рисуем основную сцену на главном canvas
