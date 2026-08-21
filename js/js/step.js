@@ -19,10 +19,15 @@ function stepWorld(dt){
   } else {
     hero.vy-=PF.g*dt; hero.x+=hero.vx*dt; hero.y+=hero.vy*dt;
   }
-  if(shieldT>0) shieldT-=dt;
+    if (shieldT > 0) shieldT -= dt;
+
+    if (state === 'play' && !dying) {
+        maxAlt = Math.max(maxAlt, hero.y);
+    }
+
     if (!dying) {
-        const camXTgt = clamp(hero.x * 0.7, -ANCH_CLAMP * 0.5, ANCH_CLAMP * 0.5);
-        camX += (camXTgt - camX) * Math.min(1, 3 * dt);
+        const camXTgt = clamp(hero.x * 0.3, -ANCH_CLAMP * 0.3, ANCH_CLAMP * 0.3);
+        camX += (camXTgt - camX) * Math.min(1, 2 * dt);
     }
 
     // Камера = окно: плавно следует за героем, умеет опускаться
@@ -58,8 +63,6 @@ function stepWorld(dt){
     for (const a of anchors) {
         if (a.cooldownT > 0) a.cooldownT -= dt;
     }
-    const tgt = hero.y + PF.lookahead;
-    if (!dying && tgt > camY) camY += (tgt - camY) * Math.min(1, 6 * dt);
   // монеты
   if(!dying) for(const c of coins){
     if(c.taken) continue;
