@@ -1,5 +1,6 @@
 function die(){
-  if(dying) return;
+    if (dying) return;
+    maxReachedIdx = 0;
   dying=true; deathT=0.85; shakeT=0.8;
   burst(hero.x,hero.y,42,'#ff2e5f',7);
   burst(hero.x,hero.y,20,'#ffffff',5);

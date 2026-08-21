@@ -5,6 +5,7 @@ function getComboMult() {
     }
     return mult;
 }
+let maxReachedIdx = 0; // максимальный индекс точки, до которой долетели
 function releaseVel() {
   const rP=PF.normalizePower?PF.rNorm:hero.r;
   const sp=hero.spinDir*hero.omega*rP;
@@ -34,6 +35,10 @@ function tryGrab() {
     hero.grabs++;
     hero.grabTime = uiT;           
     hero.comboTimer = COMBO.window;
+    // Обновляем максимальный достигнутый индекс
+    if (best.idx > maxReachedIdx) {
+        maxReachedIdx = best.idx;
+    }
   revivePoint={x:best.x,y:best.y};
   burst(hero.x,hero.y,10,skinColor(),3);
   if(state==='play') Snd.grab();
@@ -68,9 +73,20 @@ function doRelease(){
         }
     }
 
+    // ОТЛАДКА: вывод в консоль
+    if (hero.lastAnchor) {
+        console.log('--- RELEASE ---');
+        console.log('Отпустил с точки:', hero.lastAnchor.idx);
+        console.log('Долетел до точки:', hitIdx);
+        console.log('Пропущено точек:', skipCount);
+        console.log('Порог ДАЛЬНИЙ:', COMBO.longJump.skipPoints);
+        console.log('Условие (skipCount >= threshold):', skipCount >= COMBO.longJump.skipPoints);
+        console.log('---');
+    }
+
     // Логика комбо: отпустили в окно → комбо растёт, иначе сброс
     if (hero.comboTimer > 0) {
-        if (hitIdx > hero.lastAnchor.idx) {
+        if (hitIdx > hero.lastAnchor.idx && hitIdx > maxReachedIdx) {
             combo++;
             maxCombo = Math.max(maxCombo, combo);
 
