@@ -3,11 +3,11 @@ function drawBG(c) {
     const g = c.createLinearGradient(0, 0, 0, H);
     g.addColorStop(0, '#0a0820'); g.addColorStop(0.5, '#070716'); g.addColorStop(1, '#04040d');
     c.fillStyle = g; c.fillRect(0, 0, W, H);
-    // звёзды
+    // звёзды с параллаксом
     c.fillStyle = 'rgba(160,200,255,0.5)';
     for (const st of stars) {
         const wy = (((st.y - camY * st.z) % 24) + 24) % 24;
-        const px = SX(st.x), py = H - wy * scale;
+        const px = SX(st.x - camX * 0.5 * st.z), py = H - wy * scale;  // параллакс по X
         if (py < -4 || py > H + 4) continue;
         c.globalAlpha = 0.15 + st.z * 0.4;
         c.fillRect(px, py, st.s * dpr, st.s * dpr);
@@ -24,6 +24,7 @@ function drawBG(c) {
 }
 function drawCoin(c_item, c) {
     c = c || ctx;
+    if (c_item.taken) return;
     const px = SX(c_item.x), py = SY(c_item.y);
     if (py < -40 || py > H + 40) return;
     const w = Math.cos(uiT * 4 + c_item.phase);
@@ -66,6 +67,10 @@ function drawSpike(s, c) {
     c.restore();
 }
 function anchorVisualState(a) {
+    // тусклая во время кулдауна (перезарядка)
+    if (a.cooldownT > 0) return 0.2;
+
+    // flash: в радиусе захвата = момент максимальной силы (яркость ∝ ранний зацеп)
     let flash = 0;
     if (!hero.attached && a !== hero.lastAnchor && !dying) {
         const d = Math.hypot(a.x - hero.x, a.y - hero.y);
@@ -336,7 +341,7 @@ function render() {
     drawParticles(bloomCtx);
     drawFloats(bloomCtx);
     bloomCtx.restore();
-    drawDanger(bloomCtx);
+    //drawDanger(bloomCtx);
     drawLava(bloomCtx);
     drawVignette(bloomCtx);
 
@@ -361,7 +366,7 @@ function render() {
     drawParticles(ctx);
     drawFloats(ctx);
     ctx.restore();
-    drawDanger(ctx);
+    //drawDanger(ctx);
     drawLava(ctx);
     drawVignette(ctx);
 

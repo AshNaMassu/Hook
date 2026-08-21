@@ -25,6 +25,6 @@ window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', () => setTimeout(resize, 60));
 resize();
 
-const SX = x => W / 2 + x * scale;
+const SX = x => W / 2 + (x - camX) * scale;
 const camTop = () => camY + viewH / 2;
 const SY = y => (camTop() - y) * scale;

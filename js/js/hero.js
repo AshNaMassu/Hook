@@ -5,10 +5,10 @@ function releaseVel(){
 }
 function power(){ return hero.attached?hero.omega*hero.r:0; }
 
-function tryGrab(){
-  let best=null, bd=PF.grabRadius;
-  for(const a of anchors){
-    if(a===hero.lastAnchor) continue;
+function tryGrab() {
+    let best = null, bd = PF.grabRadius;
+    for (const a of anchors) {
+        if (a.cooldownT > 0) continue; 
     const d=Math.hypot(a.x-hero.x,a.y-hero.y);
     if(d<=bd){bd=d;best=a;}
   }
@@ -31,7 +31,8 @@ function tryGrab(){
 }
 function doRelease(){
   if(!hero.attached) return;
-  hero.attached=false; hero.lastAnchor=hero.anchor;
+    hero.attached = false; hero.lastAnchor = hero.anchor;
+    if (hero.lastAnchor) hero.lastAnchor.cooldownT = 0.2;
   const v=releaseVel();
   hero.vx=v.vx; hero.vy=v.vy;
   // perfect: релиз сейчас долетает до следующей(-их) точки

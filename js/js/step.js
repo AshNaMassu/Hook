@@ -20,16 +20,43 @@ function stepWorld(dt){
     hero.vy-=PF.g*dt; hero.x+=hero.vx*dt; hero.y+=hero.vy*dt;
   }
   if(shieldT>0) shieldT-=dt;
-  if(state==='play'&&!dying) maxAlt=Math.max(maxAlt,hero.y);
-    // камера v2: окно + лава как палач
-    if (camFreeze > 0) camFreeze -= dt;
-    else {
-        const diff = Math.min(1, runT / 180);
-        const lavaSpeed = LAVA.baseSpeed + LAVA.speedRamp * diff;
-        const distToLava = hero.y - lavaY;
-        const nearLava = distToLava < LAVA.rubberBand;
-        camY += (0.8 + 1.4 * diff) * (nearLava ? 0.55 : 1) * dt;
-        lavaY += lavaSpeed * dt;
+    if (!dying) {
+        const camXTgt = clamp(hero.x * 0.7, -ANCH_CLAMP * 0.5, ANCH_CLAMP * 0.5);
+        camX += (camXTgt - camX) * Math.min(1, 3 * dt);
+    }
+
+    // Камера = окно: плавно следует за героем, умеет опускаться
+    if (camFreeze > 0) {
+        camFreeze -= dt;
+    } else {
+        const tgt = hero.y + PF.lookahead;
+        if (!dying) {
+            if (tgt > camY) {
+                camY += (tgt - camY) * Math.min(1, 6 * dt);
+            } else if (tgt < camY - 2) {
+                // Камера умеет опускаться, если герой упал
+                camY += (tgt - camY) * Math.min(1, 4 * dt);
+            }
+        }
+    }
+
+    // Лава = палач: поднимается с rubber-band
+    const diff = Math.min(1, runT / 180);
+    let lavaSpeed = LAVA.baseSpeed + LAVA.speedRamp * diff;
+    const distToLava = hero.y - lavaY;
+
+    // Rubber-band: отстал >18 юнитов → ×1.5, подошла ближе ~4 → ×0.75
+    if (distToLava > 18) {
+        lavaSpeed *= 1.5;
+    } else if (distToLava < 4) {
+        lavaSpeed *= 0.75;
+    }
+
+    lavaY += lavaSpeed * dt;
+
+    // Обновление кулдауна точек для повторного зацепа
+    for (const a of anchors) {
+        if (a.cooldownT > 0) a.cooldownT -= dt;
     }
     const tgt = hero.y + PF.lookahead;
     if (!dying && tgt > camY) camY += (tgt - camY) * Math.min(1, 6 * dt);
@@ -57,7 +84,11 @@ function stepWorld(dt){
     const a=anchors[i];
     if(a.y<cutA&&a!==hero.anchor&&a!==hero.lastAnchor) anchors.splice(i,1);
   }
-  for(let i=coins.length-1;i>=0;i--) if(coins[i].y<cutO||coins[i].taken&&true){ if(coins[i].y<cutO) coins.splice(i,1); }
+    for (let i = coins.length - 1; i >= 0; i--) {
+        if (coins[i].taken || coins[i].y < cutO) {
+            coins.splice(i, 1);
+        }
+    }
   for(let i=spikes.length-1;i>=0;i--) if(spikes[i].y<cutO) spikes.splice(i,1);
   // частицы / тексты
   for(let i=particles.length-1;i>=0;i--){
