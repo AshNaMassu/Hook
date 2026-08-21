@@ -12,7 +12,15 @@ function stepWorld(dt){
       const a=hero.anchor;
       hero.x=a.x+Math.cos(hero.theta)*hero.r;
       hero.y=a.y+Math.sin(hero.theta)*hero.r;
-      hero.attachT+=dt;
+        hero.attachT += dt;
+        if (hero.comboTimer > 0) {
+            hero.comboTimer -= dt;
+            if (hero.comboTimer <= 0) {
+                combo = 0;
+                // Опционально: визуальная индикация потери комбо
+                addFloat(hero.x, hero.y + 0.5, 'медленно...', '#ff2e5f', 16);
+            }
+        }
     } else {
       hero.vy-=PF.g*dt; hero.x+=hero.vx*dt; hero.y+=hero.vy*dt;
     }
@@ -64,15 +72,26 @@ function stepWorld(dt){
         if (a.cooldownT > 0) a.cooldownT -= dt;
     }
   // монеты
-  if(!dying) for(const c of coins){
-    if(c.taken) continue;
-    if(Math.hypot(c.x-hero.x,c.y-hero.y)<0.6){
-      c.taken=true;
-      const val=1+Math.min(4,combo);
-      if(state==='play'){ coinsRun+=val; Snd.coin(); addFloat(c.x,c.y,'+'+val+'◈','#ffc23d',16); }
-      burst(c.x,c.y,7,'#ffc23d',2.6);
+    if (!dying) for (const c of coins) {
+        if (c.taken) continue;
+        if (Math.hypot(c.x - hero.x, c.y - hero.y) < 0.6) {
+            c.taken = true;
+            const baseVal = 1;
+            const val = Math.round(baseVal * getComboMult());
+
+            // Бонус за дальний прыжок (если собрали монету из длинной секции)
+            const bonus = 0; // пока что 0, потом можно добавить
+
+            if (state === 'play') {
+                coinsRun += val + bonus;
+                Snd.coin();
+                let txt = '+' + val + '◈';
+                if (combo >= 3) txt += ' ×' + getComboMult();
+                addFloat(c.x, c.y, txt, '#ffc23d', 16);
+            }
+            burst(c.x, c.y, 7, '#ffc23d', 2.6);
+        }
     }
-  }
   // шипы
   if(!dying&&shieldT<=0) for(const s of spikes){
     if(Math.hypot(s.x-hero.x,s.y-hero.y)<0.5){ die(); break; }

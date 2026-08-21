@@ -14,8 +14,10 @@ function hudSync() {
     if (coinsRun !== hudC) { hudC = coinsRun; el.coinsHud.textContent = '◈ ' + coinsRun; }
     if (combo !== hudCombo) {
         hudCombo = combo;
-        if (combo >= 2) {
-            el.combo.textContent = 'СЕРИЯ ×' + combo; el.combo.classList.add('show');
+        if (combo >= 1) {
+            const mult = getComboMult();
+            el.combo.textContent = 'СЕРИЯ ×' + combo + ' (×' + mult + ')';
+            el.combo.classList.add('show');
             el.combo.classList.remove('pop'); void el.combo.offsetWidth; el.combo.classList.add('pop');
         }
         else el.combo.classList.remove('show');

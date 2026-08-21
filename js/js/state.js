@@ -7,8 +7,12 @@ let shieldT=0, dying=false, deathT=0, reviveAvail=false, revivePoint={x:0,y:-2.5
 let perfectFlash=0, shakeT=0, uiT=0, bot=false;
 let lavaY = LAVA.startY;
 
-const hero={x:0,y:0,vx:0,vy:0,attached:false,anchor:null,lastAnchor:null,
-            theta:0,omega:0,r:2,spinDir:1,attachT:0,grabs:0};
+const hero = {
+    x: 0, y: 0, vx: 0, vy: 0, attached: false, anchor: null, lastAnchor: null,
+    theta: 0, omega: 0, r: 2, spinDir: 1, attachT: 0, grabs: 0,
+    grabTime: 0, comboTimer: 0
+};
+
 const trail=[];
 const stars=[];
 for (let i = 0; i < 70; i++) stars.push({ x: (Math.random() * 2 - 1) * 6, y: Math.random() * 24, z: 0.2 + Math.random() * 0.55, s: Math.random() < 0.25 ? 2 : 1 });
