@@ -10,17 +10,20 @@ function die() {
 function finishDeath() {
     lastGrabIdx = -1;
     Snd.startMusic('menu')
-    if (state === 'menu') { resetWorld((Math.random() * 2 ** 31) | 0, true); return; }
+    if (state === 'menu') {
+        resetWorld((Math.random() * 2 ** 31) | 0, true);
+        return;
+    }
     state = 'over';
     const m = Math.floor(maxAlt);
     const rec = m > bestMeters;
     if (rec) {
         bestMeters = m;
-        store.set('best', bestMeters);
         // Отправляем в лидерборд
         if (sdkReady) sdkSubmitScore(m);
     }
-    wallet += coinsRun; store.set('wallet', wallet);
+    wallet += coinsRun;
+    saveAllData();
     el.overMeters.textContent = m + ' м';
     el.overCoins.textContent = '◈ +' + coinsRun;
     el.overCombo.textContent = 'серия ×' + maxCombo;

@@ -32,13 +32,13 @@ const Snd = {
 
     setSfxVol(vol) {
         sfxVol = Math.max(0, Math.min(1, vol));
-        store.set('sfxVol', sfxVol);
+        saveAllData(); 
         if (this.sfxGain) this.sfxGain.gain.value = sfxVol;
     },
 
     setMusicVol(vol) {
         musicVol = Math.max(0, Math.min(1, vol));
-        store.set('musicVol', musicVol);
+        saveAllData(); 
         this._applyMaster();
     },
 

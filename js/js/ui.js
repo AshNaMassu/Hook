@@ -47,12 +47,23 @@ function buildSkins() {
         d.innerHTML = '<div class="sw" style="background:' + s.color + ';box-shadow:0 0 14px ' + s.color + '"></div>' +
             '<div class="p">' + (own ? (s.id === skinId ? '✓' : '') : ('◈ ' + s.price)) + '</div>';
         d.addEventListener('click', () => {
-            if (owned.includes(s.id)) { skinId = s.id; store.set('skin', skinId); Snd.ui(); }
-            else if (wallet >= s.price) {
-                wallet -= s.price; store.set('wallet', wallet);
-                owned.push(s.id); store.set('owned', owned);
-                skinId = s.id; store.set('skin', skinId); Snd.coin();
-            } else { Snd.deny(); d.classList.remove('deny'); void d.offsetWidth; d.classList.add('deny'); return; }
+            if (owned.includes(s.id)) {
+                skinId = s.id;
+                saveAllData();
+                Snd.ui();
+            } else if (wallet >= s.price) {
+                wallet -= s.price;
+                owned.push(s.id);
+                skinId = s.id;
+                saveAllData();
+                Snd.coin();
+            } else {
+                Snd.deny();
+                d.classList.remove('deny');
+                void d.offsetWidth;
+                d.classList.add('deny');
+                return;
+            }
             el.walletMenu.textContent = wallet; buildSkins();
         });
         el.skins.appendChild(d);
@@ -168,7 +179,7 @@ shakeSliders.forEach(slider => {
     slider.addEventListener('input', (e) => {
         const val = parseInt(e.target.value) / 100;
         shakeIntensity = val;
-        store.set('shakeIntensity', val);
+        saveAllData(); 
         shakeLabels.forEach(l => l.textContent = Math.round(val * 100) + '%');
         shakeSliders.forEach(s => { if (s !== slider) s.value = e.target.value; });
     });
@@ -178,7 +189,7 @@ flashSliders.forEach(slider => {
     slider.addEventListener('input', (e) => {
         const val = parseInt(e.target.value) / 100;
         flashIntensity = val;
-        store.set('flashIntensity', val);
+        saveAllData(); 
         flashLabels.forEach(l => l.textContent = Math.round(val * 100) + '%');
         flashSliders.forEach(s => { if (s !== slider) s.value = e.target.value; });
     });
@@ -218,7 +229,7 @@ el.btnRevive.addEventListener('click', () => {
 
 el.btnMute.addEventListener('click', () => {
     muted = !muted;
-    store.set('mute', muted);
+    saveAllData(); 
     el.btnMute.textContent = muted ? '🔇' : '🔊';
     if (muted) {
         Snd.stopMusic();
