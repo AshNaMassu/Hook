@@ -1,6 +1,7 @@
 function die(){
     if (dying) return;
     maxReachedIdx = 0;
+    lastGrabIdx = -1;
   dying=true; deathT=0.85; shakeT=0.8;
   burst(hero.x,hero.y,42,'#ff2e5f',7);
   burst(hero.x,hero.y,20,'#ffffff',5);
@@ -24,7 +25,11 @@ function finishDeath() {
 }
 function doRevive(){
   reviveAvail=false;
-  hide(el.over); show(el.hud); state='play'; dying=false;
+    hide(el.over); show(el.hud); state = 'play'; dying = false;
+    // Сброс комбо при ревайве
+    combo = 0;
+    maxCombo = Math.max(maxCombo, combo);
+    lastGrabIdx = -1;
   // спасательная точка на месте последнего зацепа
   const ra={x:revivePoint.x,y:revivePoint.y,idx:anchorIdx++,spinDir:1};
   let above=null;
