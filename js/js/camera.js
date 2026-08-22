@@ -14,7 +14,12 @@ function finishDeath() {
     state = 'over';
     const m = Math.floor(maxAlt);
     const rec = m > bestMeters;
-    if (rec) { bestMeters = m; store.set('best', bestMeters); }
+    if (rec) {
+        bestMeters = m;
+        store.set('best', bestMeters);
+        // Отправляем в лидерборд
+        if (sdkReady) sdkSubmitScore(m);
+    }
     wallet += coinsRun; store.set('wallet', wallet);
     el.overMeters.textContent = m + ' м';
     el.overCoins.textContent = '◈ +' + coinsRun;

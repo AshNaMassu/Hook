@@ -19,3 +19,35 @@ const SKINS = [
     { id: 'gold', name: 'Плазма', color: '#ffc23d', price: 250 },
 ];
 const skinColor = () => (SKINS.find(s => s.id === skinId) || SKINS[0]).color;
+
+
+// Загрузка из localStorage при старте
+bestMeters = parseInt(store.get('best')) || 0;
+wallet = parseInt(store.get('wallet')) || 0;
+owned = JSON.parse(store.get('owned') || '[0]');
+skinId = parseInt(store.get('skin')) || 0;
+muted = store.get('mute') === '1';
+musicVol = parseFloat(store.get('musicVol')) ?? 0.65;
+sfxVol = parseFloat(store.get('sfxVol')) ?? 0.65;
+shakeIntensity = parseFloat(store.get('shakeIntensity')) ?? 1.0;
+flashIntensity = parseFloat(store.get('flashIntensity')) ?? 1.0;
+
+setTimeout(() => {
+    if (sdkReady) sdkLoadData();
+}, 1000);
+
+// Двойное сохранение: локально + облако
+function saveAllData() {
+    store.set('best', bestMeters);
+    store.set('wallet', wallet);
+    store.set('owned', JSON.stringify(owned));
+    store.set('skin', skinId);
+    store.set('mute', muted ? '1' : '0');
+    store.set('musicVol', musicVol);
+    store.set('sfxVol', sfxVol);
+    store.set('shakeIntensity', shakeIntensity);
+    store.set('flashIntensity', flashIntensity);
+
+    // Сохраняем в облако (не блокируя игру)
+    if (sdkReady) sdkSaveData();
+}

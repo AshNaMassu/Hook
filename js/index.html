@@ -122,6 +122,7 @@
 
     <script src="js/config.js"></script>
     <script src="js/storage.js"></script>
+    <script src="js/yandex.js"></script>
     <script src="js/audio.js"></script>
     <script src="js/canvas.js"></script>
     <script src="js/state.js"></script>
@@ -136,5 +137,13 @@
     <script src="js/ui.js"></script>
     <script src="js/input.js"></script>
     <script src="js/main.js"></script>
+    <!-- Yandex Games SDK -->
+    <script src="/sdk.js"></script>
+
+    <script>
+        window.addEventListener('beforeunload', () => {
+            if (typeof sdkSaveData === 'function') sdkSaveData();
+        });
+    </script>
 </body>
 </html>

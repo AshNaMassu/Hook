@@ -185,14 +185,37 @@ flashSliders.forEach(slider => {
 });
 
 el.btnPlay.addEventListener('click', () => { Snd.ensure(); Snd.ui(); startRun((Math.random() * 2 ** 31) | 0); });
-el.btnAgain.addEventListener('click', () => { Snd.ui(); startRun((Math.random() * 2 ** 31) | 0); });
 el.btnSame.addEventListener('click', () => { Snd.ui(); startRun(lastSeed); });
 el.btnMenu1.addEventListener('click', () => { Snd.ui(); toMenu(); });
 el.btnMenu2.addEventListener('click', () => { Snd.ui(); toMenu(); });
-el.btnRestart.addEventListener('click', () => { Snd.ui(); hide(el.pauseScr); startRun((Math.random() * 2 ** 31) | 0); });
 el.btnResume.addEventListener('click', () => { Snd.ui(); resumeGame(); });
 el.btnPause.addEventListener('click', () => { Snd.ui(); pauseGame(); });
-el.btnRevive.addEventListener('click', () => { doRevive(); });
+
+el.btnAgain.addEventListener('click', () => {
+    Snd.ui();
+    sdkShowInterstitial();  // Показываем рекламу между забегами
+    startRun((Math.random() * 2 ** 31) | 0);
+});
+
+el.btnRestart.addEventListener('click', () => {
+    Snd.ui();
+    hide(el.pauseScr);
+    sdkShowInterstitial();
+    startRun((Math.random() * 2 ** 31) | 0);
+});
+
+el.btnRevive.addEventListener('click', () => {
+    // Показываем rewarded рекламу перед ревайвом
+    if (sdkReady) {
+        sdkShowRewarded(
+            () => doRevive(),  // успех — ревайвим
+            () => doRevive()   // отказ — все равно ревайвим (мягкий режим)
+        );
+    } else {
+        doRevive();  // без SDK ревайвим сразу
+    }
+});
+
 el.btnMute.addEventListener('click', () => {
     muted = !muted;
     store.set('mute', muted);
