@@ -1,3 +1,5 @@
+let currentLookahead = -1.5;
+
 function stepWorld(dt) {
     if (state === 'pause') return;
     if (state === 'play' && runT === 0) lavaY = LAVA.startY;
@@ -38,18 +40,42 @@ function stepWorld(dt) {
         camX += (camXTgt - camX) * Math.min(1, 2 * dt);
     }
 
-    // Камера = окно: плавно следует за героем, умеет опускаться
+    // Камера = окно: адаптивный lookahead
     if (camFreeze > 0) {
         camFreeze -= dt;
     } else {
-        const tgt = hero.y + PF.lookahead;
-        if (!dying) {
-            if (tgt > camY) {
-                camY += (tgt - camY) * Math.min(1, 6 * dt);
-            } else if (tgt < camY - 2) {
-                // Камера умеет опускаться, если герой упал
-                camY += (tgt - camY) * Math.min(1, 4 * dt);
+        // Адаптивный lookahead в зависимости от движения
+        let targetLookahead = -1.5;  // базовое значение
+
+        if (!hero.attached && !dying) {
+            // В полёте: смотрим вперёд по направлению движения
+            if (hero.vy > 2) {
+                // Летим вверх — показываем больше сверху (до -3.0)
+                targetLookahead = -1.5 - Math.min(1.5, hero.vy * 0.15);
+            } else if (hero.vy < -2) {
+                // Летим вниз — показываем больше снизу (до -0.5)
+                targetLookahead = -0.5 + Math.min(1.0, Math.abs(hero.vy) * 0.1);
             }
+        } else if (hero.attached) {
+            // При зацепе: среднее значение, чтобы видеть и верх, и низ
+            targetLookahead = -1.5;
+        }
+
+        // Плавное изменение lookahead (чтобы камера не дёргалась)
+        currentLookahead += (targetLookahead - currentLookahead) * Math.min(1, 3 * dt);
+
+        // Используем адаптивный lookahead
+        const focusY = hero.attached && hero.anchor ? hero.anchor.y : hero.y;
+        const tgt = focusY + currentLookahead;
+
+        if (!dying) {
+            // Ограничение скорости камеры
+            const maxCamSpeed = 8 * dt;
+            let delta = tgt - camY;
+            if (Math.abs(delta) > maxCamSpeed) {
+                delta = Math.sign(delta) * maxCamSpeed;
+            }
+            camY += delta;
         }
     }
 
