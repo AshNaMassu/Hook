@@ -1,10 +1,10 @@
-let state='menu';           // menu | play | pause | over
-let seed=1, lastSeed=1, rng=Math.random;
-let anchors=[], coins=[], spikes=[], particles=[], floats=[];
-let topAnchor=null, anchorIdx=0, prevSide=1, streakLeft=0;
+let state = 'menu';           // menu | play | pause | over
+let seed = 1, lastSeed = 1, rng = Math.random;
+let anchors = [], coins = [], spikes = [], particles = [], floats = [];
+let topAnchor = null, anchorIdx = 0, prevSide = 1, streakLeft = 0;
 let camY = 2, camFreeze = 0, camX = 0, runT = 0, maxAlt = 0, coinsRun = 0, combo = 0, maxCombo = 0;
-let shieldT=0, dying=false, deathT=0, reviveAvail=false, revivePoint={x:0,y:-2.5};
-let perfectFlash=0, shakeT=0, uiT=0, bot=false;
+let shieldT = 0, dying = false, deathT = 0, reviveAvail = false, revivePoint = { x: 0, y: -2.5 };
+let perfectFlash = 0, shakeT = 0, uiT = 0, bot = false;
 let lavaY = LAVA.startY;
 
 const hero = {
@@ -13,8 +13,8 @@ const hero = {
     grabTime: 0, comboTimer: 0, lastReleaseTime: 0
 };
 
-const trail=[];
-const stars=[];
+const trail = [];
+const stars = [];
 for (let i = 0; i < 70; i++) stars.push({ x: (Math.random() * 2 - 1) * 6, y: Math.random() * 24, z: 0.2 + Math.random() * 0.55, s: Math.random() < 0.25 ? 2 : 1 });
 
 const bgParticles = [];
