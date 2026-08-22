@@ -1,3 +1,4 @@
+let lastGrabIdx = -1;
 function getComboMult() {
     let mult = 1.0;
     for (const m of COMBO.multipliers) {
@@ -33,8 +34,46 @@ function tryGrab() {
   hero.x=best.x+Math.cos(hero.theta)*hero.r;
   hero.y=best.y+Math.sin(hero.theta)*hero.r;
     hero.grabs++;
-    hero.grabTime = uiT;           
+    hero.grabTime = uiT;
     hero.comboTimer = COMBO.window;
+
+    // Логика комбо по зацепу: если зацепились за точку дальше по маршруту
+    if (best.idx > lastGrabIdx) {
+        const skipCount = (best.idx - lastGrabIdx) - 1;
+
+        // Комбо растёт если отпустили в окно времени
+        if (hero.comboTimer > 0 || hero.grabs === 1) {
+            combo++;
+            maxCombo = Math.max(maxCombo, combo);
+
+            // Дальний прыжок: пропустили 1+ точек
+            if (skipCount >= COMBO.longJump.skipPoints) {
+                addFloat(best.x, best.y + 1.0, 'ДАЛЬНИЙ! (+' + skipCount + ')', '#ff4fd8', 26);
+                burst(best.x, best.y, 14, '#ff4fd8', 5);
+                if (state === 'play') Snd.perfect();
+            }
+
+            // Перфект: зацеп за следующую точку без пропуска
+            if (skipCount === 0) {
+                perfectFlash = 0.35;
+                addFloat(best.x, best.y + 0.4, 'ПЕРФЕКТ ×' + combo, '#ffc23d', combo > 1 ? 24 : 20);
+                burst(best.x, best.y, 14, '#ffc23d', 4);
+                if (state === 'play') Snd.perfect();
+            }
+
+            // БЫСТРО! если зацепились в первые 0.2с после релиза
+            const timeSinceRelease = uiT - hero.lastReleaseTime;
+            if (timeSinceRelease <= COMBO.fastThreshold) {
+                addFloat(best.x, best.y + 0.8, 'БЫСТРО!', '#26e0ff', 22);
+                if (state === 'play') Snd.perfect();
+            }
+        }
+
+        lastGrabIdx = best.idx;
+    } else {
+        // Зацеп за ту же или предыдущую точку — комбо сброс
+        combo = 0;
+    }
     // Обновляем максимальный достигнутый индекс
     if (best.idx > maxReachedIdx) {
         maxReachedIdx = best.idx;
@@ -57,58 +96,7 @@ function doRelease(){
     if (hero.lastAnchor) hero.lastAnchor.cooldownT = 0.2;
   const v=releaseVel();
   hero.vx=v.vx; hero.vy=v.vy;
-  // perfect: релиз сейчас долетает до следующей(-их) точки
-    // Определяем куда попали
-    let hitIdx = -1;
-    let skipCount = 0;
-    if (hero.lastAnchor) {
-        for (const a of anchors) {
-            if (a.idx > hero.lastAnchor.idx && a.idx <= hero.lastAnchor.idx + 5) {
-                if (flightHits(hero.x, hero.y, v.vx, v.vy, a.x, a.y)) {
-                    hitIdx = a.idx;
-                    skipCount = (a.idx - hero.lastAnchor.idx) - 1;
-                    break;
-                }
-            }
-        }
-    }
-
-    // ОТЛАДКА: вывод в консоль
-    if (hero.lastAnchor) {
-        console.log('--- RELEASE ---');
-        console.log('Отпустил с точки:', hero.lastAnchor.idx);
-        console.log('Долетел до точки:', hitIdx);
-        console.log('Пропущено точек:', skipCount);
-        console.log('Порог ДАЛЬНИЙ:', COMBO.longJump.skipPoints);
-        console.log('Условие (skipCount >= threshold):', skipCount >= COMBO.longJump.skipPoints);
-        console.log('---');
-    }
-
-    // Логика комбо: отпустили в окно → комбо растёт, иначе сброс
-    if (hero.comboTimer > 0) {
-        if (hitIdx > hero.lastAnchor.idx && hitIdx > maxReachedIdx) {
-            combo++;
-            maxCombo = Math.max(maxCombo, combo);
-
-            // Реакции на крутые действия
-            if (skipCount >= COMBO.longJump.skipPoints) {
-                addFloat(hero.x, hero.y + 1.0, 'ДАЛЬНИЙ!', '#ff4fd8', 26);
-                if (state === 'play') Snd.perfect();
-                burst(hero.x, hero.y, 14, '#ff4fd8', 5);
-            }
-
-            perfectFlash = 0.35;
-            addFloat(hero.x, hero.y + 0.4, 'ПЕРФЕКТ ×' + combo, '#ffc23d', combo > 1 ? 24 : 20);
-            burst(hero.x, hero.y, 14, '#ffc23d', 4);
-            if (state === 'play') Snd.perfect();
-        } else {
-            // Не попали ни в одну точку — сброс комбо
-            combo = 0;
-        }
-    } else {
-        // Отпустили после окна комбо — сброс
-        combo = 0;
-    }
+    hero.lastReleaseTime = uiT;
 
   burst(hero.x,hero.y,6,skinColor(),2.5);
   if(state==='play') Snd.release();

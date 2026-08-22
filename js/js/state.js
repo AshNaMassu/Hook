@@ -10,7 +10,7 @@ let lavaY = LAVA.startY;
 const hero = {
     x: 0, y: 0, vx: 0, vy: 0, attached: false, anchor: null, lastAnchor: null,
     theta: 0, omega: 0, r: 2, spinDir: 1, attachT: 0, grabs: 0,
-    grabTime: 0, comboTimer: 0
+    grabTime: 0, comboTimer: 0, lastReleaseTime: 0
 };
 
 const trail=[];
