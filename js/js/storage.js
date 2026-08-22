@@ -25,6 +25,20 @@ let sfxVol = store.get('sfxVol', 0.65) || 0.65;
 let shakeIntensity = store.get('shakeIntensity', 1.0) || 1.0;
 let flashIntensity = store.get('flashIntensity', 1.0) || 1.0;
 
+// Массив скинов
+const SKINS = [
+    { id: 'cyan', color: '#26e0ff', price: 0 },    // бесплатный
+    { id: 'gold', color: '#ffc23d', price: 100 },
+    { id: 'lime', color: '#39ff14', price: 200 },
+    { id: 'pink', color: '#ff4fd8', price: 300 },
+];
+
+// Функция получения цвета текущего скина
+function skinColor() {
+    const skin = SKINS.find(s => s.id === skinId);
+    return skin ? skin.color : '#26e0ff';
+}
+
 // Двойное сохранение: локально + облако
 function saveAllData() {
     store.set('best', bestMeters);
