@@ -50,27 +50,27 @@ function stepWorld(dt) {
         if (!hero.attached && !dying) {
             // В полёте: смотрим вперёд по направлению движения
             if (hero.vy > 2) {
-                // Летим вверх — показываем больше сверху (до -3.0)
-                targetLookahead = -1.5 - Math.min(1.5, hero.vy * 0.15);
+                // Летим вверх — показываем больше сверху (до -3.5)
+                targetLookahead = -1.5 - Math.min(2.0, hero.vy * 0.25);
             } else if (hero.vy < -2) {
-                // Летим вниз — показываем больше снизу (до -0.5)
-                targetLookahead = -0.5 + Math.min(1.0, Math.abs(hero.vy) * 0.1);
+                // Летим вниз — показываем больше снизу (до +0.5)
+                targetLookahead = -0.5 + Math.min(2.0, Math.abs(hero.vy) * 0.2);
             }
         } else if (hero.attached) {
-            // При зацепе: среднее значение, чтобы видеть и верх, и низ
+            // При зацепе: стандартный вид
             targetLookahead = -1.5;
         }
 
-        // Плавное изменение lookahead (чтобы камера не дёргалась)
-        currentLookahead += (targetLookahead - currentLookahead) * Math.min(1, 3 * dt);
+        // Плавное изменение lookahead (быстрее реакция)
+        currentLookahead += (targetLookahead - currentLookahead) * Math.min(1, 5 * dt);
 
         // Используем адаптивный lookahead
         const focusY = hero.attached && hero.anchor ? hero.anchor.y : hero.y;
         const tgt = focusY + currentLookahead;
 
         if (!dying) {
-            // Ограничение скорости камеры
-            const maxCamSpeed = 8 * dt;
+            // Увеличенная скорость камеры чтобы успевать
+            const maxCamSpeed = 12 * dt;  // было 8, стало 12
             let delta = tgt - camY;
             if (Math.abs(delta) > maxCamSpeed) {
                 delta = Math.sign(delta) * maxCamSpeed;
