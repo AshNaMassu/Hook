@@ -15,6 +15,11 @@ function initYandex() {
             sdkReady = true;
             console.log('SDK инициализирован');
             initPlayer();
+
+            // Блокируем портретную ориентацию
+            if (ysdk.screen && ysdk.screen.lockOrientation) {
+                ysdk.screen.lockOrientation('portrait').catch(() => { });
+            }
         })
         .catch(e => console.error('Ошибка инициализации SDK', e));
 }

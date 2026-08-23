@@ -28,4 +28,9 @@ window.addEventListener('keydown', e => {
 window.addEventListener('keyup', e => {
     if (e.code === 'Space' || e.code === 'ArrowUp') { holding = false; releaseAction(); }
 });
-document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'play') pauseGame(); });
+
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden && state === 'play') {
+        pauseGame();
+    }
+});

@@ -12,6 +12,11 @@ function frame(now) {
     hudSync();
 }
 
+// Сигнал Яндексу, что игра готова
+if (typeof ysdk !== 'undefined' && ysdk && ysdk.features && ysdk.features.LoadingAPI) {
+    ysdk.features.LoadingAPI.ready().catch(() => { });
+}
+
 /* ---------- старт ---------- */
 toMenu();          // аттракт-режим: бот играет за меню
 requestAnimationFrame(frame);
