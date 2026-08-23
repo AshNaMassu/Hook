@@ -31,22 +31,29 @@ function initPlayer() {
 }
 
 // === СОХРАНЕНИЕ ДАННЫХ ===
+let saveDataTimeout = null;
+
 function sdkSaveData() {
     if (!sdkReady || !sdkPlayer) return;
-    const data = {
-        best: bestMeters,
-        wallet: wallet,
-        owned: owned,
-        skin: skinId,
-        mute: muted,
-        musicVol: musicVol,
-        sfxVol: sfxVol,
-        shakeIntensity: shakeIntensity,
-        flashIntensity: flashIntensity,
-    };
-    sdkPlayer.setData(data)
-        .then(() => console.log('Данные сохранены в облако'))
-        .catch(e => console.error('Ошибка сохранения', e));
+
+    // Дебаунсинг: не чаще чем раз в 1000мс
+    if (saveDataTimeout) clearTimeout(saveDataTimeout);
+    saveDataTimeout = setTimeout(() => {
+        const data = {
+            best: bestMeters,
+            wallet: wallet,
+            owned: owned,
+            skin: skinId,
+            mute: muted,
+            musicVol: musicVol,
+            sfxVol: sfxVol,
+            shakeIntensity: shakeIntensity,
+            flashIntensity: flashIntensity,
+        };
+        sdkPlayer.setData(data)
+            .then(() => console.log('Данные сохранены в облако'))
+            .catch(e => console.error('Ошибка сохранения', e));
+    }, 1000);
 }
 
 function sdkLoadData() {

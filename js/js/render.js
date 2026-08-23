@@ -327,7 +327,7 @@ function render() {
 
     drawBG(bloomCtx);
     bloomCtx.save();
-    if (shakeT > 0) {
+    if (shakeT > 0 && state === 'play') {
         const intensity = shakeT * 15 * dpr * shakeIntensity;  // ← добавь * shakeIntensity
         bloomCtx.translate((Math.random() * 2 - 1) * intensity, (Math.random() * 2 - 1) * intensity);
     }
@@ -352,7 +352,7 @@ function render() {
     drawBG(ctx);
     drawBGParticles(ctx);
     ctx.save();
-    if (shakeT > 0) {
+    if (shakeT > 0 && state === 'play') {
         const intensity = shakeT * 15 * dpr * shakeIntensity;  // ← добавь * shakeIntensity
         ctx.translate((Math.random() * 2 - 1) * intensity, (Math.random() * 2 - 1) * intensity);
     }

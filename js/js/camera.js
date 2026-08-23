@@ -9,6 +9,9 @@ function die() {
 }
 
 function finishDeath() {
+    if (deathFinished) return;  // ← ЗАЩИТА от повторных вызовов
+    deathFinished = true;
+
     lastGrabIdx = -1;
     dying = false;
     shakeT = 0;  // ← ОСТАНОВИТЬ ТРЯСКУ!
@@ -37,6 +40,7 @@ function finishDeath() {
 
 function doRevive() {
     reviveAvail = false;
+    deathFinished = false;
     hide(el.over); show(el.hud); state = 'play'; dying = false;
     // Сброс комбо при ревайве
     combo = 0;

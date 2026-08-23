@@ -80,6 +80,7 @@ function buildSkins() {
 
 function startRun(newSeed) {
     lastSeed = newSeed;
+    deathFinished = false; 
     resetWorld(newSeed, false);
     state = 'play';
     hide(el.menu); hide(el.over); hide(el.pauseScr); hide(el.settingsScr); show(el.hud);
