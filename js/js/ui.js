@@ -156,6 +156,34 @@ function hideSettings() {
     Snd.ui();
 }
 
+function sdkShowInterstitial(onComplete) {
+    if (!ysdk) {
+        onComplete && onComplete();  // без SDK сразу запускаем
+        return;
+    }
+    const now = Date.now();
+    if (now - lastInterstitialTime < 60000) {
+        onComplete && onComplete();  // троттлинг — сразу запускаем
+        return;
+    }
+    lastInterstitialTime = now;
+
+    ysdk.adv.showFullscreenAdv({
+        callbacks: {
+            onOpen: () => pauseForAd(),
+            onClose: () => {
+                resumeAfterAd();
+                onComplete && onComplete();  // ← запускаем после закрытия
+            },
+            onError: (e) => {
+                resumeAfterAd();
+                console.error('Ошибка interstitial', e);
+                onComplete && onComplete();  // ← при ошибке тоже запускаем
+            }
+        }
+    });
+}
+
 if (el.btnSettings) {
     el.btnSettings.addEventListener('click', showSettings);
 }
@@ -212,15 +240,17 @@ el.btnPause.addEventListener('click', () => { Snd.ui(); pauseGame(); });
 
 el.btnAgain.addEventListener('click', () => {
     Snd.ui();
-    sdkShowInterstitial();  // Показываем рекламу между забегами
-    startRun((Math.random() * 2 ** 31) | 0);
+    sdkShowInterstitial(() => {
+        startRun((Math.random() * 2 ** 31) | 0);
+    });
 });
 
 el.btnRestart.addEventListener('click', () => {
     Snd.ui();
     hide(el.pauseScr);
-    sdkShowInterstitial();
-    startRun((Math.random() * 2 ** 31) | 0);
+    sdkShowInterstitial(() => {
+        startRun((Math.random() * 2 ** 31) | 0);
+    });
 });
 
 el.btnRevive.addEventListener('click', () => {

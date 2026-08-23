@@ -7,31 +7,34 @@ function die() {
     burst(hero.x, hero.y, 20, '#ffffff', 5);
     if (state === 'play') Snd.death();
 }
+
 function finishDeath() {
     lastGrabIdx = -1;
     dying = false;
+    shakeT = 0;  // ← ОСТАНОВИТЬ ТРЯСКУ!
+
+    const earnedCoins = coinsRun;  // запоминаем заработанное
+    coinsRun = 0;  // ← ОБНУЛЯЕМ, чтобы повторный вызов не добавлял
+
     Snd.startMusic('menu')
-    if (state === 'menu') {
-        resetWorld((Math.random() * 2 ** 31) | 0, true);
-        return;
-    }
+    if (state === 'menu') { resetWorld((Math.random() * 2 ** 31) | 0, true); return; }
     state = 'over';
     const m = Math.floor(maxAlt);
     const rec = m > bestMeters;
     if (rec) {
         bestMeters = m;
-        // Отправляем в лидерборд
         if (sdkReady) sdkSubmitScore(m);
     }
-    wallet += coinsRun;
-    saveAllDataDebounced();
+    wallet += earnedCoins;  // добавляем запомненное значение
+    saveAllData();
     el.overMeters.textContent = m + ' м';
-    el.overCoins.textContent = '◈ +' + coinsRun;
+    el.overCoins.textContent = '◈ +' + earnedCoins;
     el.overCombo.textContent = 'серия ×' + maxCombo;
     el.recordBadge.classList.toggle('hidden', !rec);
     el.btnRevive.classList.toggle('hidden', !reviveAvail);
     show(el.over); hide(el.hud);
 }
+
 function doRevive() {
     reviveAvail = false;
     hide(el.over); show(el.hud); state = 'play'; dying = false;
