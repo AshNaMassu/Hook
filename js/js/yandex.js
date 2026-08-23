@@ -166,13 +166,11 @@ function resumeAfterAd() {
 
 // ====== цеилокеи API ======
 function sdkGameplayStart() {
-    if (!ysdk || !ysdk.features || !ysdk.features.GameplayAPI) return;
-    ysdk.features.GameplayAPI.start().catch(() => { });
+    ysdk?.features?.GameplayAPI?.start?.()?.catch?.(() => { });
 }
 
 function sdkGameplayStop() {
-    if (!ysdk || !ysdk.features || !ysdk.features.GameplayAPI) return;
-    ysdk.features.GameplayAPI.stop().catch(() => { });
+    ysdk?.features?.GameplayAPI?.stop?.()?.catch?.(() => { });
 }
 
 // ====== ъпкшй мю пюанвхи ярнк ======
