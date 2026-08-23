@@ -20,6 +20,11 @@ function initYandex() {
             if (ysdk.screen && ysdk.screen.lockOrientation) {
                 ysdk.screen.lockOrientation('portrait').catch(() => { });
             }
+
+            // Сигнал Яндексу, что игра готова (ВАЖНО: после инициализации!)
+            if (ysdk.features && ysdk.features.LoadingAPI) {
+                ysdk.features.LoadingAPI.ready().catch(() => { });
+            }
         })
         .catch(e => console.error('Ошибка инициализации SDK', e));
 }
