@@ -197,6 +197,7 @@ musicSliders.forEach(slider => {
     slider.addEventListener('input', (e) => {
         const vol = parseInt(e.target.value) / 100;
         Snd.setMusicVol(vol);
+        saveAllDataDebounced(); 
         musicLabels.forEach(l => l.textContent = Math.round(vol * 100) + '%');
         musicSliders.forEach(s => { if (s !== slider) s.value = e.target.value; });
     });
@@ -206,6 +207,7 @@ sfxSliders.forEach(slider => {
     slider.addEventListener('input', (e) => {
         const vol = parseInt(e.target.value) / 100;
         Snd.setSfxVol(vol);
+        saveAllDataDebounced(); 
         sfxLabels.forEach(l => l.textContent = Math.round(vol * 100) + '%');
         sfxSliders.forEach(s => { if (s !== slider) s.value = e.target.value; });
         Snd.ui();
