@@ -11,7 +11,7 @@ function die() {
 function finishDeath() {
     if (deathFinished) return;  // ← ЗАЩИТА от повторных вызовов
     deathFinished = true;
-
+    sdkGameplayStop(); 
     lastGrabIdx = -1;
     dying = false;
     shakeT = 0;  // ← ОСТАНОВИТЬ ТРЯСКУ!
@@ -36,6 +36,23 @@ function finishDeath() {
     el.recordBadge.classList.toggle('hidden', !rec);
     el.btnRevive.classList.toggle('hidden', !reviveAvail);
     show(el.over); hide(el.hud);
+
+    //TODO: shortcut
+    // Предложить ярлык после 3 игр с рекордом
+    //if (rec && runCount >= 3) {
+    //    setTimeout(() => {
+    //        sdkShowShortcut(
+    //            () => {
+    //                // Успех — награда
+    //                wallet += 50;
+    //                saveAllData();
+    //                el.walletMenu.textContent = wallet;
+    //                addFloat(W / 2 / scale, H / 2 / scale, '+50◈ за ярлык', '#26e0ff', 24);
+    //            },
+    //            () => { }  // Пропустил — ничего
+    //        );
+    //    }, 1000);
+    //}
 }
 
 function doRevive() {

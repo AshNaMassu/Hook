@@ -32,5 +32,6 @@ window.addEventListener('keyup', e => {
 document.addEventListener('visibilitychange', () => {
     if (document.hidden && state === 'play') {
         pauseGame();
+        sdkGameplayStop();
     }
 });

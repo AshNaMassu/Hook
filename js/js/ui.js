@@ -83,6 +83,7 @@ function startRun(newSeed) {
     deathFinished = false; 
     resetWorld(newSeed, false);
     state = 'play';
+    sdkGameplayStart();  
     hide(el.menu); hide(el.over); hide(el.pauseScr); hide(el.settingsScr); show(el.hud);
     hudM = -1; hudC = -1; hudCombo = -1;
     Snd.startMusic('game');
@@ -92,6 +93,7 @@ function startRun(newSeed) {
 function toMenu() {
     resetWorld((Math.random() * 2 ** 31) | 0, true);
     state = 'menu';
+    sdkGameplayStop(); 
     hide(el.over); hide(el.pauseScr); hide(el.hud); hide(el.settingsScr); show(el.menu);
     el.bestLine.textContent = 'Рекорд: ' + bestMeters + ' м';
     el.walletMenu.textContent = wallet;
@@ -102,6 +104,7 @@ function toMenu() {
 function pauseGame() {
     if (state !== 'play') return;
     state = 'pause';
+    sdkGameplayStop(); 
     show(el.pauseScr);
     updateVolumeUI();
     Snd.startMusic('menu');
@@ -110,6 +113,7 @@ function pauseGame() {
 function resumeGame() {
     if (state !== 'pause') return;
     state = 'play';
+    sdkGameplayStart(); 
     hide(el.pauseScr);
     last = performance.now();
     Snd.startMusic('game');

@@ -147,17 +147,57 @@ function sdkShowInterstitial() {
 let stateBeforeAd = null;
 function pauseForAd() {
     stateBeforeAd = state;
+    sdkGameplayStop(); 
     if (state === 'play') pauseGame();
     // Гасим звук музыки
     if (Snd && Snd.stopMusic) Snd.stopMusic();
 }
 
 function resumeAfterAd() {
-    if (stateBeforeAd === 'play') resumeGame();
+    if (stateBeforeAd === 'play') {
+        resumeGame();
+        sdkGameplayStart(); 
+    }
     else if (Snd && Snd.startMusic) {
         if (state === 'play' && !dying) Snd.startMusic('game');
         else Snd.startMusic('menu');
     }
+}
+
+// ====== ГЕЙМПЛЕЙ API ======
+function sdkGameplayStart() {
+    if (!ysdk || !ysdk.features || !ysdk.features.GameplayAPI) return;
+    ysdk.features.GameplayAPI.start().catch(() => { });
+}
+
+function sdkGameplayStop() {
+    if (!ysdk || !ysdk.features || !ysdk.features.GameplayAPI) return;
+    ysdk.features.GameplayAPI.stop().catch(() => { });
+}
+
+// ====== ЯРЛЫК НА РАБОЧИЙ СТОЛ ======
+function sdkShowShortcut(onSuccess, onSkip) {
+    if (!ysdk || !ysdk.shortcut) {
+        onSkip && onSkip();
+        return;
+    }
+
+    ysdk.shortcut.canShowPrompt()
+        .then(prompt => {
+            if (!prompt.canShow) {
+                onSkip && onSkip();
+                return;
+            }
+            return ysdk.shortcut.showPrompt();
+        })
+        .then(result => {
+            if (result && result.outcome === 'accepted') {
+                onSuccess && onSuccess();
+            } else {
+                onSkip && onSkip();
+            }
+        })
+        .catch(() => onSkip && onSkip());
 }
 
 // Инициализация при загрузке страницы
