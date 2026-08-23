@@ -1,3 +1,11 @@
+let saveTimeout = null;
+function saveAllDataDebounced() {
+    if (saveTimeout) clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+        saveAllData();
+    }, 500);  // сохраняем через 500мс после последнего изменения
+}
+
 const el = {};
 ['hud', 'meters', 'coinsHud', 'combo', 'hint', 'menu', 'over', 'pauseScr', 'settingsScr', 'bestLine', 'walletMenu', 'skins',
     'overMeters', 'overCoins', 'overCombo', 'recordBadge', 'btnPlay', 'btnAgain', 'btnSame', 'btnMenu1', 'btnMenu2',
@@ -49,13 +57,13 @@ function buildSkins() {
         d.addEventListener('click', () => {
             if (owned.includes(s.id)) {
                 skinId = s.id;
-                saveAllData();
+                saveAllDataDebounced();
                 Snd.ui();
             } else if (wallet >= s.price) {
                 wallet -= s.price;
                 owned.push(s.id);
                 skinId = s.id;
-                saveAllData();
+                saveAllDataDebounced();
                 Snd.coin();
             } else {
                 Snd.deny();
@@ -179,7 +187,7 @@ shakeSliders.forEach(slider => {
     slider.addEventListener('input', (e) => {
         const val = parseInt(e.target.value) / 100;
         shakeIntensity = val;
-        saveAllData(); 
+        saveAllDataDebounced(); 
         shakeLabels.forEach(l => l.textContent = Math.round(val * 100) + '%');
         shakeSliders.forEach(s => { if (s !== slider) s.value = e.target.value; });
     });
@@ -189,7 +197,7 @@ flashSliders.forEach(slider => {
     slider.addEventListener('input', (e) => {
         const val = parseInt(e.target.value) / 100;
         flashIntensity = val;
-        saveAllData(); 
+        saveAllDataDebounced(); 
         flashLabels.forEach(l => l.textContent = Math.round(val * 100) + '%');
         flashSliders.forEach(s => { if (s !== slider) s.value = e.target.value; });
     });
@@ -229,7 +237,7 @@ el.btnRevive.addEventListener('click', () => {
 
 el.btnMute.addEventListener('click', () => {
     muted = !muted;
-    saveAllData(); 
+    saveAllDataDebounced(); 
     el.btnMute.textContent = muted ? '🔇' : '🔊';
     if (muted) {
         Snd.stopMusic();

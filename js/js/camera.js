@@ -9,6 +9,7 @@ function die() {
 }
 function finishDeath() {
     lastGrabIdx = -1;
+    dying = false;
     Snd.startMusic('menu')
     if (state === 'menu') {
         resetWorld((Math.random() * 2 ** 31) | 0, true);
@@ -23,7 +24,7 @@ function finishDeath() {
         if (sdkReady) sdkSubmitScore(m);
     }
     wallet += coinsRun;
-    saveAllData();
+    saveAllDataDebounced();
     el.overMeters.textContent = m + ' м';
     el.overCoins.textContent = '◈ +' + coinsRun;
     el.overCombo.textContent = 'серия ×' + maxCombo;
