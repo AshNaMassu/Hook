@@ -18,13 +18,13 @@ let hudM = -1, hudC = -1, hudCombo = -1;
 function hudSync() {
     if (state !== 'play') return;
     const m = Math.floor(maxAlt);
-    if (m !== hudM) { hudM = m; el.meters.textContent = m + ' м'; }
+    if (m !== hudM) { hudM = m; el.meters.textContent = m + ' ' + t('metersShort'); }
     if (coinsRun !== hudC) { hudC = coinsRun; el.coinsHud.textContent = '◈ ' + coinsRun; }
     if (combo !== hudCombo) {
         hudCombo = combo;
         if (combo >= 1) {
             const mult = getComboMult();
-            el.combo.textContent = 'СЕРИЯ ×' + combo + ' (×' + mult + ')';
+            el.combo.textContent = t('series') + ' ×' + combo + ' (×' + mult + ')';
             el.combo.classList.add('show');
             el.combo.classList.remove('pop'); void el.combo.offsetWidth; el.combo.classList.add('pop');
         }
@@ -35,11 +35,11 @@ function hudSync() {
         if (hero.grabs === 0 && !hero.attached) {
             let near = false;
             for (const a of anchors) if (a !== hero.lastAnchor && Math.hypot(a.x - hero.x, a.y - hero.y) <= PF.grabRadius) { near = true; break; }
-            txt = near ? 'ДЕРЖИ!!!' : 'ДЕРЖИ ЭКРАН — ЗАЦЕПИТЬСЯ КРЮКОМ'; hot = near;
+            txt = near ? t('hintNear') : t('hintHold'); hot = near;
         } else if (hero.attached && hero.grabs <= 1 && hero.attachT > 0.5) {
-            txt = 'ОТПУСТИ — ПОЛЁТ ПО КАСАТЕЛЬНОЙ';
+            txt = t('hintRelease');
         } else if (hero.grabs === 2 && !hero.attached) {
-            txt = 'ЖМИ, КОГДА ТОЧКА ВСПЫХНЕТ';
+            txt = t('hintFlash');
         }
     }
     if (txt) { el.hint.textContent = txt; el.hint.classList.add('show'); el.hint.classList.toggle('hot', hot); }
@@ -95,7 +95,7 @@ function toMenu() {
     state = 'menu';
     sdkGameplayStop(); 
     hide(el.over); hide(el.pauseScr); hide(el.hud); hide(el.settingsScr); show(el.menu);
-    el.bestLine.textContent = 'Рекорд: ' + bestMeters + ' м';
+    el.bestLine.textContent = t('bestLabel') + ': ' + bestMeters + ' ' + t('metersShort');
     el.walletMenu.textContent = wallet;
     buildSkins();
     Snd.startMusic('menu');
@@ -291,3 +291,5 @@ window.addEventListener('pointerdown', function once() {
     if (!muted && state !== 'play') Snd.startMusic('menu');
     window.removeEventListener('pointerdown', once);
 });
+
+applyLocale();

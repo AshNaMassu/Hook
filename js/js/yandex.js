@@ -7,6 +7,7 @@ let sdkPlayer = null;
 function initYandex() {
     if (typeof YaGames === 'undefined') {
         console.log('SDK не найден — работаем без него (локально)');
+        detectLocale();
         return;
     }
     YaGames.init()
@@ -200,24 +201,13 @@ function sdkShowShortcut(onSuccess, onSkip) {
 }
 
 function detectLocale() {
-    // Определяем язык из браузера
     const browserLang = (navigator.language || 'ru').substring(0, 2);
-
-    // Если SDK доступен, можно получить язык платформы
-    if (ysdk && ysdk.environment && ysdk.environment.i18n) {
-        const sdkLang = ysdk.environment.i18n.lang;
-        if (LOCALES[sdkLang]) {
-            setLocale(sdkLang);
-            return;
-        }
-    }
-
-    // Fallback на язык браузера
     if (LOCALES[browserLang]) {
         setLocale(browserLang);
     } else {
-        setLocale('en');  // английский как международный
+        setLocale('en');
     }
+    applyLocale();  // применить перевод к DOM
 }
 
 // Инициализация при загрузке страницы

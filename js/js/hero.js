@@ -48,7 +48,7 @@ function tryGrab() {
 
             // Дальний прыжок: пропустили 1+ точек
             if (skipCount >= COMBO.longJump.skipPoints) {
-                addFloat(best.x, best.y + 1.0, 'ДАЛЬНИЙ! (+' + skipCount + ')', '#ff4fd8', 26);
+                addFloat(best.x, best.y + 1.0, t('longJump') + ' (+' + skipCount + ')', '#ff4fd8', 26);
                 burst(best.x, best.y, 14, '#ff4fd8', 5);
                 if (state === 'play') Snd.perfect();
             }
@@ -56,7 +56,7 @@ function tryGrab() {
             // Перфект: зацеп за следующую точку без пропуска
             if (skipCount === 0) {
                 perfectFlash = 0.35;
-                addFloat(best.x, best.y + 0.4, 'ПЕРФЕКТ ×' + combo, '#ffc23d', combo > 1 ? 24 : 20);
+                addFloat(best.x, best.y + 0.4, t('perfect') + ' ×' + combo, '#ffc23d', combo > 1 ? 24 : 20);
                 burst(best.x, best.y, 14, '#ffc23d', 4);
                 if (state === 'play') Snd.perfect();
             }
@@ -64,7 +64,7 @@ function tryGrab() {
             // БЫСТРО! если зацепились в первые 0.2с после релиза
             const timeSinceRelease = uiT - hero.lastReleaseTime;
             if (timeSinceRelease <= COMBO.fastThreshold) {
-                addFloat(best.x, best.y + 0.8, 'БЫСТРО!', '#26e0ff', 22);
+                addFloat(best.x, best.y + 0.8, t('fast'), '#26e0ff', 22);
                 if (state === 'play') Snd.perfect();
             }
         }
@@ -89,7 +89,7 @@ function doRelease() {
     // БЫСТРО! если отпустили в первые 0.2с
     const holdTime = uiT - hero.grabTime;
     if (holdTime <= COMBO.fastThreshold) {
-        addFloat(hero.x, hero.y + 0.6, 'БЫСТРО!', '#26e0ff', 22);
+        addFloat(hero.x, hero.y + 0.6, t('fast'), '#26e0ff', 22);
         if (state === 'play') Snd.perfect(); // или отдельный звук
     }
 

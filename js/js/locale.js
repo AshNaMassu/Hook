@@ -1,59 +1,61 @@
-
+Ôªø
 const LOCALES = {
     ru: {
-        // ÃÂÌ˛
+        // –ú–µ–Ω—é
         title: 'NEON HOOK',
-        subtitle: 'Œ‰Ì‡ ÍÌÓÔÍ‡.\nƒÂÊË ó Í˛Í Ë ‚‡˘ÂÌËÂ.\nŒÚÔÛÒÚË ó ÔÓÎ∏Ú ÔÓ Í‡Ò‡ÚÂÎ¸ÌÓÈ.',
-        btnPlay: '»√–¿“‹',
-        btnSettings: '? Õ¿—“–Œ… »',
-        bestLabel: '–ÂÍÓ‰',
-        walletLabel: ' Ó¯ÂÎ∏Í',
+        subtitle: '–û–¥–Ω–∞ –∫–Ω–æ–ø–∫–∞.\n–î–µ—Ä–∂–∏ ‚Äî –∫—Ä—é–∫ –∏ –≤—Ä–∞—â–µ–Ω–∏–µ.\n–û—Ç–ø—É—Å—Ç–∏ ‚Äî –ø–æ–ª—ë—Ç –ø–æ –∫–∞—Å–∞—Ç–µ–ª—å–Ω–æ–π.',
+        btnPlay: '–ò–ì–†–ê–¢–¨',
+        btnSettings: '‚öô –ù–ê–°–¢–†–û–ô–ö–ò',
+        bestLabel: '–†–µ–∫–æ—Ä–¥',
+        walletLabel: '–ö–æ—à–µ–ª—ë–∫',
 
-        // √ÂÈÏÔÎÂÈ
-        metersShort: 'Ï',
-        height: '¬€—Œ“¿',
-        combo: '—≈–»ﬂ',
-        series: '—≈–»ﬂ',
+        // –ì–µ–π–º–ø–ª–µ–π
+        metersShort: '–º',
+        height: '–í–´–°–û–¢–ê',
+        combo: '–°–ï–†–ò–Ø',
+        series: '–°–ï–†–ò–Ø',
 
-        // –Â‡ÍˆËË
-        perfect: 'œ≈–‘≈ “',
-        fast: '¡€—“–Œ!',
-        longJump: 'ƒ¿À‹Õ»…!',
+        // –†–µ–∞–∫—Ü–∏–∏
+        perfect: '–ü–ï–†–§–ï–ö–¢',
+        fast: '–ë–´–°–¢–†–û!',
+        longJump: '–î–ê–õ–¨–ù–ò–ô!',
 
-        // —ÏÂÚ¸
-        gameOver: '—–€¬',
-        newRecord: '? ÕŒ¬€… –≈ Œ–ƒ ?',
-        btnAgain: '≈Ÿ® –¿«',
-        btnSame: '“Œ“ ∆≈ Ã¿–ÿ–”“',
-        btnMenu: 'Ã≈Õﬁ',
-        btnRevive: '? œ–ŒƒŒÀ∆»“‹',
+        // –°–º–µ—Ä—Ç—å
+        gameOver: '–°–†–´–í',
+        newRecord: '‚òÖ –ù–û–í–´–ô –†–ï–ö–û–†–î ‚òÖ',
+        btnAgain: '–ï–©–Å –†–ê–ó',
+        btnSame: '–¢–û–¢ –ñ–ï –ú–ê–†–®–†–£–¢',
+        btnMenu: '–ú–ï–ù–Æ',
+        btnRevive: '‚ñ∂ –ü–†–û–î–û–õ–ñ–ò–¢–¨',
 
-        // Õ‡ÒÚÓÈÍË
-        settings: 'Õ¿—“–Œ… »',
-        music: 'ÃÛÁ˚Í‡',
-        sfx: '›ÙÙÂÍÚ˚',
-        shake: '“ˇÒÍ‡',
-        flash: '¬ÒÔ˚¯ÍË',
-        back: '? Õ¿«¿ƒ',
+        // –ù–∞—Å—Ç—Ä–æ–π–∫–∏
+        settings: '–ù–ê–°–¢–†–û–ô–ö–ò',
+        music: '–ú—É–∑—ã–∫–∞',
+        sfx: '–≠—Ñ—Ñ–µ–∫—Ç—ã',
+        shake: '–¢—Ä—è—Å–∫–∞',
+        flash: '–í—Å–ø—ã—à–∫–∏',
+        back: '‚Üê –ù–ê–ó–ê–î',
 
-        // œ‡ÛÁ‡
-        pause: 'œ¿”«¿',
-        resume: 'œ–ŒƒŒÀ∆»“‹',
-        restart: '«¿ÕŒ¬Œ',
+        // –ü–∞—É–∑–∞
+        pause: '–ü–ê–£–ó–ê',
+        resume: '–ü–†–û–î–û–õ–ñ–ò–¢–¨',
+        restart: '–ó–ê–ù–û–í–û',
 
-        // œÓ‰ÒÍ‡ÁÍË
-        hintHold: 'ƒ≈–∆» › –¿Õ ó «¿÷≈œ»“‹—ﬂ  –ﬁ ŒÃ',
-        hintRelease: 'Œ“œ”—“» ó œŒÀ®“ œŒ  ¿—¿“≈À‹ÕŒ…',
-        hintFlash: '∆Ã»,  Œ√ƒ¿ “Œ◊ ¿ ¬—œ€’Õ≈“',
-        hintNear: 'ƒ≈–∆»!!!',
+        // –ü–æ–¥—Å–∫–∞–∑–∫–∏
+        hintHold: '–î–ï–†–ñ–ò –≠–ö–†–ê–ù ‚Äî –ó–ê–¶–ï–ü–ò–¢–¨–°–Ø –ö–†–Æ–ö–û–ú',
+        hintRelease: '–û–¢–ü–£–°–¢–ò ‚Äî –ü–û–õ–Å–¢ –ü–û –ö–ê–°–ê–¢–ï–õ–¨–ù–û–ô',
+        hintFlash: '–ñ–ú–ò, –ö–û–ì–î–ê –¢–û–ß–ö–ê –í–°–ü–´–•–ù–ï–¢',
+        hintNear: '–î–ï–†–ñ–ò!!!',
+
+        timesShort: '—Ä–∞–∑',
     },
 
     en: {
         // Menu
         title: 'NEON HOOK',
-        subtitle: 'One button.\nHold ó hook and spin.\nRelease ó fly on tangent.',
+        subtitle: 'One button.\nHold ‚Äî hook and spin.\nRelease ‚Äî fly on tangent.',
         btnPlay: 'PLAY',
-        btnSettings: '? SETTINGS',
+        btnSettings: '‚öô SETTINGS',
         bestLabel: 'Best',
         walletLabel: 'Wallet',
 
@@ -70,11 +72,11 @@ const LOCALES = {
 
         // Death
         gameOver: 'FALL',
-        newRecord: '? NEW RECORD ?',
+        newRecord: '‚òÖ NEW RECORD ‚òÖ',
         btnAgain: 'AGAIN',
         btnSame: 'SAME ROUTE',
         btnMenu: 'MENU',
-        btnRevive: '? CONTINUE',
+        btnRevive: '‚ñ∂ CONTINUE',
 
         // Settings
         settings: 'SETTINGS',
@@ -82,7 +84,7 @@ const LOCALES = {
         sfx: 'Sound',
         shake: 'Shake',
         flash: 'Flash',
-        back: '? BACK',
+        back: '‚Üê BACK',
 
         // Pause
         pause: 'PAUSE',
@@ -90,25 +92,52 @@ const LOCALES = {
         restart: 'RESTART',
 
         // Hints
-        hintHold: 'HOLD SCREEN ó HOOK THE POINT',
-        hintRelease: 'RELEASE ó FLY ON TANGENT',
+        hintHold: 'HOLD SCREEN ‚Äî HOOK THE POINT',
+        hintRelease: 'RELEASE ‚Äî FLY ON TANGENT',
         hintFlash: 'TAP WHEN THE POINT FLASHES',
         hintNear: 'HOLD!!!',
+
+        timesShort: 'time',
     },
 };
 
-// “ÂÍÛ˘ËÈ ˇÁ˚Í (ÓÔÂ‰ÂÎˇÂÚÒˇ ËÁ SDK ËÎË ·‡ÛÁÂ‡)
+// –¢–µ–∫—É—â–∏–π —è–∑—ã–∫ (–æ–ø—Ä–µ–¥–µ–ª—è–µ—Ç—Å—è –∏–∑ SDK –∏–ª–∏ –±—Ä–∞—É–∑–µ—Ä–∞)
 let currentLocale = 'ru';
 
-// ‘ÛÌÍˆËˇ ÔÓÎÛ˜ÂÌËˇ ÔÂÂ‚Ó‰‡
+// –§—É–Ω–∫—Ü–∏—è –ø–æ–ª—É—á–µ–Ω–∏—è –ø–µ—Ä–µ–≤–æ–¥–∞
 function t(key) {
     const locale = LOCALES[currentLocale] || LOCALES.ru;
     return locale[key] || LOCALES.ru[key] || key;
 }
 
-// ”ÒÚ‡ÌÓ‚Í‡ ˇÁ˚Í‡
+// –£—Å—Ç–∞–Ω–æ–≤–∫–∞ —è–∑—ã–∫–∞
 function setLocale(lang) {
     if (LOCALES[lang]) {
         currentLocale = lang;
     }
+}
+
+// –ü—Ä–∏–º–µ–Ω—è–µ—Ç –ø–µ—Ä–µ–≤–æ–¥ –∫–æ –≤—Å–µ–º —Å—Ç–∞—Ç–∏—á–Ω—ã–º DOM-—ç–ª–µ–º–µ–Ω—Ç–∞–º
+function applyLocale() {
+    const $ = id => document.getElementById(id);
+
+    // –ú–µ–Ω—é
+    $('btnPlay').textContent = t('btnPlay');
+    $('btnSettings').textContent = t('btnSettings');
+    $('mLbl').textContent = t('height');
+
+    // –≠–∫—Ä–∞–Ω —Å–º–µ—Ä—Ç–∏
+    $('overCombo').textContent = t('series') + ' √ó0';
+    $('btnRevive').innerHTML = t('btnRevive') + ' <span style="font-size:.7em">(1 ' + t('timesShort') + ')</span>';
+    $('btnAgain').textContent = t('btnAgain');
+    $('btnSame').textContent = t('btnSame');
+    $('btnMenu1').textContent = t('btnMenu');
+    $('btnMenu2').textContent = t('btnMenu');
+
+    // –ù–∞—Å—Ç—Ä–æ–π–∫–∏
+    $('btnBackMenu').textContent = t('back');
+
+    // –ü–∞—É–∑–∞
+    $('btnResume').textContent = t('resume');
+    $('btnRestart').textContent = t('restart');
 }
