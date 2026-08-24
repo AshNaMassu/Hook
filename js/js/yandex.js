@@ -15,6 +15,7 @@ function initYandex() {
             sdkReady = true;
             console.log('SDK инициализирован');
             initPlayer();
+            detectLocale();
 
             // Ѕлокируем портретную ориентацию
             if (ysdk.screen && ysdk.screen.lockOrientation) {
@@ -196,6 +197,27 @@ function sdkShowShortcut(onSuccess, onSkip) {
             }
         })
         .catch(() => onSkip && onSkip());
+}
+
+function detectLocale() {
+    // ќпредел€ем €зык из браузера
+    const browserLang = (navigator.language || 'ru').substring(0, 2);
+
+    // ≈сли SDK доступен, можно получить €зык платформы
+    if (ysdk && ysdk.environment && ysdk.environment.i18n) {
+        const sdkLang = ysdk.environment.i18n.lang;
+        if (LOCALES[sdkLang]) {
+            setLocale(sdkLang);
+            return;
+        }
+    }
+
+    // Fallback на €зык браузера
+    if (LOCALES[browserLang]) {
+        setLocale(browserLang);
+    } else {
+        setLocale('en');  // английский как международный
+    }
 }
 
 // »нициализаци€ при загрузке страницы

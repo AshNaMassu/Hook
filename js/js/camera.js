@@ -30,7 +30,7 @@ function finishDeath() {
     }
     wallet += earnedCoins;  // добавляем запомненное значение
     saveAllData();
-    el.overMeters.textContent = m + ' м';
+    el.overMeters.textContent = m + t('metersShort');
     el.overCoins.textContent = '◈ +' + earnedCoins;
     el.overCombo.textContent = 'серия ×' + maxCombo;
     el.recordBadge.classList.toggle('hidden', !rec);
