@@ -94,7 +94,10 @@ function drawAnchors(reach, c) {
     c = c || ctx;
     for (const a of anchors) {
         const px = SX(a.x), py = SY(a.y);
-        if (py < -60 || py > H + 60) continue;
+
+        if (py < -60 || py > H + 60)
+            continue;
+
         const isCur = hero.attached && hero.anchor === a;
         const col = isCur ? '#ff4fd8' : '#29e5ff';
         const flash = anchorVisualState(a);
@@ -112,6 +115,7 @@ function drawAnchors(reach, c) {
         c.beginPath(); c.arc(0, 0, 0.3 * scale, 0, TAU); c.stroke();
         c.fillStyle = flash > 0 ? '#ffffff' : col;
         c.beginPath(); c.arc(0, 0, 0.14 * scale, 0, TAU); c.fill();
+
         if (flash > 0) {
             const pulseT = (uiT * 3) % 1;
             const ringR = (0.35 + pulseT * 0.6) * scale;
@@ -126,12 +130,14 @@ function drawAnchors(reach, c) {
             c.lineWidth = 2 * dpr;
             c.beginPath(); c.arc(0, 0, ringR2, 0, TAU); c.stroke();
         }
+
         if (reach.has(a.idx)) {
             const p = 0.5 + 0.5 * Math.sin(uiT * 7);
             c.strokeStyle = 'rgba(255,194,61,' + (0.45 + 0.5 * p) + ')';
             c.lineWidth = Math.max(2, 0.06 * scale);
             c.beginPath(); c.arc(0, 0, (0.5 + 0.12 * p) * scale, 0, TAU); c.stroke();
         }
+
         if (hero.grabs < 3 && !hero.attached && !dying) {
             let tgt = null;
             for (const b of anchors) { if (b !== hero.lastAnchor && b.y > hero.y - 1 && (!tgt || b.y < tgt.y)) tgt = b; }
@@ -142,6 +148,30 @@ function drawAnchors(reach, c) {
                 c.beginPath(); c.arc(0, 0, (0.55 + 0.35 * p) * scale, 0, TAU); c.stroke();
             }
         }
+
+        // Визуальный таймер комбо
+        if (isCur && hero.comboTimer > 0) {
+            const timerProgress = hero.comboTimer / COMBO.window;  // 1.0 → 0.0
+
+            // Цвет: зелёный (1.0) → жёлтый (0.5) → красный (0.0)
+            const hue = timerProgress * 120;
+            const color = `hsl(${hue}, 100%, 60%)`;
+
+            // Фоновое кольцо (полный круг)
+            c.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            c.lineWidth = 3 * dpr;
+            c.beginPath();
+            c.arc(0, 0, 0.55 * scale, 0, TAU);
+            c.stroke();
+
+            // Активное кольцо (убывающее)
+            c.strokeStyle = color;
+            c.lineWidth = 3 * dpr;
+            c.beginPath();
+            c.arc(0, 0, 0.55 * scale, -Math.PI / 2, -Math.PI / 2 + TAU * timerProgress);
+            c.stroke();
+        }
+
         c.restore();
     }
 }
