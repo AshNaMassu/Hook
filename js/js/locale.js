@@ -19,7 +19,7 @@ const LOCALES = {
         perfect: 'ПЕРФЕКТ',
         fast: 'БЫСТРО!',
         longJump: 'ДАЛЬНИЙ!',
-        slow: 'медленно'
+        slow: 'Время ушло'
 
         // Смерть
         gameOver: 'СРЫВ',
@@ -71,7 +71,7 @@ const LOCALES = {
         perfect: 'PERFECT',
         fast: 'FAST!',
         longJump: 'LONG JUMP!',
-        slow: 'slow'
+        slow: 'Time is up'
 
         // Death
         gameOver: 'FALL',
