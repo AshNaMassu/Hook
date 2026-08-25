@@ -19,7 +19,7 @@ const LOCALES = {
         perfect: 'ПЕРФЕКТ',
         fast: 'БЫСТРО!',
         longJump: 'ДАЛЬНИЙ!',
-        slow: 'Время ушло'
+        slow: 'Время ушло',
 
         // Смерть
         gameOver: 'СРЫВ',
@@ -49,7 +49,13 @@ const LOCALES = {
         hintNear: 'ДЕРЖИ!!!',
 
         timesShort: 'раз',
-        shieldText: 'ЩИТ 3с'
+        shieldText: 'ЩИТ 3с',
+
+        howto: 'лови <b style="color:#fff">вспышку</b> точки — это момент максимальной силы.<br>ранний зацеп = дальний полёт',
+        settingsMusic: '🎵 Музыка:',
+        settingsSfx: '🔊 Эффекты:',
+        settingsShake: '📳 Тряска:',
+        settingsFlash: '✨ Вспышки:',
     },
 
     en: {
@@ -71,7 +77,7 @@ const LOCALES = {
         perfect: 'PERFECT',
         fast: 'FAST!',
         longJump: 'LONG JUMP!',
-        slow: 'Time is up'
+        slow: 'Time is up',
 
         // Death
         gameOver: 'FALL',
@@ -101,7 +107,13 @@ const LOCALES = {
         hintNear: 'HOLD!!!',
 
         timesShort: 'time',
-        shieldText: 'SHIELD 3s'
+        shieldText: 'SHIELD 3s',
+
+        howto: 'catch the point <b style="color:#fff">flash</b> — it is the moment of max power.<br>early grab = longer flight',
+        settingsMusic: '🎵 Music:',
+        settingsSfx: '🔊 Sound:',
+        settingsShake: '📳 Shake:',
+        settingsFlash: '✨ Flash:',
     },
 };
 
@@ -143,4 +155,17 @@ function applyLocale() {
     if ($('btnBackMenu')) $('btnBackMenu').textContent = t('back');
     if ($('btnResume')) $('btnResume').textContent = t('resume');
     if ($('btnRestart')) $('btnRestart').textContent = t('restart');
+
+    // Субтитр и подсказка в меню
+    const sub = document.querySelector('#menu .sub');
+    if (sub) sub.innerHTML = t('subtitle').replace(/\n/g, '<br>');
+
+    const howto = document.querySelector('#menu .howto');
+    if (howto) howto.innerHTML = t('howto');
+
+    // Заголовки настроек (есть в двух местах: настройки и пауза)
+    document.querySelectorAll('.settingsLabelMusic').forEach(el => el.textContent = t('settingsMusic'));
+    document.querySelectorAll('.settingsLabelSfx').forEach(el => el.textContent = t('settingsSfx'));
+    document.querySelectorAll('.settingsLabelShake').forEach(el => el.textContent = t('settingsShake'));
+    document.querySelectorAll('.settingsLabelFlash').forEach(el => el.textContent = t('settingsFlash'));
 }

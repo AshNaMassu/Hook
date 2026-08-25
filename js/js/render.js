@@ -150,7 +150,7 @@ function drawAnchors(reach, c) {
         }
 
         // Визуальный таймер комбо
-        if (isCur && hero.comboTimer > 0) {
+        if (isCur && hero.comboTimer > 0 && combo > 0) {
             const timerProgress = hero.comboTimer / COMBO.window;  // 1.0 → 0.0
 
             // Цвет: зелёный (1.0) → жёлтый (0.5) → красный (0.0)

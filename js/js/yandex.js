@@ -6,7 +6,7 @@ let sdkPlayer = null;
 // Инициализация при запуске
 function initYandex() {
     if (typeof YaGames === 'undefined') {
-        console.log('SDK не найден — работаем без него (локально)');
+        console.log('SDK not found - running in local mode');
         detectLocale();
         return;
     }
@@ -14,21 +14,17 @@ function initYandex() {
         .then(sdk => {
             ysdk = sdk;
             sdkReady = true;
-            console.log('SDK инициализирован');
+            console.log('SDK initialized');
             initPlayer();
             detectLocale();
 
             // Блокируем портретную ориентацию
-            if (ysdk.screen && ysdk.screen.lockOrientation) {
-                ysdk.screen.lockOrientation('portrait').catch(() => { });
-            }
+            ysdk.screen?.lockOrientation?.('portrait')?.catch?.(() => { });
 
             // Сигнал Яндексу, что игра готова (ВАЖНО: после инициализации!)
-            if (ysdk.features && ysdk.features.LoadingAPI) {
-                ysdk.features.LoadingAPI.ready().catch(() => { });
-            }
+            ysdk.features?.LoadingAPI?.ready?.()?.catch?.(() => { });
         })
-        .catch(e => console.error('Ошибка инициализации SDK', e));
+        .catch(e => console.error('SDK init error', e));
 }
 
 // Получение игрока
@@ -37,9 +33,9 @@ function initPlayer() {
     ysdk.getPlayer({ scopes: false })
         .then(player => {
             sdkPlayer = player;
-            console.log('Игрок загружен');
+            console.log('Player loaded');
         })
-        .catch(e => console.error('Ошибка загрузки игрока', e));
+        .catch(e => console.error('Player load error', e));
 }
 
 // === СОХРАНЕНИЕ ДАННЫХ ===
@@ -63,8 +59,8 @@ function sdkSaveData() {
             flashIntensity: flashIntensity,
         };
         sdkPlayer.setData(data)
-            .then(() => console.log('Данные сохранены в облако'))
-            .catch(e => console.error('Ошибка сохранения', e));
+            .then(() => console.log('Data saved to cloud'))
+            .catch(e => console.error('Save error', e));
     }, 1000);
 }
 
@@ -82,9 +78,9 @@ function sdkLoadData() {
             if (data.sfxVol !== undefined) sfxVol = data.sfxVol;
             if (data.shakeIntensity !== undefined) shakeIntensity = data.shakeIntensity;
             if (data.flashIntensity !== undefined) flashIntensity = data.flashIntensity;
-            console.log('Данные загружены из облака');
+            console.log('Data loaded from cloud');
         })
-        .catch(e => console.error('Ошибка загрузки', e));
+        .catch(e => console.error('Load error', e));
 }
 
 // === ЛИДЕРБОРДЫ ===
@@ -92,8 +88,8 @@ function sdkSubmitScore(score) {
     if (!sdkReady || !ysdk) return;
     ysdk.getLeaderboards()
         .then(boards => boards.setLeaderboardScore('main', Math.floor(score)))
-        .then(() => console.log('Результат отправлен в лидерборд'))
-        .catch(e => console.error('Ошибка лидерборда', e));
+        .then(() => console.log('Score submitted to leaderboard'))
+        .catch(e => console.error('Leaderboard error', e));
 }
 
 // === РЕКЛАМА ===
@@ -117,7 +113,7 @@ function sdkShowRewarded(onSuccess, onFail) {
             },
             onError: (e) => {
                 resumeAfterAd();
-                console.error('Ошибка рекламы', e);
+                console.error('Ad error', e);
                 onFail && onFail();
             }
         }
@@ -139,7 +135,7 @@ function sdkShowInterstitial() {
             onClose: () => resumeAfterAd(),
             onError: (e) => {
                 resumeAfterAd();
-                console.error('Ошибка interstitial', e);
+                console.error('Interstitial error', e);
             }
         }
     });
@@ -201,7 +197,12 @@ function sdkShowShortcut(onSuccess, onSkip) {
 }
 
 function detectLocale() {
-    // 1. Сначала пытаемся получить язык из SDK
+    // Защита: проверяем, что locale.js загружен
+    if (typeof LOCALES === 'undefined' || typeof applyLocale === 'undefined') {
+        console.warn('locale.js not loaded, skipping');
+        return;
+    }
+
     if (ysdk && ysdk.environment && ysdk.environment.i18n) {
         const sdkLang = ysdk.environment.i18n.lang;
         if (LOCALES[sdkLang]) {
@@ -211,7 +212,6 @@ function detectLocale() {
         }
     }
 
-    // 2. Fallback на язык браузера
     const browserLang = (navigator.language || 'ru').substring(0, 2);
     if (LOCALES[browserLang]) {
         setLocale(browserLang);
