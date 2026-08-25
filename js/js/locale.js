@@ -19,6 +19,7 @@ const LOCALES = {
         perfect: 'ПЕРФЕКТ',
         fast: 'БЫСТРО!',
         longJump: 'ДАЛЬНИЙ!',
+        slow: 'медленно'
 
         // Смерть
         gameOver: 'СРЫВ',
@@ -48,6 +49,7 @@ const LOCALES = {
         hintNear: 'ДЕРЖИ!!!',
 
         timesShort: 'раз',
+        shieldText: 'ЩИТ 3с'
     },
 
     en: {
@@ -69,6 +71,7 @@ const LOCALES = {
         perfect: 'PERFECT',
         fast: 'FAST!',
         longJump: 'LONG JUMP!',
+        slow: 'slow'
 
         // Death
         gameOver: 'FALL',
@@ -98,6 +101,7 @@ const LOCALES = {
         hintNear: 'HOLD!!!',
 
         timesShort: 'time',
+        shieldText: 'SHIELD 3s'
     },
 };
 
@@ -122,22 +126,21 @@ function applyLocale() {
     const $ = id => document.getElementById(id);
 
     // Меню
-    $('btnPlay').textContent = t('btnPlay');
-    $('btnSettings').textContent = t('btnSettings');
-    $('mLbl').textContent = t('height');
+    if ($('btnPlay')) $('btnPlay').textContent = t('btnPlay');
+    if ($('btnSettings')) $('btnSettings').textContent = t('btnSettings');
+    if ($('mLbl')) $('mLbl').textContent = t('height');
 
     // Экран смерти
-    $('overCombo').textContent = t('series') + ' ×0';
-    $('btnRevive').innerHTML = t('btnRevive') + ' <span style="font-size:.7em">(1 ' + t('timesShort') + ')</span>';
-    $('btnAgain').textContent = t('btnAgain');
-    $('btnSame').textContent = t('btnSame');
-    $('btnMenu1').textContent = t('btnMenu');
-    $('btnMenu2').textContent = t('btnMenu');
+    if ($('btnRevive')) {
+        $('btnRevive').innerHTML = t('btnRevive') + ' <span style="font-size:.7em">(1 ' + t('timesShort') + ')</span>';
+    }
+    if ($('btnAgain')) $('btnAgain').textContent = t('btnAgain');
+    if ($('btnSame')) $('btnSame').textContent = t('btnSame');
+    if ($('btnMenu1')) $('btnMenu1').textContent = t('btnMenu');
+    if ($('btnMenu2')) $('btnMenu2').textContent = t('btnMenu');
 
-    // Настройки
-    $('btnBackMenu').textContent = t('back');
-
-    // Пауза
-    $('btnResume').textContent = t('resume');
-    $('btnRestart').textContent = t('restart');
+    // Настройки и пауза
+    if ($('btnBackMenu')) $('btnBackMenu').textContent = t('back');
+    if ($('btnResume')) $('btnResume').textContent = t('resume');
+    if ($('btnRestart')) $('btnRestart').textContent = t('restart');
 }

@@ -20,7 +20,7 @@ function stepWorld(dt) {
                 if (hero.comboTimer <= 0) {
                     combo = 0;
                     // Опционально: визуальная индикация потери комбо
-                    addFloat(hero.x, hero.y + 0.5, 'медленно...', '#ff2e5f', 16);
+                    addFloat(hero.x, hero.y + 0.5, t(slow) + '...', '#ff2e5f', 16);
                 }
             }
         } else {

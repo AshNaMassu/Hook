@@ -201,13 +201,24 @@ function sdkShowShortcut(onSuccess, onSkip) {
 }
 
 function detectLocale() {
+    // 1. Сначала пытаемся получить язык из SDK
+    if (ysdk && ysdk.environment && ysdk.environment.i18n) {
+        const sdkLang = ysdk.environment.i18n.lang;
+        if (LOCALES[sdkLang]) {
+            setLocale(sdkLang);
+            applyLocale();
+            return;
+        }
+    }
+
+    // 2. Fallback на язык браузера
     const browserLang = (navigator.language || 'ru').substring(0, 2);
     if (LOCALES[browserLang]) {
         setLocale(browserLang);
     } else {
-        setLocale('en');
+        setLocale('ru');
     }
-    applyLocale();  // применить перевод к DOM
+    applyLocale();
 }
 
 // Инициализация при загрузке страницы

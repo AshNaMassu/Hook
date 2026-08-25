@@ -75,6 +75,6 @@ function doRevive() {
     hero.attached = false; hero.lastAnchor = null;
     camY = ra.y + 1; camFreeze = 2.5; shieldT = 3;
     burst(ra.x, ra.y, 16, '#26e0ff', 4);
-    addFloat(ra.x, ra.y + 1, 'ЩИТ 3с', '#26e0ff', 18);
+    addFloat(ra.x, ra.y + 1, t('shieldText'), '#26e0ff', 18);
     Snd.ui();
 }
