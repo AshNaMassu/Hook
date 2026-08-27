@@ -29,6 +29,12 @@ function stepWorld(dt) {
     } else {
         hero.vy -= PF.g * dt; hero.x += hero.vx * dt; hero.y += hero.vy * dt;
     }
+
+    // Автозацеп при удержании: пока палец нажат — пытаемся зацепиться каждый кадр
+    if (holding && !hero.attached && !dying && state === 'play') {
+        tryGrab();
+    }
+
     if (shieldT > 0) shieldT -= dt;
 
     if (state === 'play' && !dying) {

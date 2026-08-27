@@ -103,7 +103,7 @@ function doRelease() {
 }
 function pressAction() {
     if (state !== 'play' || dying) return;
-    if (hero.attached) return;
+    if (hero.attached) return;  // уже зацеплен — ждём отпускания
     tryGrab();
 }
 function releaseAction() {

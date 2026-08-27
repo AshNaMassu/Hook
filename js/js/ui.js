@@ -81,6 +81,15 @@ function buildSkins() {
 function startRun(newSeed) {
     lastSeed = newSeed;
     deathFinished = false; 
+
+    // Сброс комбо и статистики забега
+    lastGrabIdx = -1;
+    maxReachedIdx = 0;
+    combo = 0;
+    maxCombo = 0;
+    coinsRun = 0;
+    maxAlt = 0;
+
     resetWorld(newSeed, false);
     state = 'play';
     sdkGameplayStart();  

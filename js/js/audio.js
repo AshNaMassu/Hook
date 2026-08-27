@@ -13,20 +13,27 @@ const Snd = {
 
     ensure() {
         try {
-            if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-            if (this.ctx.state === 'suspended') this.ctx.resume();
+            if (!this.ctx)
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+            if (this.ctx.state === 'suspended')
+                this.ctx.resume().catch(e => console.warn('AudioContext resume failed:', e));
+
             if (!this.noiseBuf) {
                 const n = this.ctx.sampleRate * 0.5 | 0;
                 this.noiseBuf = this.ctx.createBuffer(1, n, this.ctx.sampleRate);
                 const d = this.noiseBuf.getChannelData(0);
                 for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
             }
+
             if (!this.sfxGain) {
                 this.sfxGain = this.ctx.createGain();
                 this.sfxGain.gain.value = sfxVol;
                 this.sfxGain.connect(this.ctx.destination);
             }
-        } catch (e) { }
+        } catch (e) {
+            console.error('Audio ensure error:', e);
+        }
         return this.ctx;
     },
 
