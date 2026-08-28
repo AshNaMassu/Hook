@@ -11,6 +11,17 @@ function stepWorld(dt) {
         if (hero.attached) {
             hero.omega = Math.min(PF.wMax, hero.omega + PF.spinAccel * dt);
             hero.theta += hero.spinDir * hero.omega * dt;
+            
+            // Плавная анимация длины верёвки
+            if (hero.targetR !== undefined) {
+                hero.r += (hero.targetR - hero.r) * Math.min(1, 8 * dt);
+                // Когда верёвка достигла цели — убираем targetR
+                if (Math.abs(hero.targetR - hero.r) < 0.01) {
+                    hero.r = hero.targetR;
+                    delete hero.targetR;
+                }
+            }
+            
             const a = hero.anchor;
             hero.x = a.x + Math.cos(hero.theta) * hero.r;
             hero.y = a.y + Math.sin(hero.theta) * hero.r;
@@ -71,9 +82,13 @@ function stepWorld(dt) {
     //    }
     //}
 
-    // Автозацеп при удержании: пока палец нажат — пытаемся зацепиться каждый кадр
+    // Автозацеп при удержании: пока палец нажат — пытаемся зацепиться раз в 3 кадра для производительности
     if (holding && !hero.attached && !dying && state === 'play') {
-        tryGrab();
+        if (!window._grabFrame) window._grabFrame = 0;
+        window._grabFrame++;
+        if (window._grabFrame % 3 === 0) {
+            tryGrab();
+        }
     }
 
     if (shieldT > 0) shieldT -= dt;
@@ -83,7 +98,7 @@ function stepWorld(dt) {
     }
 
     if (!dying) {
-        const camXTgt = clamp(hero.x * 0.3, -ANCH_CLAMP * 0.3, ANCH_CLAMP * 0.3);
+        const camXTgt = clamp(hero.x * 0.3, -CAMERA.anchorClamp * 0.3, CAMERA.anchorClamp * 0.3);
         camX += (camXTgt - camX) * Math.min(1, 2 * dt);
     }
 
@@ -171,6 +186,14 @@ function stepWorld(dt) {
     }
     // смерть: лава
     if (!dying && hero.y < lavaY - LAVA.killMargin) die();
+    
+    // Стены из лавы: проверка столкновения
+    if (WALLS.enabled && !dying && state === 'play') {
+        if (hero.x < wallLeft || hero.x > wallRight) {
+            die();  // смерть при касании стены
+        }
+    }
+    
     if (dying) { deathT -= dt; if (deathT <= 0) finishDeath(); }
     // генерация и чистка
     spawnAhead();

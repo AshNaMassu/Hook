@@ -18,6 +18,12 @@ function tryGrab() {
     let best = null, bd = PF.grabRadius;
     for (const a of anchors) {
         if (a.cooldownT > 0) continue;
+        
+        // Быстрая проверка: если точка далеко по Y — пропускаем
+        if (Math.abs(a.y - hero.y) > PF.grabRadius) continue;
+        // Быстрая проверка: если точка далеко по X — пропускаем
+        if (Math.abs(a.x - hero.x) > PF.grabRadius) continue;
+        
         const d = Math.hypot(a.x - hero.x, a.y - hero.y);
         if (d <= bd) { bd = d; best = a; }
     }
@@ -25,10 +31,18 @@ function tryGrab() {
     hero.attached = true; hero.anchor = best; hero.attachT = 0;
     const dx = hero.x - best.x, dy = hero.y - best.y;
     const dist = Math.hypot(dx, dy) || 1e-3;
-    hero.r = clamp(dist, PF.rMin, PF.rMax);
+    hero.targetR = clamp(dist, PF.rMin, PF.rMax);  // целевая длина
+    hero.r = dist;  // начинаем с реальной длины (без скачка)
     hero.theta = Math.atan2(dy, dx);
     const w = (dx * hero.vy - dy * hero.vx) / (hero.r * hero.r);              // угловой момент
-    hero.spinDir = Math.abs(w) > PF.mom ? (w > 0 ? 1 : -1) : (best.spinDir || 1); // момент → иначе замысел маршрута
+    
+    // Если момент совсем мал (герой летит прямо на точку) — случайное направление
+    if (Math.abs(w) < 0.05) {
+        hero.spinDir = Math.random() > 0.5 ? 1 : -1;
+    } else {
+        hero.spinDir = w > 0 ? 1 : -1;
+    }
+    
     let wm = Math.abs(w); if (wm < PF.wMin) wm = PF.wMin;
     hero.omega = clamp(wm, PF.wMin, PF.wMax);
     hero.x = best.x + Math.cos(hero.theta) * hero.r;

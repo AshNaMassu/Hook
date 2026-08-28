@@ -337,6 +337,32 @@ function drawVignette(c) {
     }
 }
 
+function drawWalls(c) {
+    c = c || ctx;
+    if (!WALLS.enabled) return;
+    
+    const leftX = SX(wallLeft);
+    const rightX = SX(wallRight);
+    
+    // Левая стена
+    if (leftX > -50) {
+        const grad = c.createLinearGradient(leftX, 0, leftX + 30, 0);
+        grad.addColorStop(0, 'rgba(255, 46, 95, 0.8)');
+        grad.addColorStop(1, 'rgba(255, 46, 95, 0)');
+        c.fillStyle = grad;
+        c.fillRect(0, 0, leftX + 30, H);
+    }
+    
+    // Правая стена
+    if (rightX < W + 50) {
+        const grad = c.createLinearGradient(rightX, 0, rightX - 30, 0);
+        grad.addColorStop(0, 'rgba(255, 46, 95, 0.8)');
+        grad.addColorStop(1, 'rgba(255, 46, 95, 0)');
+        c.fillStyle = grad;
+        c.fillRect(rightX - 30, 0, W - rightX + 30, H);
+    }
+}
+
 function drawBGParticles(c) {
     c = c || ctx;
     c.save();
@@ -373,6 +399,7 @@ function render() {
     bloomCtx.restore();
     //drawDanger(bloomCtx);
     drawLava(bloomCtx);
+    drawWalls(bloomCtx);
     drawVignette(bloomCtx);
 
     // 2. Рисуем основную сцену на главном canvas
@@ -398,6 +425,7 @@ function render() {
     ctx.restore();
     //drawDanger(ctx);
     drawLava(ctx);
+    drawWalls(ctx);
     drawVignette(ctx);
 
     // 3. Накладываем bloom с размытием

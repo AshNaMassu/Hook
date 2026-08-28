@@ -7,6 +7,10 @@ let shieldT = 0, dying = false, deathT = 0, deathFinished = false, reviveAvail =
 let perfectFlash = 0, shakeT = 0, uiT = 0, bot = false;
 let lavaY = LAVA.startY;
 
+// Стены из лавы
+let wallLeft = -10;   // левая стена (будет обновлена при генерации)
+let wallRight = 10;   // правая стена
+
 const hero = {
     x: 0, y: 0, vx: 0, vy: 0, attached: false, anchor: null, lastAnchor: null,
     theta: 0, omega: 0, r: 2, spinDir: 1, attachT: 0, grabs: 0,
