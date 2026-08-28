@@ -24,11 +24,52 @@ function stepWorld(dt) {
                 }
             }
         } else {
-            hero.vy -= PF.g * dt; hero.x += hero.vx * dt; hero.y += hero.vy * dt;
+            hero.vy -= PF.g * dt;
+            hero.x += hero.vx * dt;
+            hero.y += hero.vy * dt;
         }
     } else {
-        hero.vy -= PF.g * dt; hero.x += hero.vx * dt; hero.y += hero.vy * dt;
+        hero.vy -= PF.g * dt;
+        hero.x += hero.vx * dt;
+        hero.y += hero.vy * dt;
     }
+
+    // Магнитный эффект: помогает попасть в точку, в которую игрок летит
+    //if (!hero.attached && !dying && state === 'play') {
+    //    const magnetRadius = PF.grabRadius * 1.5;
+    //
+    //    // Предсказываем, где герой будет через 0.3 секунды
+    //    const predictTime = 0.2;
+    //    const predictX = hero.x + hero.vx * predictTime;
+    //    const predictY = hero.y + hero.vy * predictTime;
+    //
+    //    // Находим точку, ближайшую к предсказанной позиции
+    //    let targetAnchor = null;
+    //    let bestDist = magnetRadius;
+    //
+    //    for (const a of anchors) {
+    //        if (a.cooldownT > 0) continue;
+    //        if (a.idx <= lastGrabIdx) continue;  // только точки впереди
+    //
+    //        const d = Math.hypot(a.x - predictX, a.y - predictY);
+    //        if (d > PF.grabRadius && d < bestDist) {
+    //            bestDist = d;
+    //            targetAnchor = a;
+    //        }
+    //    }
+    //
+    //    // Притягиваем к целевой точке
+    //    if (targetAnchor) {
+    //        const dx = targetAnchor.x - hero.x;
+    //        const dy = targetAnchor.y - hero.y;
+    //        const d = Math.hypot(dx, dy);
+    //        if (d > PF.grabRadius && d < magnetRadius) {
+    //            const force = 3.5 / (d * d);
+    //            hero.vx += (dx / d) * force * dt;
+    //            hero.vy += (dy / d) * force * dt;
+    //        }
+    //    }
+    //}
 
     // Автозацеп при удержании: пока палец нажат — пытаемся зацепиться каждый кадр
     if (holding && !hero.attached && !dying && state === 'play') {
