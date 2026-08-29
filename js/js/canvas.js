@@ -14,8 +14,11 @@ function resize() {
     cv.width = Math.round(sw * dpr); cv.height = Math.round(sh * dpr);
     cv.style.width = sw + 'px'; cv.style.height = sh + 'px';
     W = cv.width; H = cv.height;
-    scale = Math.min(H / 16, W / 9.5);
-    viewW = W / scale; viewH = H / scale;
+    
+    // Используем CAMERA.viewWidth для ширины обзора
+    viewW = CAMERA.viewWidth;
+    scale = W / viewW;
+    viewH = H / scale;
 
     // offscreen для bloom (половинное разрешение для производительности)
     bloomCv.width = Math.round(W / 2);
