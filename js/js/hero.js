@@ -15,7 +15,9 @@ function releaseVel() {
 function power() { return hero.attached ? hero.omega * hero.r : 0; }
 
 function tryGrab() {
-    let best = null, bd = PF.grabRadius;
+    let best = null;
+    let bestScore = -Infinity;
+    
     for (const a of anchors) {
         if (a.cooldownT > 0) continue;
         
@@ -25,7 +27,18 @@ function tryGrab() {
         if (Math.abs(a.x - hero.x) > PF.grabRadius) continue;
         
         const d = Math.hypot(a.x - hero.x, a.y - hero.y);
-        if (d <= bd) { bd = d; best = a; }
+        if (d > PF.grabRadius) continue;  // вне радиуса — пропускаем
+        
+        // Скоринг: приоритет по маршруту (idx) + высоте (y) + близости
+        const idxPriority = a.idx * 100;          // маршрут — главный приоритет
+        const heightBonus = a.y;                  // высота — вторичный
+        const distBonus = (PF.grabRadius - d) * 0.5;  // близость — третичный
+        const score = idxPriority + heightBonus + distBonus;
+        
+        if (score > bestScore) {
+            bestScore = score;
+            best = a;
+        }
     }
     if (!best) return;
     hero.attached = true; hero.anchor = best; hero.attachT = 0;
@@ -36,9 +49,11 @@ function tryGrab() {
     hero.theta = Math.atan2(dy, dx);
     const w = (dx * hero.vy - dy * hero.vx) / (hero.r * hero.r);              // угловой момент
     
-    // Если момент совсем мал (герой летит прямо на точку) — случайное направление
+    // Если момент совсем мал (герой летит прямо на точку) — выбираем по стороне подлёта
+    // dx < 0 → герой слева от точки → вращение по часовой (1)
+    // dx > 0 → герой справа от точки → вращение против часовой (-1)
     if (Math.abs(w) < 0.05) {
-        hero.spinDir = Math.random() > 0.5 ? 1 : -1;
+        hero.spinDir = dx < 0 ? 1 : -1;
     } else {
         hero.spinDir = w > 0 ? 1 : -1;
     }

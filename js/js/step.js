@@ -1,12 +1,59 @@
 let currentLookahead = -1.5;
 
+// ============================================================================
+// ОРКЕСТРАТОР: главная функция обновления мира
+// ============================================================================
+
 function stepWorld(dt) {
     if (state === 'pause') return;
+    
+    // Инициализация
     if (state === 'play' && runT === 0) lavaY = LAVA.startY;
+    
     uiT += dt;
-    if (bot) botThink();
     runT += dt;
-    // герой
+    
+    // Основные системы
+    if (bot) botThink();
+    updateHero(dt);
+    updateAutoGrab();
+    updateCamera(dt);
+    updateLava(dt);
+    updateCooldowns(dt);
+    
+    // Геймплей
+    if (!dying) {
+        collectCoins(dt);
+        checkSpikes(dt);
+        checkLavaDeath();
+        checkWalls();
+    }
+    
+    // Таймер смерти
+    if (dying) {
+        deathT -= dt;
+        if (deathT <= 0) finishDeath();
+    }
+    
+    // Генерация и чистка
+    spawnAhead();
+    cleanupEntities();
+    
+    // Эффекты
+    updateParticles(dt);
+    updateFloats(dt);
+    updateTimers(dt);
+    updateBGParticles(dt);
+    
+    // Музыка
+    updateMusicIntensity();
+}
+
+// ============================================================================
+// ПОДФУНКЦИИ: обновление систем
+// ============================================================================
+
+function updateHero(dt) {
     if (!dying) {
         if (hero.attached) {
             hero.omega = Math.min(PF.wMax, hero.omega + PF.spinAccel * dt);
@@ -26,11 +73,12 @@ function stepWorld(dt) {
             hero.x = a.x + Math.cos(hero.theta) * hero.r;
             hero.y = a.y + Math.sin(hero.theta) * hero.r;
             hero.attachT += dt;
+            
+            // Таймер комбо
             if (hero.comboTimer > 0) {
                 hero.comboTimer -= dt;
                 if (hero.comboTimer <= 0) {
                     combo = 0;
-                    // Опционально: визуальная индикация потери комбо
                     addFloat(hero.x, hero.y + 0.5, t('slow') + '...', '#ff2e5f', 16);
                 }
             }
@@ -44,45 +92,16 @@ function stepWorld(dt) {
         hero.x += hero.vx * dt;
         hero.y += hero.vy * dt;
     }
+    
+    if (shieldT > 0) shieldT -= dt;
+    
+    if (state === 'play' && !dying) {
+        maxAlt = Math.max(maxAlt, hero.y);
+    }
+}
 
-    // Магнитный эффект: помогает попасть в точку, в которую игрок летит
-    //if (!hero.attached && !dying && state === 'play') {
-    //    const magnetRadius = PF.grabRadius * 1.5;
-    //
-    //    // Предсказываем, где герой будет через 0.3 секунды
-    //    const predictTime = 0.2;
-    //    const predictX = hero.x + hero.vx * predictTime;
-    //    const predictY = hero.y + hero.vy * predictTime;
-    //
-    //    // Находим точку, ближайшую к предсказанной позиции
-    //    let targetAnchor = null;
-    //    let bestDist = magnetRadius;
-    //
-    //    for (const a of anchors) {
-    //        if (a.cooldownT > 0) continue;
-    //        if (a.idx <= lastGrabIdx) continue;  // только точки впереди
-    //
-    //        const d = Math.hypot(a.x - predictX, a.y - predictY);
-    //        if (d > PF.grabRadius && d < bestDist) {
-    //            bestDist = d;
-    //            targetAnchor = a;
-    //        }
-    //    }
-    //
-    //    // Притягиваем к целевой точке
-    //    if (targetAnchor) {
-    //        const dx = targetAnchor.x - hero.x;
-    //        const dy = targetAnchor.y - hero.y;
-    //        const d = Math.hypot(dx, dy);
-    //        if (d > PF.grabRadius && d < magnetRadius) {
-    //            const force = 3.5 / (d * d);
-    //            hero.vx += (dx / d) * force * dt;
-    //            hero.vy += (dy / d) * force * dt;
-    //        }
-    //    }
-    //}
-
-    // Автозацеп при удержании: пока палец нажат — пытаемся зацепиться раз в 3 кадра для производительности
+function updateAutoGrab() {
+    // Автозацеп при удержании: раз в 3 кадра для производительности
     if (holding && !hero.attached && !dying && state === 'play') {
         if (!window._grabFrame) window._grabFrame = 0;
         window._grabFrame++;
@@ -90,25 +109,20 @@ function stepWorld(dt) {
             tryGrab();
         }
     }
+}
 
-    if (shieldT > 0) shieldT -= dt;
-
-    if (state === 'play' && !dying) {
-        maxAlt = Math.max(maxAlt, hero.y);
-    }
-
+function updateCamera(dt) {
     if (!dying) {
         const camXTgt = clamp(hero.x * 0.3, -CAMERA.anchorClamp * 0.3, CAMERA.anchorClamp * 0.3);
         camX += (camXTgt - camX) * Math.min(1, 2 * dt);
     }
-
-    // Камера = окно: адаптивный lookahead
+    
     if (camFreeze > 0) {
         camFreeze -= dt;
     } else {
         // Адаптивный lookahead в зависимости от движения
         let targetLookahead = -1.5;  // базовое значение
-
+        
         if (!hero.attached && !dying) {
             // В полёте: смотрим вперёд по направлению движения
             if (hero.vy > 2) {
@@ -122,17 +136,17 @@ function stepWorld(dt) {
             // При зацепе: стандартный вид
             targetLookahead = -1.5;
         }
-
+        
         // Плавное изменение lookahead (быстрее реакция)
         currentLookahead += (targetLookahead - currentLookahead) * Math.min(1, 5 * dt);
-
+        
         // Используем адаптивный lookahead
         const focusY = hero.attached && hero.anchor ? hero.anchor.y : hero.y;
         const tgt = focusY + currentLookahead;
-
+        
         if (!dying) {
             // Увеличенная скорость камеры чтобы успевать
-            const maxCamSpeed = 12 * dt;  // было 8, стало 12
+            const maxCamSpeed = 12 * dt;
             let delta = tgt - camY;
             if (Math.abs(delta) > maxCamSpeed) {
                 delta = Math.sign(delta) * maxCamSpeed;
@@ -140,36 +154,51 @@ function stepWorld(dt) {
             camY += delta;
         }
     }
+}
 
-    // Лава = палач: поднимается с rubber-band
+function updateLava(dt) {
+    // Лава не двигается в обучении
+    if (tutorialActive) return;
+    
     const diff = Math.min(1, runT / 180);
-    let lavaSpeed = LAVA.baseSpeed + LAVA.speedRamp * diff;
+    const heightDiff = Math.min(1, maxAlt / 300);
+    let lavaSpeed = LAVA.baseSpeed + LAVA.speedRamp * diff * (1 + heightDiff * 0.3);
+    
     const distToLava = hero.y - lavaY;
-
+    
     // Rubber-band: отстал >18 юнитов → ×1.5, подошла ближе ~4 → ×0.75
     if (distToLava > 18) {
         lavaSpeed *= 1.5;
     } else if (distToLava < 4) {
         lavaSpeed *= 0.75;
     }
-
+    
     lavaY += lavaSpeed * dt;
+}
 
-    // Обновление кулдауна точек для повторного зацепа
+function updateCooldowns(dt) {
     for (const a of anchors) {
         if (a.cooldownT > 0) a.cooldownT -= dt;
     }
-    // монеты
-    if (!dying) for (const c of coins) {
+}
+
+// ============================================================================
+// ПОДФУНКЦИИ: геймплей
+// ============================================================================
+
+function collectCoins(dt) {
+    if (dying) return;
+    
+    for (const c of coins) {
         if (c.taken) continue;
         if (Math.hypot(c.x - hero.x, c.y - hero.y) < 0.6) {
             c.taken = true;
             const baseVal = 1;
             const val = Math.round(baseVal * getComboMult());
-
+            
             // Бонус за дальний прыжок (если собрали монету из длинной секции)
-            const bonus = 0; // пока что 0, потом можно добавить
-
+            const bonus = 0;
+            
             if (state === 'play') {
                 coinsRun += val + bonus;
                 Snd.coin();
@@ -180,24 +209,39 @@ function stepWorld(dt) {
             burst(c.x, c.y, 7, '#ffc23d', 2.6);
         }
     }
-    // шипы
-    if (!dying && shieldT <= 0) for (const s of spikes) {
-        if (Math.hypot(s.x - hero.x, s.y - hero.y) < 0.5) { die(); break; }
-    }
-    // смерть: лава
-    if (!dying && hero.y < lavaY - LAVA.killMargin) die();
+}
+
+function checkSpikes(dt) {
+    if (tutorialActive || dying || shieldT > 0) return;
     
-    // Стены из лавы: проверка столкновения
-    if (WALLS.enabled && !dying && state === 'play') {
-        if (hero.x < wallLeft || hero.x > wallRight) {
-            die();  // смерть при касании стены
+    for (const s of spikes) {
+        if (Math.hypot(s.x - hero.x, s.y - hero.y) < 0.5) {
+            die();
+            break;
         }
     }
+}
+
+function checkLavaDeath() {
+    if (tutorialActive || dying) return;
+    if (hero.y < lavaY - LAVA.killMargin) die();
+}
+
+function checkWalls() {
+    if (!WALLS.enabled || tutorialActive || dying) return;
+    if (hero.x < wallLeft || hero.x > wallRight) {
+        die();
+    }
+}
+
+// ============================================================================
+// ПОДФУНКЦИИ: генерация и чистка
+// ============================================================================
+
+function cleanupEntities() {
+    const cutA = camY - viewH / 2 - 25;
+    const cutO = camY - viewH / 2 - 15;
     
-    if (dying) { deathT -= dt; if (deathT <= 0) finishDeath(); }
-    // генерация и чистка
-    spawnAhead();
-    const cutA = camY - viewH / 2 - 25, cutO = camY - viewH / 2 - 15;
     for (let i = anchors.length - 1; i >= 0; i--) {
         const a = anchors[i];
         if (a.y < cutA && a !== hero.anchor && a !== hero.lastAnchor) anchors.splice(i, 1);
@@ -207,20 +251,44 @@ function stepWorld(dt) {
             coins.splice(i, 1);
         }
     }
-    for (let i = spikes.length - 1; i >= 0; i--) if (spikes[i].y < cutO) spikes.splice(i, 1);
-    // частицы / тексты
-    for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i]; p.life -= dt;
-        if (p.life <= 0) { particles.splice(i, 1); continue; }
-        p.vy -= 6 * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+    for (let i = spikes.length - 1; i >= 0; i--) {
+        if (spikes[i].y < cutO) spikes.splice(i, 1);
     }
+}
+
+// ============================================================================
+// ПОДФУНКЦИИ: эффекты
+// ============================================================================
+
+function updateParticles(dt) {
+    for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.life -= dt;
+        if (p.life <= 0) {
+            particles.splice(i, 1);
+            continue;
+        }
+        p.vy -= 6 * dt;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+    }
+}
+
+function updateFloats(dt) {
     for (let i = floats.length - 1; i >= 0; i--) {
-        const f = floats[i]; f.life -= dt; f.y += 1.2 * dt;
+        const f = floats[i];
+        f.life -= dt;
+        f.y += 1.2 * dt;
         if (f.life <= 0) floats.splice(i, 1);
     }
+}
+
+function updateTimers(dt) {
     if (perfectFlash > 0) perfectFlash -= dt;
     if (shakeT > 0) shakeT -= dt;
+}
 
+function updateBGParticles(dt) {
     for (const p of bgParticles) {
         p.x += p.vx;
         p.y += p.vy;
@@ -229,9 +297,14 @@ function stepWorld(dt) {
             p.x = (Math.random() * 2 - 1) * 8;
         }
     }
+}
 
+// ============================================================================
+// ПОДФУНКЦИИ: музыка
+// ============================================================================
+
+function updateMusicIntensity() {
     if (state === 'play' && !dying) {
-        // растёт с первых метров: время + высота
         const intensity = Math.min(1, runT / 90 + maxAlt / 120);
         Snd.setMusicIntensity(intensity);
     }
