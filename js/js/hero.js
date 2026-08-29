@@ -75,25 +75,65 @@ function tryGrab() {
             combo++;
             maxCombo = Math.max(maxCombo, combo);
 
-            // Дальний прыжок: пропустили 1+ точек
-            if (skipCount >= COMBO.longJump.skipPoints) {
-                addFloat(best.x, best.y + 1.0, t('longJump') + ' (+' + skipCount + ')', '#ff4fd8', 26);
-                burst(best.x, best.y, 14, '#ff4fd8', 5);
-                if (state === 'play') Snd.perfect();
+            // Дальний прыжок и мега-прыжок: по высоте полёта
+            if (hero.lastReleasePos && maxFlightDist > 0) {
+                const flightHeight = hero.y - hero.lastReleasePos.y;
+                const flightRatio = flightHeight / maxFlightDist;
+
+                // Логирование для отладки
+                console.log('🎯 Прыжок:', {
+                    maxHeight: maxFlightDist.toFixed(2),
+                    flightHeight: flightHeight.toFixed(2),
+                    flightRatio: (flightRatio * 100).toFixed(1) + '%',
+                    threshold: (COMBO.longJump.threshold * 100) + '%',
+                    megaThreshold: (COMBO.megaJump.threshold * 100) + '%'
+                });
+
+                // МЕГА-ПРЫЖОК! (100%+ высоты)
+                if (flightRatio >= COMBO.megaJump.threshold) {
+                    const bonusCoins = COMBO.megaJump.bonusCoins || 15;
+                    coinsRun += bonusCoins;
+
+                    addFloat(best.x, best.y + 1.2, t('megaJump') + ' +' + bonusCoins + '◈', FEEDBACK_COLORS.megaJump, 30);
+                    burst(best.x, best.y, 20, '#ff4fd8', 6);
+                    burst(best.x, best.y, 10, '#ffc23d', 4);
+                    if (state === 'play') Snd.perfect();
+
+                    // Сильная тряска и вибрация
+                    shakeT = 0.3;
+                    if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+                }
+                // ДАЛЬНИЙ! (75%+ высоты)
+                else if (flightRatio >= COMBO.longJump.threshold) {
+                    const bonusCoins = COMBO.longJump.bonusCoins || 5;
+                    coinsRun += bonusCoins;
+
+                    addFloat(best.x, best.y + 1.0, t('longJump') + ' +' + bonusCoins + '◈', FEEDBACK_COLORS.longJump, 26);
+                    burst(best.x, best.y, 14, '#ff4fd8', 5);
+                    if (state === 'play') Snd.perfect();
+
+                    // Лёгкая тряска и вибрация
+                    shakeT = 0.2;
+                    if (navigator.vibrate) navigator.vibrate(30);
+                }
+
+                // Сбрасываем после зацепа
+                hero.lastReleasePos = null;
+                hero.flightProgress = 0;
             }
 
             // Перфект: зацеп за следующую точку без пропуска
             if (skipCount === 0) {
                 perfectFlash = 0.35;
-                addFloat(best.x, best.y + 0.4, t('perfect') + ' ×' + combo, '#ffc23d', combo > 1 ? 24 : 20);
+                addFloat(best.x, best.y + 0.4, t('perfect') + ' ×' + combo, FEEDBACK_COLORS.perfect, combo > 1 ? 24 : 20);
                 burst(best.x, best.y, 14, '#ffc23d', 4);
                 if (state === 'play') Snd.perfect();
             }
 
-            // БЫСТРО! если зацепились в первые 0.2с после релиза
+            // МГНОВЕННЫЙ ЗАЦЕП! если зацепились в первые 0.2с после релиза
             const timeSinceRelease = uiT - hero.lastReleaseTime;
             if (timeSinceRelease <= COMBO.fastThreshold) {
-                addFloat(best.x, best.y + 0.8, t('fast'), '#26e0ff', 22);
+                addFloat(best.x, best.y + 0.8, t('fastGrab'), FEEDBACK_COLORS.fastGrab, 22);
                 if (state === 'play') Snd.perfect();
             }
         }
@@ -110,22 +150,42 @@ function tryGrab() {
     revivePoint = { x: best.x, y: best.y };
     burst(hero.x, hero.y, 10, skinColor(), 3);
     if (state === 'play') Snd.grab();
+
+    // Лёгкая тряска при зацепе
+    shakeT = 0.15;
+
+    // Вибрация на мобильных
+    if (navigator.vibrate) {
+        navigator.vibrate(30);  // 30мс лёгкая вибрация
+    }
 }
 function doRelease() {
     if (!hero.attached) return;
     hero.attached = false; hero.lastAnchor = hero.anchor;
 
-    // БЫСТРО! если отпустили в первые 0.2с
+    // МГНОВЕННЫЙ РЕЛИЗ! если отпустили в первые 0.2с
     const holdTime = uiT - hero.grabTime;
     if (holdTime <= COMBO.fastThreshold) {
-        addFloat(hero.x, hero.y + 0.6, t('fast'), '#26e0ff', 22);
-        if (state === 'play') Snd.perfect(); // или отдельный звук
+        addFloat(hero.x, hero.y + 0.6, t('fastRelease'), FEEDBACK_COLORS.fastRelease, 22);
+        if (state === 'play') Snd.perfect();
     }
 
     if (hero.lastAnchor) hero.lastAnchor.cooldownT = 0.2;
     const v = releaseVel();
     hero.vx = v.vx; hero.vy = v.vy;
     hero.lastReleaseTime = uiT;
+
+    // Запоминаем позицию релиза для дальнего прыжка
+    hero.lastReleasePos = { x: hero.x, y: hero.y };
+    hero.flightProgress = 0;
+
+    if (Math.hypot(hero.vx, hero.vy).toFixed(2) > 15) {
+        console.log('🚀 Релиз:', {
+            pos: { x: hero.x.toFixed(2), y: hero.y.toFixed(2) },
+            vel: { vx: hero.vx.toFixed(2), vy: hero.vy.toFixed(2) },
+            speed: Math.hypot(hero.vx, hero.vy).toFixed(2)
+        });
+    }
 
     burst(hero.x, hero.y, 6, skinColor(), 2.5);
     if (state === 'play') Snd.release();
@@ -138,4 +198,41 @@ function pressAction() {
 function releaseAction() {
     if (state !== 'play') return;
     if (hero.attached) doRelease();
+}
+
+function calculateMaxFlight() {
+    // Максимальная скорость на конце верёвки
+    const maxSpeed = PF.wMax * PF.rMax;
+
+    // Симулируем 8 разных углов релиза и берём максимум высоты
+    let maxHeight = 0;
+
+    for (let theta = 0; theta < TAU; theta += TAU / 8) {
+        // Позиция релиза (на окружности радиуса rMax)
+        const px0 = Math.cos(theta) * PF.rMax;
+        const py0 = Math.sin(theta) * PF.rMax;
+
+        // Скорость по касательной (перпендикулярно радиусу)
+        const vx = -Math.sin(theta) * maxSpeed;
+        const vy = Math.cos(theta) * maxSpeed + PF.upAssist;
+
+        let px = px0, py = py0;
+        let cvx = vx, cvy = vy;
+        let height = 0;
+
+        // Симуляция полёта
+        for (let i = 0; i < 46; i++) {
+            cvy -= PF.g * 0.045;
+            px += cvx * 0.045;
+            py += cvy * 0.045;
+
+            // ← СЧИТАЕМ ТОЛЬКО ВЫСОТУ (вертикальная составляющая)
+            const h = py - py0;
+            if (h > height) height = h;
+        }
+
+        if (height > maxHeight) maxHeight = height;
+    }
+
+    return maxHeight;
 }

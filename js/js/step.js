@@ -80,13 +80,19 @@ function updateHero(dt) {
                 hero.comboTimer -= dt;
                 if (hero.comboTimer <= 0) {
                     combo = 0;
-                    addFloat(hero.x, hero.y + 0.5, t('slow') + '...', '#ff2e5f', 16);
+                    addFloat(hero.x, hero.y + 0.5, t('slow') + '...', FEEDBACK_COLORS.slow, 16);
                 }
             }
         } else {
             hero.vy -= PF.g * dt;
             hero.x += hero.vx * dt;
             hero.y += hero.vy * dt;
+
+            // Обновляем прогресс дальнего прыжка (только высота)
+            if (hero.lastReleasePos && maxFlightDist > 0) {
+                const currentHeight = hero.y - hero.lastReleasePos.y;  // ← только вертикаль
+                hero.flightProgress = Math.max(0, currentHeight / maxFlightDist);
+            }
         }
     } else {
         hero.vy -= PF.g * dt;

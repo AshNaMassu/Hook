@@ -212,6 +212,7 @@ function drawTrail(c) {
     }
     c.restore();
 }
+
 function drawHero(c) {
     c = c || ctx;
     if (dying) return;
@@ -230,8 +231,43 @@ function drawHero(c) {
         c.lineWidth = 2 * dpr; c.setLineDash([6 * dpr, 5 * dpr]); c.lineDashOffset = -uiT * 40;
         c.beginPath(); c.arc(0, 0, 0.5 * scale, 0, TAU); c.stroke(); c.setLineDash([]);
     }
+
+    // Прогресс-бар дальнего прыжка
+    if (!hero.attached && !dying && hero.flightProgress !== undefined && hero.flightProgress > 0.1) {
+        const progress = Math.min(1, hero.flightProgress);
+        const hue = progress * 120;  // зелёный (120) → красный (0)
+        const color = `hsl(${hue}, 100%, 60%)`;
+
+        // Фоновая дуга (полукруг над героем)
+        c.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        c.lineWidth = 2 * dpr;
+        c.beginPath();
+        c.arc(0, -0.8 * scale, 0.3 * scale, Math.PI, 0);
+        c.stroke();
+
+        // Активная дуга (прогресс)
+        c.strokeStyle = color;
+        c.lineWidth = 2 * dpr;
+        c.beginPath();
+        c.arc(0, -0.8 * scale, 0.3 * scale, Math.PI, Math.PI + Math.PI * progress);
+        c.stroke();
+
+        // При пороге+ — вспышка "ДАЛЬНИЙ!"
+        if (progress >= COMBO.longJump.threshold) {
+            const pulseT = (uiT * 4) % 1;
+            const ringR = (0.5 + pulseT * 0.3) * scale;
+            const ringA = (1 - pulseT) * 0.6;
+            c.strokeStyle = 'rgba(255, 79, 216,' + ringA + ')';
+            c.lineWidth = 3 * dpr;
+            c.beginPath();
+            c.arc(0, -0.8 * scale, ringR, 0, TAU);
+            c.stroke();
+        }
+    }
+
     c.restore();
 }
+
 function drawOnboarding(c) {
     c = c || ctx;
     if (state !== 'play' && state !== 'menu') return;

@@ -18,7 +18,10 @@ const LOCALES = {
         // Реакции
         perfect: 'ПЕРФЕКТ',
         fast: 'БЫСТРО!',
+        fastGrab: 'ЦЕП!',
+        fastRelease: 'ПУФ!',
         longJump: 'ДАЛЬНИЙ!',
+        megaJump: 'МЕГА-ПРЫЖОК!',
         slow: 'Время ушло',
 
         // Смерть
@@ -76,7 +79,10 @@ const LOCALES = {
         // Reactions
         perfect: 'PERFECT',
         fast: 'FAST!',
+        fastGrab: 'CLACK!',
+        fastRelease: 'POOF!',
         longJump: 'LONG JUMP!',
+        megaJump: 'MEGA JUMP!',
         slow: 'Time is up',
 
         // Death
