@@ -1,16 +1,17 @@
-let holding = false;  // ïðîñòî ôëàã "ïàëåö íà ýêðàíå"
+ï»¿let holding = false;  // Ð¿Ñ€Ð¾ÑÑ‚Ð¾ Ñ„Ð»Ð°Ð³ "Ð¿Ð°Ð»ÐµÑ† Ð½Ð° ÑÐºÑ€Ð°Ð½Ðµ"
+let needsAudioRestore = false;  
 
 cv.addEventListener('pointerdown', e => {
     e.preventDefault();
     Snd.ensure();
     holding = true;
-    pressAction();  // ïîïûòêà çàöåïà
+    pressAction();  // Ð¿Ð¾Ð¿Ñ‹Ñ‚ÐºÐ° Ð·Ð°Ñ†ÐµÐ¿Ð°
 });
 
 cv.addEventListener('pointerup', e => {
     e.preventDefault();
     holding = false;
-    releaseAction();  // îòïóñêàíèå
+    releaseAction();  // Ð¾Ñ‚Ð¿ÑƒÑÐºÐ°Ð½Ð¸Ðµ
 });
 
 cv.addEventListener('pointercancel', e => {
@@ -20,7 +21,7 @@ cv.addEventListener('pointercancel', e => {
 
 cv.addEventListener('contextmenu', e => e.preventDefault());
 
-// Êëàâèàòóðà (äëÿ ÏÊ)
+// ÐšÐ»Ð°Ð²Ð¸Ð°Ñ‚ÑƒÑ€Ð° (Ð´Ð»Ñ ÐŸÐš)
 window.addEventListener('keydown', e => {
     if (e.repeat) return;
     if (e.code === 'Space' || e.code === 'ArrowUp') {
@@ -48,20 +49,21 @@ window.addEventListener('keyup', e => {
 
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-        // Ñâîðà÷èâàåì — ïàóçà
+        // Ð¡Ð²Ð¾Ñ€Ð°Ñ‡Ð¸Ð²Ð°ÐµÐ¼ â€” Ð¿Ð°ÑƒÐ·Ð°
         if (state === 'play') {
             pauseGame();
         }
-        // Îñòàíàâëèâàåì ìóçûêó
+        // ÐžÑÑ‚Ð°Ð½Ð°Ð²Ð»Ð¸Ð²Ð°ÐµÐ¼ Ð¼ÑƒÐ·Ñ‹ÐºÑƒ
         if (Snd && Snd.stopMusic) {
             Snd.stopMusic();
         }
+        needsAudioRestore = true;  // â† Ð·Ð°Ð¿Ð¾Ð¼Ð¸Ð½Ð°ÐµÐ¼ Ñ‡Ñ‚Ð¾ Ð½ÑƒÐ¶Ð½Ð¾ Ð²Ð¾ÑÑÑ‚Ð°Ð½Ð¾Ð²Ð¸Ñ‚ÑŒ
     } else {
-        // Âîçâðàùàåìñÿ — âîññòàíàâëèâàåì àóäèî
+        // Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÐ¼ÑÑ â€” Ð²Ð¾ÑÑÑ‚Ð°Ð½Ð°Ð²Ð»Ð¸Ð²Ð°ÐµÐ¼ Ð°ÑƒÐ´Ð¸Ð¾
         if (Snd && Snd.ensure) {
             Snd.ensure();
         }
-        // Âîçîáíîâëÿåì ìóçûêó åñëè íå â ïàóçå è íå â ìüþòå
+        // Ð’Ð¾Ð·Ð¾Ð±Ð½Ð¾Ð²Ð»ÑÐµÐ¼ Ð¼ÑƒÐ·Ñ‹ÐºÑƒ ÐµÑÐ»Ð¸ Ð½Ðµ Ð² Ð¿Ð°ÑƒÐ·Ðµ Ð¸ Ð½Ðµ Ð² Ð¼ÑŒÑŽÑ‚Ðµ
         if (!muted) {
             if (state === 'play' && !dying) {
                 Snd.startMusic('game');
@@ -69,10 +71,11 @@ document.addEventListener('visibilitychange', () => {
                 Snd.startMusic('menu');
             }
         }
+        needsAudioRestore = false;  // â† Ð²Ð¾ÑÑÑ‚Ð°Ð½Ð¾Ð²Ð¸Ð»Ð¸, ÑÐ±Ñ€Ð°ÑÑ‹Ð²Ð°ÐµÐ¼
     }
 });
 
-// Åñëè çâóê íå âîññòàíîâèëñÿ àâòîìàòè÷åñêè — âîññòàíàâëèâàåì ïðè ïåðâîì êëèêå
+// Ð•ÑÐ»Ð¸ Ð·Ð²ÑƒÐº Ð½Ðµ Ð²Ð¾ÑÑÑ‚Ð°Ð½Ð¾Ð²Ð¸Ð»ÑÑ Ð°Ð²Ñ‚Ð¾Ð¼Ð°Ñ‚Ð¸Ñ‡ÐµÑÐºÐ¸ â€” Ð²Ð¾ÑÑÑ‚Ð°Ð½Ð°Ð²Ð»Ð¸Ð²Ð°ÐµÐ¼ Ð¿Ñ€Ð¸ Ð¿ÐµÑ€Ð²Ð¾Ð¼ ÐºÐ»Ð¸ÐºÐµ
 window.addEventListener('pointerdown', function restoreAudio() {
     if (needsAudioRestore && Snd && Snd.ctx && Snd.ctx.state === 'suspended') {
         Snd.ctx.resume().then(() => {
