@@ -32,6 +32,3 @@ for (let i = 0; i < 40; i++) {
         alpha: 0.1 + Math.random() * 0.2
     });
 }
-
-let wallLeft = -10;   // левая стена
-let wallRight = 10;   // правая стена

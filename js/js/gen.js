@@ -92,18 +92,14 @@ function spawnAhead() {
     updateWalls();
 }
 
-// Обновляем позиции стен на основе крайних точек
+let wallsInitialized = false;
+
 function updateWalls() {
-    if (!WALLS.enabled) return;
-    
-    let minX = Infinity, maxX = -Infinity;
-    for (const a of anchors) {
-        if (a.x < minX) minX = a.x;
-        if (a.x > maxX) maxX = a.x;
-    }
-    
-    if (minX !== Infinity) {
-        wallLeft = minX - PF.rMax - WALLS.margin;
-        wallRight = maxX + PF.rMax + WALLS.margin;
-    }
+    if (!WALLS.enabled || wallsInitialized) return;
+
+    // Фиксированные стены на границе диапазона точек
+    wallLeft = -(ANCH_CLAMP + PF.rMax + WALLS.margin);
+    wallRight = ANCH_CLAMP + PF.rMax + WALLS.margin;
+
+    wallsInitialized = true;
 }
