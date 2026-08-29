@@ -1,3 +1,34 @@
+// Оркестратор качества рендера
+const RenderQuality = {
+    LOW: 0,     // один канвас, без bloom (для бота и слабых девайсов)
+    MEDIUM: 1,  // один канвас, простой bloom
+    HIGH: 2,    // два канваса, полный bloom
+    
+    current: 2,  // по умолчанию высокое качество
+    
+    // Автоопределение для мобильных
+    autoDetect() {
+        const isMobile = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
+        this.current = isMobile ? this.MEDIUM : this.HIGH;
+    },
+    
+    // Для бота в меню — всегда низкое качество
+    forBot() {
+        return this.LOW;
+    }
+};
+
+// Инициализация
+RenderQuality.autoDetect();
+
+// Вспомогательная функция для тряски
+function applyShake(c) {
+    if (shakeT > 0 && state === 'play') {
+        const intensity = shakeT * 15 * dpr * shakeIntensity;
+        c.translate((Math.random() * 2 - 1) * intensity, (Math.random() * 2 - 1) * intensity);
+    }
+}
+
 function drawBG(c) {
     c = c || ctx;
     const g = c.createLinearGradient(0, 0, 0, H);
@@ -320,6 +351,65 @@ function drawBGParticles(c) {
     c.restore();
 }
 function render() {
+    // Определяем качество: для бота в меню — низкое
+    const quality = (bot && state === 'menu') ? RenderQuality.LOW : RenderQuality.current;
+    
+    if (quality === RenderQuality.LOW) {
+        renderLowQuality();
+    } else if (quality === RenderQuality.MEDIUM) {
+        renderMediumQuality();
+    } else {
+        renderHighQuality();
+    }
+    
+    // Трейл пополняем всегда
+    if (!dying) { 
+        trail.push({ x: hero.x, y: hero.y }); 
+        if (trail.length > 28) trail.shift(); 
+    }
+}
+
+// Низкое качество: один канвас, без bloom (для бота)
+function renderLowQuality() {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    
+    drawBG(ctx);
+    drawBGParticles(ctx);
+    
+    ctx.save();
+    applyShake(ctx);
+    
+    for (const c of coins) drawCoin(c, ctx);
+    for (const s of spikes) drawSpike(s, ctx);
+    drawAnchors(reachableSet(), ctx);
+    drawOnboarding(ctx);
+    drawRope(ctx);
+    drawTrail(ctx);
+    drawHero(ctx);
+    drawParticles(ctx);
+    drawFloats(ctx);
+    ctx.restore();
+    
+    drawLava(ctx);
+    drawVignette(ctx);
+}
+
+// Среднее качество: один канвас, простой bloom
+function renderMediumQuality() {
+    renderLowQuality();  // базовый рендер
+    
+    // Простой bloom: один проход размытия
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.filter = 'blur(12px)';
+    ctx.globalAlpha = 0.5;
+    ctx.drawImage(ctx.canvas, 0, 0);  // размытая копия самого канваса
+    ctx.restore();
+}
+
+// Высокое качество: два канваса, полный bloom (как сейчас)
+function renderHighQuality() {
     // 1. Рисуем сцену на offscreen canvas
     bloomCtx.setTransform(1, 0, 0, 1, 0, 0);
     bloomCtx.clearRect(0, 0, bloomCv.width, bloomCv.height);
@@ -328,7 +418,7 @@ function render() {
     drawBG(bloomCtx);
     bloomCtx.save();
     if (shakeT > 0 && state === 'play') {
-        const intensity = shakeT * 15 * dpr * shakeIntensity;  // ← добавь * shakeIntensity
+        const intensity = shakeT * 15 * dpr * shakeIntensity;
         bloomCtx.translate((Math.random() * 2 - 1) * intensity, (Math.random() * 2 - 1) * intensity);
     }
     for (const c of coins) drawCoin(c, bloomCtx);
@@ -353,7 +443,7 @@ function render() {
     drawBGParticles(ctx);
     ctx.save();
     if (shakeT > 0 && state === 'play') {
-        const intensity = shakeT * 15 * dpr * shakeIntensity;  // ← добавь * shakeIntensity
+        const intensity = shakeT * 15 * dpr * shakeIntensity;
         ctx.translate((Math.random() * 2 - 1) * intensity, (Math.random() * 2 - 1) * intensity);
     }
     for (const c of coins) drawCoin(c, ctx);
@@ -380,7 +470,4 @@ function render() {
     ctx.globalAlpha = 0.3;
     ctx.drawImage(bloomCv, 0, 0, bloomCv.width, bloomCv.height, 0, 0, W, H);
     ctx.restore();
-
-    // трейл пополняем здесь (кадровая частота)
-    if (!dying) { trail.push({ x: hero.x, y: hero.y }); if (trail.length > 28) trail.shift(); }
 }
