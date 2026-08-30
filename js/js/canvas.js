@@ -15,10 +15,11 @@ function resize() {
     cv.style.width = sw + 'px'; cv.style.height = sh + 'px';
     W = cv.width; H = cv.height;
     
-    // Используем CAMERA.viewWidth для ширины обзора
-    viewW = CAMERA.viewWidth;
+    // Начинаем с минимального обзора (для старта)
+    currentViewWidth = CAMERA.viewWidthMin;
+    viewW = currentViewWidth;
+    viewH = viewW * (H / W);
     scale = W / viewW;
-    viewH = H / scale;
 
     // offscreen для bloom (половинное разрешение для производительности)
     bloomCv.width = Math.round(W / 2);
@@ -31,3 +32,22 @@ resize();
 const SX = x => W / 2 + (x - camX) * scale;
 const camTop = () => camY + viewH / 2;
 const SY = y => (camTop() - y) * scale;
+
+// Динамическая камера: обновление видимой области на основе скорости
+let currentViewWidth = CAMERA.viewWidth;  // текущий обзор (начинаем с базового)
+
+function updateViewport(dt) {
+    // Текущая скорость героя
+    const speed = Math.hypot(hero.vx, hero.vy);
+
+    // Целевой viewWidth: от viewWidthMin до viewWidthMax в зависимости от скорости
+    const targetViewWidth = lerp(CAMERA.viewWidthMin, CAMERA.viewWidthMax, Math.min(1, speed / CAMERA.speedThreshold));
+
+    // Плавное изменение (чтобы не дёргалось)
+    currentViewWidth = lerp(currentViewWidth, targetViewWidth, dt * CAMERA.smoothness);
+
+    // Пересчёт видимой области
+    viewW = currentViewWidth;
+    viewH = viewW * (H / W);
+    scale = W / viewW;
+}

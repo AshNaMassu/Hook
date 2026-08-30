@@ -19,6 +19,7 @@ function stepWorld(dt) {
     updateHero(dt);
     updateAutoGrab();
     updateCamera(dt);
+    updateViewport(dt);
     updateLava(dt);
     
     // Геймплей
