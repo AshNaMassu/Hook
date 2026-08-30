@@ -151,7 +151,14 @@ function tryGrab() {
     }
     revivePoint = { x: best.x, y: best.y };
     burst(hero.x, hero.y, 10, skinColor(), 3);
-    if (state === 'play') Snd.grab();
+    if (state === 'play')
+        Snd.grab();
+
+    // Размораживаем камеру после первого зацепа
+    if (!firstGrabDone) {
+        firstGrabDone = true;
+        camFreeze = 0;
+    }
 
     // Лёгкая тряска при зацепе (только если не бот)
     if (!bot) {

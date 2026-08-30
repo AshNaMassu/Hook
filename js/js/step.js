@@ -153,7 +153,7 @@ function updateCamera(dt) {
         
         if (!dying) {
             // Увеличенная скорость камеры чтобы успевать
-            const maxCamSpeed = 12 * dt;
+            const maxCamSpeed = 18 * dt;
             let delta = tgt - camY;
             if (Math.abs(delta) > maxCamSpeed) {
                 delta = Math.sign(delta) * maxCamSpeed;

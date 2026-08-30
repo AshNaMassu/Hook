@@ -26,6 +26,7 @@ function resetWorld(newSeed, isBot) {
     hero.lastReleasePos = null;
     hero.flightProgress = 0;
 
+    firstGrabDone = false;
     camY = viewH * 0.12;
     camFreeze = 3.5;
     runT = 0; maxAlt = 0;

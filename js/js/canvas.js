@@ -6,6 +6,9 @@ const bloomCv = document.createElement('canvas');
 const bloomCtx = bloomCv.getContext('2d');
 
 let W = 0, H = 0, scale = 1, viewW = 10, viewH = 16, dpr = 1;
+
+let currentViewWidth = CAMERA.viewWidth;  // текущий обзор (начинаем с базового)
+
 function resize() {
     let sw = window.innerWidth, sh = window.innerHeight;
     if (sw / sh > 0.62) sw = Math.round(sh * 0.62);
@@ -34,7 +37,6 @@ const camTop = () => camY + viewH / 2;
 const SY = y => (camTop() - y) * scale;
 
 // Динамическая камера: обновление видимой области на основе скорости
-let currentViewWidth = CAMERA.viewWidth;  // текущий обзор (начинаем с базового)
 
 function updateViewport(dt) {
     // Текущая скорость героя

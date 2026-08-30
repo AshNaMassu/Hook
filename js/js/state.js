@@ -6,6 +6,7 @@ let camY = 2, camFreeze = 0, camX = 0, runT = 0, maxAlt = 0, coinsRun = 0, combo
 let shieldT = 0, dying = false, deathT = 0, deathFinished = false, reviveAvail = false, revivePoint = { x: 0, y: -2.5 };
 let perfectFlash = 0, shakeT = 0, uiT = 0, bot = false;
 let lavaY = LAVA.startY;
+let firstGrabDone = false;
 
 // Стены из лавы
 let wallLeft = -10;   // левая стена (будет обновлена при генерации)
