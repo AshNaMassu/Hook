@@ -436,8 +436,12 @@ const RenderQuality = {
     }
 };
 
-// Инициализация
-RenderQuality.autoDetect();
+// Инициализация: если есть сохранённый выбор — используем его, иначе автоопределение
+if (graphicsQuality >= 0) {
+    RenderQuality.current = graphicsQuality;
+} else {
+    RenderQuality.autoDetect();
+}
 
 // ============================================================================
 // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ОТРИСОВКИ

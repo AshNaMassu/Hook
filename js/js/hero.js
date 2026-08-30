@@ -97,9 +97,11 @@ function tryGrab() {
                     burst(best.x, best.y, 10, '#ffc23d', 4);
                     if (state === 'play') Snd.perfect();
 
-                    // Сильная тряска и вибрация
-                    shakeT = 0.3;
-                    if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+                    // Сильная тряска и вибрация (если включена и не бот)
+                    if (!bot) {
+                        shakeT = 0.3;
+                        if (vibrationEnabled && navigator.vibrate) navigator.vibrate([50, 30, 50]);
+                    }
                 }
                 // ДАЛЬНИЙ! (75%+ высоты)
                 else if (flightRatio >= COMBO.longJump.threshold) {
@@ -110,9 +112,11 @@ function tryGrab() {
                     burst(best.x, best.y, 14, '#ff4fd8', 5);
                     if (state === 'play') Snd.perfect();
 
-                    // Лёгкая тряска и вибрация
-                    shakeT = 0.2;
-                    if (navigator.vibrate) navigator.vibrate(30);
+                    // Лёгкая тряска и вибрация (если включена и не бот)
+                    if (!bot) {
+                        shakeT = 0.2;
+                        if (vibrationEnabled && navigator.vibrate) navigator.vibrate(30);
+                    }
                 }
 
                 // Сбрасываем после зацепа
@@ -149,12 +153,14 @@ function tryGrab() {
     burst(hero.x, hero.y, 10, skinColor(), 3);
     if (state === 'play') Snd.grab();
 
-    // Лёгкая тряска при зацепе
-    shakeT = 0.15;
+    // Лёгкая тряска при зацепе (только если не бот)
+    if (!bot) {
+        shakeT = 0.15;
+    }
 
-    // Вибрация на мобильных
-    if (navigator.vibrate) {
-        navigator.vibrate(30);  // 30мс лёгкая вибрация
+    // Вибрация на мобильных (если включена и не бот)
+    if (vibrationEnabled && !bot && navigator.vibrate) {
+        navigator.vibrate(30);
     }
 }
 function doRelease() {

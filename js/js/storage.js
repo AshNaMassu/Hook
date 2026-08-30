@@ -50,6 +50,8 @@ function saveAllData() {
     store.set('sfxVol', sfxVol);
     store.set('shakeIntensity', shakeIntensity);
     store.set('flashIntensity', flashIntensity);
+    store.set('vibration', vibrationEnabled); 
+    store.set('graphicsQuality', graphicsQuality); 
 
     // Сохраняем в облако (не блокируя игру)
     if (typeof sdkReady !== 'undefined' && sdkReady) {
@@ -63,3 +65,9 @@ setTimeout(() => {
         sdkLoadData();
     }
 }, 1000);
+
+let vibrationEnabled = store.get('vibration', true);
+
+// Качество графики: 0 = низкое, 1 = среднее, 2 = высокое
+// По умолчанию: автоопределение (-1)
+let graphicsQuality = store.get('graphicsQuality', -1);

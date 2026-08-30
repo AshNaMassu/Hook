@@ -59,6 +59,13 @@ const LOCALES = {
         settingsSfx: '🔊 Эффекты:',
         settingsShake: '📳 Тряска:',
         settingsFlash: '✨ Вспышки:',
+        settingsVibration: '📳 Вибрация при зацепе',
+
+        settingsQuality: '🎨 Качество графики',
+        qualityLow: 'Низкое',
+        qualityMedium: 'Среднее',
+        qualityHigh: 'Высокое',
+        qualityAuto: 'Авто',
     },
 
     en: {
@@ -120,6 +127,13 @@ const LOCALES = {
         settingsSfx: '🔊 Sound:',
         settingsShake: '📳 Shake:',
         settingsFlash: '✨ Flash:',
+        settingsVibration: '📳 Vibration on grab',
+
+        settingsQuality: '🎨 Graphics Quality',
+        qualityLow: 'Low',
+        qualityMedium: 'Medium',
+        qualityHigh: 'High',
+        qualityAuto: 'Auto',
     },
 };
 
@@ -174,4 +188,6 @@ function applyLocale() {
     document.querySelectorAll('.settingsLabelSfx').forEach(el => el.textContent = t('settingsSfx'));
     document.querySelectorAll('.settingsLabelShake').forEach(el => el.textContent = t('settingsShake'));
     document.querySelectorAll('.settingsLabelFlash').forEach(el => el.textContent = t('settingsFlash'));
+    document.querySelectorAll('.settingsLabelVibration').forEach(el => el.textContent = t('settingsVibration'));
+    document.querySelectorAll('.settingsLabelQuality').forEach(el => el.textContent = t('settingsQuality'));
 }

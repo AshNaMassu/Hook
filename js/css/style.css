@@ -427,3 +427,83 @@ input[type="range"] {
         border: none;
         box-shadow: 0 0 10px rgba(38,224,255,0.8);
     }
+
+/* ---------- Переключатель (вибрация) ---------- */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+}
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(38,224,255,0.15);
+    border-radius: 26px;
+    transition: .3s;
+}
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 3px;
+        bottom: 3px;
+        background-color: #7fa8cc;
+        border-radius: 50%;
+        transition: .3s;
+    }
+
+input:checked + .slider {
+    background-color: rgba(38,224,255,0.4);
+}
+
+    input:checked + .slider:before {
+        transform: translateX(24px);
+        background-color: #26e0ff;
+        box-shadow: 0 0 10px rgba(38,224,255,0.8);
+    }
+
+/* ---------- Кнопки качества графики ---------- */
+.qualityButtons {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.qualityBtn {
+    flex: 1;
+    min-width: 60px;
+    padding: 8px 4px;
+    font-size: 11px;
+    font-family: 'Exo 2', sans-serif;
+    color: #7fa8cc;
+    background: rgba(38,224,255,0.1);
+    border: 1px solid rgba(38,224,255,0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all .2s;
+}
+
+    .qualityBtn:hover {
+        background: rgba(38,224,255,0.2);
+    }
+
+    .qualityBtn.active {
+        color: #fff;
+        background: rgba(38,224,255,0.35);
+        border-color: #26e0ff;
+        box-shadow: 0 0 10px rgba(38,224,255,0.4);
+    }

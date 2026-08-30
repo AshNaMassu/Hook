@@ -301,4 +301,47 @@ window.addEventListener('pointerdown', function once() {
     window.removeEventListener('pointerdown', once);
 });
 
+// Вибрация при зацепе
+const vibrationToggle = document.getElementById('vibrationToggle');
+if (vibrationToggle) {
+    vibrationToggle.checked = vibrationEnabled;
+    vibrationToggle.addEventListener('change', (e) => {
+        vibrationEnabled = e.target.checked;
+        saveAllDataDebounced();
+        Snd.ui();
+    });
+}
+
+// Качество графики
+const qualityButtons = document.querySelectorAll('.qualityBtn');
+
+function updateQualityButtons() {
+    const currentQ = (graphicsQuality === -1) ? -1 : RenderQuality.current;
+    qualityButtons.forEach(btn => {
+        const q = parseInt(btn.dataset.quality);
+        btn.classList.toggle('active', q === graphicsQuality);
+    });
+}
+
+qualityButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const q = parseInt(btn.dataset.quality);
+        graphicsQuality = q;
+
+        // Применяем сразу
+        if (q === -1) {
+            RenderQuality.autoDetect();
+        } else {
+            RenderQuality.current = q;
+        }
+
+        saveAllDataDebounced();
+        updateQualityButtons();
+        Snd.ui();
+    });
+});
+
+// Инициализация при загрузке
+updateQualityButtons();
+
 applyLocale();
