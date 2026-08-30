@@ -20,7 +20,6 @@ function stepWorld(dt) {
     updateAutoGrab();
     updateCamera(dt);
     updateLava(dt);
-    updateCooldowns(dt);
     
     // Геймплей
     if (!dying) {
@@ -181,12 +180,6 @@ function updateLava(dt) {
     }
     
     lavaY += lavaSpeed * dt;
-}
-
-function updateCooldowns(dt) {
-    for (const a of anchors) {
-        if (a.cooldownT > 0) a.cooldownT -= dt;
-    }
 }
 
 // ============================================================================

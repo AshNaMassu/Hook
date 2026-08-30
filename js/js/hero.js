@@ -19,8 +19,6 @@ function tryGrab() {
     let bestScore = -Infinity;
     
     for (const a of anchors) {
-        if (a.cooldownT > 0) continue;
-        
         // Быстрая проверка: если точка далеко по Y — пропускаем
         if (Math.abs(a.y - hero.y) > PF.grabRadius) continue;
         // Быстрая проверка: если точка далеко по X — пропускаем
@@ -170,7 +168,6 @@ function doRelease() {
         if (state === 'play') Snd.perfect();
     }
 
-    if (hero.lastAnchor) hero.lastAnchor.cooldownT = 0.2;
     const v = releaseVel();
     hero.vx = v.vx; hero.vy = v.vy;
     hero.lastReleaseTime = uiT;
