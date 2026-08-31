@@ -1,27 +1,10 @@
-let coinGlowGradient = null;
-let spikeGlowGradient = null;
-let bgGradient = null;
-
-function initGradients() {
-    const R = 0.3 * scale;
-    coinGlowGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, R * 2.2);
-    coinGlowGradient.addColorStop(0, 'rgba(255,194,61,0.5)');
-    coinGlowGradient.addColorStop(1, 'rgba(255,194,61,0)');
-
-    const spikeR = 0.45 * scale;
-    spikeGlowGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, spikeR * 2.4);
-    spikeGlowGradient.addColorStop(0, 'rgba(255,46,95,0.5)');
-    spikeGlowGradient.addColorStop(1, 'rgba(255,46,95,0)');
-
-    bgGradient = ctx.createLinearGradient(0, 0, 0, H);
-    bgGradient.addColorStop(0, '#0a0820');
-    bgGradient.addColorStop(0.5, '#070716');
-    bgGradient.addColorStop(1, '#04040d');
-}
-
 function drawBG(c) {
     c = c || ctx;
-    c.fillStyle = bgGradient;
+    const g = c.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#0a0820');
+    g.addColorStop(0.5, '#070716');
+    g.addColorStop(1, '#04040d');
+    c.fillStyle = g;
     c.fillRect(0, 0, W, H);
     // звёзды с параллаксом
     c.fillStyle = 'rgba(160,200,255,0.5)';
@@ -51,7 +34,10 @@ function drawCoin(c_item, c) {
     const R = 0.3 * scale;
     c.save(); c.translate(px, py);
     c.globalCompositeOperation = 'lighter';
-    c.fillStyle = coinGlowGradient;
+    const g = c.createRadialGradient(0, 0, 0, 0, 0, R * 2.2);
+    g.addColorStop(0, 'rgba(255,194,61,0.5)');
+    g.addColorStop(1, 'rgba(255,194,61,0)');
+    c.fillStyle = g;
     c.fillRect(-R * 2.2, -R * 2.2, R * 4.4, R * 4.4);
     c.globalCompositeOperation = 'source-over';
     c.scale(Math.max(0.15, Math.abs(w)), 1);
@@ -68,7 +54,10 @@ function drawSpike(s, c) {
     const R = 0.45 * scale, rot = s.rot + uiT * 1.2;
     c.save(); c.translate(px, py); c.rotate(rot);
     c.globalCompositeOperation = 'lighter';
-    c.fillStyle = spikeGlowGradient;
+    const g = c.createRadialGradient(0, 0, 0, 0, 0, R * 2.4);
+    g.addColorStop(0, 'rgba(255,46,95,0.5)');
+    g.addColorStop(1, 'rgba(255,46,95,0)');
+    c.fillStyle = g;
     c.fillRect(-R * 2.4, -R * 2.4, R * 4.8, R * 4.8);
     c.globalCompositeOperation = 'source-over';
     c.fillStyle = '#ff2e5f';

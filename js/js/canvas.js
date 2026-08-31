@@ -27,11 +27,6 @@ function resize() {
     // offscreen дл€ bloom (половинное разрешение дл€ производительности)
     bloomCv.width = Math.round(W / 2);
     bloomCv.height = Math.round(H / 2);
-
-    // initGradients объ€влен в render.js Ч при первом вызове resize() он ещЄ не загружен
-    if (typeof initGradients === 'function') {
-        initGradients();
-    }
 }
 
 window.addEventListener('resize', resize);
