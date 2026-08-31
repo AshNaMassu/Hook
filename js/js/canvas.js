@@ -27,6 +27,8 @@ function resize() {
     // offscreen для bloom (половинное разрешение для производительности)
     bloomCv.width = Math.round(W / 2);
     bloomCv.height = Math.round(H / 2);
+
+    initGradients();
 }
 window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', () => setTimeout(resize, 60));

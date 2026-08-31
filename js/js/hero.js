@@ -78,15 +78,6 @@ function tryGrab() {
                 const flightHeight = hero.y - hero.lastReleasePos.y;
                 const flightRatio = flightHeight / maxFlightDist;
 
-                // Логирование для отладки
-                console.log('🎯 Прыжок:', {
-                    maxHeight: maxFlightDist.toFixed(2),
-                    flightHeight: flightHeight.toFixed(2),
-                    flightRatio: (flightRatio * 100).toFixed(1) + '%',
-                    threshold: (COMBO.longJump.threshold * 100) + '%',
-                    megaThreshold: (COMBO.megaJump.threshold * 100) + '%'
-                });
-
                 // МЕГА-ПРЫЖОК! (100%+ высоты)
                 if (flightRatio >= COMBO.megaJump.threshold) {
                     const bonusCoins = COMBO.megaJump.bonusCoins || 15;
@@ -188,14 +179,6 @@ function doRelease() {
     // Запоминаем позицию релиза для дальнего прыжка
     hero.lastReleasePos = { x: hero.x, y: hero.y };
     hero.flightProgress = 0;
-
-    if (Math.hypot(hero.vx, hero.vy).toFixed(2) > 15) {
-        console.log('🚀 Релиз:', {
-            pos: { x: hero.x.toFixed(2), y: hero.y.toFixed(2) },
-            vel: { vx: hero.vx.toFixed(2), vy: hero.vy.toFixed(2) },
-            speed: Math.hypot(hero.vx, hero.vy).toFixed(2)
-        });
-    }
 
     burst(hero.x, hero.y, 6, skinColor(), 2.5);
     if (state === 'play') Snd.release();

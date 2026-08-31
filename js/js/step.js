@@ -290,9 +290,10 @@ function updateTimers(dt) {
 }
 
 function updateBGParticles(dt) {
+    const speed = 0.3; // базовая скорость
     for (const p of bgParticles) {
-        p.x += p.vx;
-        p.y += p.vy;
+        p.x += p.vx * dt * 60; // 60 = нормализация к 60 FPS
+        p.y += p.vy * dt * 60;
         if (p.y < camY - viewH / 2 - 5) {
             p.y = camY + viewH / 2 + 5;
             p.x = (Math.random() * 2 - 1) * 8;

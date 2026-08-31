@@ -24,6 +24,10 @@ let musicVol = store.get('musicVol', 0.65) || 0.65;
 let sfxVol = store.get('sfxVol', 0.65) || 0.65;
 let shakeIntensity = store.get('shakeIntensity', 1.0) || 1.0;
 let flashIntensity = store.get('flashIntensity', 1.0) || 1.0;
+let vibrationEnabled = store.get('vibration', true);
+// Качество графики: 0 = низкое, 1 = среднее, 2 = высокое
+// По умолчанию: автоопределение (-1)
+let graphicsQuality = store.get('graphicsQuality', -1);
 
 // Массив скинов
 const SKINS = [
@@ -65,9 +69,3 @@ setTimeout(() => {
         sdkLoadData();
     }
 }, 1000);
-
-let vibrationEnabled = store.get('vibration', true);
-
-// Качество графики: 0 = низкое, 1 = среднее, 2 = высокое
-// По умолчанию: автоопределение (-1)
-let graphicsQuality = store.get('graphicsQuality', -1);

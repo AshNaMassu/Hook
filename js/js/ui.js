@@ -303,14 +303,22 @@ window.addEventListener('pointerdown', function once() {
 
 // Вибрация при зацепе
 const vibrationToggle = document.getElementById('vibrationToggle');
-if (vibrationToggle) {
-    vibrationToggle.checked = vibrationEnabled;
-    vibrationToggle.addEventListener('change', (e) => {
+
+vibrationToggles.forEach(toggle => {
+    toggle.checked = vibrationEnabled;
+
+    toggle.addEventListener('change', (e) => {
         vibrationEnabled = e.target.checked;
+
+        // синхронизируем все чекбоксы
+        vibrationToggles.forEach(t => {
+            t.checked = vibrationEnabled;
+        });
+
         saveAllDataDebounced();
         Snd.ui();
     });
-}
+});
 
 // Качество графики
 const qualityButtons = document.querySelectorAll('.qualityBtn');

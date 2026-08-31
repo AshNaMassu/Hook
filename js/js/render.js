@@ -1,3 +1,24 @@
+let coinGlowGradient = null;
+let spikeGlowGradient = null;
+let bgGradient = null;
+
+function initGradients() {
+    const R = 0.3 * scale;
+    coinGlowGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, R * 2.2);
+    coinGlowGradient.addColorStop(0, 'rgba(255,194,61,0.5)');
+    coinGlowGradient.addColorStop(1, 'rgba(255,194,61,0)');
+
+    const spikeR = 0.45 * scale;
+    spikeGlowGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, spikeR * 2.4);
+    spikeGlowGradient.addColorStop(0, 'rgba(255,46,95,0.5)');
+    spikeGlowGradient.addColorStop(1, 'rgba(255,46,95,0)');
+
+    bgGradient = ctx.createLinearGradient(0, 0, 0, H);
+    bgGradient.addColorStop(0, '#0a0820');
+    bgGradient.addColorStop(0.5, '#070716');
+    bgGradient.addColorStop(1, '#04040d');
+}
+
 function drawBG(c) {
     c = c || ctx;
     const g = c.createLinearGradient(0, 0, 0, H);
@@ -31,9 +52,8 @@ function drawCoin(c_item, c) {
     const R = 0.3 * scale;
     c.save(); c.translate(px, py);
     c.globalCompositeOperation = 'lighter';
-    const g = c.createRadialGradient(0, 0, 0, 0, 0, R * 2.2);
-    g.addColorStop(0, 'rgba(255,194,61,0.5)'); g.addColorStop(1, 'rgba(255,194,61,0)');
-    c.fillStyle = g; c.fillRect(-R * 2.2, -R * 2.2, R * 4.4, R * 4.4);
+    c.fillStyle = coinGlowGradient;
+    c.fillRect(-R * 2.2, -R * 2.2, R * 4.4, R * 4.4);
     c.globalCompositeOperation = 'source-over';
     c.scale(Math.max(0.15, Math.abs(w)), 1);
     c.fillStyle = '#ffc23d';
@@ -49,9 +69,8 @@ function drawSpike(s, c) {
     const R = 0.45 * scale, rot = s.rot + uiT * 1.2;
     c.save(); c.translate(px, py); c.rotate(rot);
     c.globalCompositeOperation = 'lighter';
-    const g = c.createRadialGradient(0, 0, 0, 0, 0, R * 2.4);
-    g.addColorStop(0, 'rgba(255,46,95,0.5)'); g.addColorStop(1, 'rgba(255,46,95,0)');
-    c.fillStyle = g; c.fillRect(-R * 2.4, -R * 2.4, R * 4.8, R * 4.8);
+    c.fillRect = spikeGlowGradient;
+    c.fillRect(-R * 2.4, -R * 2.4, R * 4.8, R * 4.8);
     c.globalCompositeOperation = 'source-over';
     c.fillStyle = '#ff2e5f';
     c.beginPath();
@@ -454,7 +473,7 @@ function applyShake(c) {
     }
 }
 
-function drawScene(c) {
+function drawScene(c, reach) {
     drawBG(c);
     drawBGParticles(c);
     
@@ -463,7 +482,7 @@ function drawScene(c) {
     
     for (const co of coins) drawCoin(co, c);
     for (const s of spikes) drawSpike(s, c);
-    drawAnchors(reachableSet(), c);
+    drawAnchors(reach, c);
     drawOnboarding(c);
     drawRope(c);
     drawTrail(c);
@@ -482,10 +501,10 @@ function drawScene(c) {
 // ============================================================================
 
 // Низкое качество: один канвас, без bloom (для бота)
-function renderLowQuality() {
+function renderLowQuality(reach) {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, W, H);
-    drawScene(ctx);
+    drawScene(ctx, reach);
 }
 
 // Среднее качество: один канвас, простой bloom
@@ -500,7 +519,7 @@ function renderMediumQuality() {
 }
 
 // Высокое качество: два канваса, полный bloom
-function renderHighQuality() {
+function renderHighQuality(reach) {
     bloomCtx.setTransform(1, 0, 0, 1, 0, 0);
     bloomCtx.clearRect(0, 0, bloomCv.width, bloomCv.height);
     bloomCtx.scale(0.5, 0.5);
@@ -510,7 +529,7 @@ function renderHighQuality() {
     applyShake(bloomCtx);
     for (const c of coins) drawCoin(c, bloomCtx);
     for (const s of spikes) drawSpike(s, bloomCtx);
-    drawAnchors(reachableSet(), bloomCtx);
+    drawAnchors(reach, bloomCtx);
     drawOnboarding(bloomCtx);
     drawRope(bloomCtx);
     drawTrail(bloomCtx);
@@ -560,13 +579,16 @@ function renderHighQuality() {
 
 function render() {
     const quality = (bot && state === 'menu') ? RenderQuality.LOW : RenderQuality.current;
-    
+
+    // Кэшируем reachableSet ОДИН РАЗ
+    const reach = reachableSet();
+
     if (quality === RenderQuality.LOW) {
-        renderLowQuality();
+        renderLowQuality(reach);
     } else if (quality === RenderQuality.MEDIUM) {
-        renderMediumQuality();
+        renderMediumQuality(reach);
     } else {
-        renderHighQuality();
+        renderHighQuality(reach);
     }
     
     if (!dying) { 
