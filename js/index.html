@@ -211,6 +211,11 @@
     <script src="js/main.js"></script>
 
     <script>
+        // Инициализация градиентов после загрузки всех скриптов
+        if (typeof initGradients === 'function') {
+            initGradients();
+        }
+
         window.addEventListener('beforeunload', () => {
             if (typeof sdkSaveData === 'function') sdkSaveData();
         });

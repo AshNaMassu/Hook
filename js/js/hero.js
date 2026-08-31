@@ -36,6 +36,9 @@ function tryGrab() {
         if (score > bestScore) {
             bestScore = score;
             best = a;
+
+            // Early exit: если нашли точку с максимальным idx — это лучшая
+            if (a.idx === maxReachedIdx + 1) break;
         }
     }
     if (!best) return;

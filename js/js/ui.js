@@ -302,7 +302,7 @@ window.addEventListener('pointerdown', function once() {
 });
 
 // Вибрация при зацепе
-const vibrationToggle = document.getElementById('vibrationToggle');
+const vibrationToggles = document.querySelectorAll('.vibrationToggle');
 
 vibrationToggles.forEach(toggle => {
     toggle.checked = vibrationEnabled;

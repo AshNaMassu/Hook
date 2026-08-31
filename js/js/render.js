@@ -21,9 +21,8 @@ function initGradients() {
 
 function drawBG(c) {
     c = c || ctx;
-    const g = c.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0, '#0a0820'); g.addColorStop(0.5, '#070716'); g.addColorStop(1, '#04040d');
-    c.fillStyle = g; c.fillRect(0, 0, W, H);
+    c.fillStyle = bgGradient;
+    c.fillRect(0, 0, W, H);
     // звёзды с параллаксом
     c.fillStyle = 'rgba(160,200,255,0.5)';
     for (const st of stars) {
@@ -69,7 +68,7 @@ function drawSpike(s, c) {
     const R = 0.45 * scale, rot = s.rot + uiT * 1.2;
     c.save(); c.translate(px, py); c.rotate(rot);
     c.globalCompositeOperation = 'lighter';
-    c.fillRect = spikeGlowGradient;
+    c.fillStyle = spikeGlowGradient;
     c.fillRect(-R * 2.4, -R * 2.4, R * 4.8, R * 4.8);
     c.globalCompositeOperation = 'source-over';
     c.fillStyle = '#ff2e5f';
@@ -508,8 +507,8 @@ function renderLowQuality(reach) {
 }
 
 // Среднее качество: один канвас, простой bloom
-function renderMediumQuality() {
-    renderLowQuality();
+function renderMediumQuality(reach) {
+    renderLowQuality(reach);
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     ctx.filter = 'blur(12px)';
@@ -550,7 +549,7 @@ function renderHighQuality(reach) {
     applyShake(ctx);
     for (const c of coins) drawCoin(c, ctx);
     for (const s of spikes) drawSpike(s, ctx);
-    drawAnchors(reachableSet(), ctx);
+    drawAnchors(reach, ctx);
     drawOnboarding(ctx);
     drawRope(ctx);
     drawTrail(ctx);

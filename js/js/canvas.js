@@ -17,7 +17,7 @@ function resize() {
     cv.width = Math.round(sw * dpr); cv.height = Math.round(sh * dpr);
     cv.style.width = sw + 'px'; cv.style.height = sh + 'px';
     W = cv.width; H = cv.height;
-    
+
     // Ќачинаем с минимального обзора (дл€ старта)
     currentViewWidth = CAMERA.viewWidthMin;
     viewW = currentViewWidth;
@@ -28,8 +28,12 @@ function resize() {
     bloomCv.width = Math.round(W / 2);
     bloomCv.height = Math.round(H / 2);
 
-    initGradients();
+    // initGradients объ€влен в render.js Ч при первом вызове resize() он ещЄ не загружен
+    if (typeof initGradients === 'function') {
+        initGradients();
+    }
 }
+
 window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', () => setTimeout(resize, 60));
 resize();

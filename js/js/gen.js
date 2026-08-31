@@ -7,16 +7,37 @@ function flightHits(px, py, vx, vy, tx, ty, steps, dt) {
     }
     return false;
 }
+//function reachQuality(ax, ay, sd, tx, ty) {
+//    let hits = 0, mid = 0, total = 0;
+//    for (const r of [2.1, 3.0])
+//        for (const w of [4.5, 5.75, 6.5])
+//            for (let k = 0; k < 16; k++) {
+//                const th = k / 16 * TAU; total++;
+//                const px = ax + Math.cos(th) * r, py = ay + Math.sin(th) * r, sp = w * r;
+//                if (flightHits(px, py, -Math.sin(th) * sd * sp, Math.cos(th) * sd * sp + PF.upAssist, tx, ty, 24, 0.06)) {
+//                    hits++; if (w <= 5.75) mid++;
+//                }
+//            }
+//    return [hits / total, mid];
+//}
+
 function reachQuality(ax, ay, sd, tx, ty) {
-    let hits = 0, mid = 0, total = 0;
-    for (const r of [2.1, 3.0]) for (const w of [4.5, 5.75, 6.5]) for (let k = 0; k < 16; k++) {
-        const th = k / 16 * TAU; total++;
-        const px = ax + Math.cos(th) * r, py = ay + Math.sin(th) * r, sp = w * r;
-        if (flightHits(px, py, -Math.sin(th) * sd * sp, Math.cos(th) * sd * sp + PF.upAssist, tx, ty, 24, 0.06)) {
-            hits++; if (w <= 5.75) mid++;
+    let hits = 0, total = 0;
+    const r = (PF.rMin + PF.rMax) / 2;  // средний радиус
+    const w = PF.wMin + (PF.wMax - PF.wMin) * 0.6;  // средняя скорость
+
+    // 4 угла вместо 16
+    for (let k = 0; k < 4; k++) {
+        const th = k / 4 * TAU + TAU / 8;  // смещение на 45° для разнообразия
+        const px = ax + Math.cos(th) * r;
+        const py = ay + Math.sin(th) * r;
+        const sp = w * r;
+        total++;
+        if (flightHits(px, py, -Math.sin(th) * sd * sp, Math.cos(th) * sd * sp + PF.upAssist, tx, ty, 20, 0.07)) {
+            hits++;
         }
     }
-    return [hits / total, mid];
+    return [hits / total, hits >= 2 ? 1 : 0];
 }
 
 
@@ -80,13 +101,14 @@ function spawnNext() {
         px = clamp(px, -ANCH_CLAMP, ANCH_CLAMP);
         const [q, qm] = reachQuality(prev.x, prev.y, sd, px, py);
         if (!best || q > best.q) best = { x: px, y: py, q, shot };
-        if (q >= 0.025 && qm >= 1) break;
+        if (q >= 0.5 && qm >= 1) break;
     }
     const a = { x: best.x, y: best.y, idx, spinDir: 0 };
     anchors.push(a); topAnchor = a;
     placeCoins(best.shot.path, bonus ? 5 : 3);
     maybeSpike(best.shot.path, prev, a, diffG, idx);
 }
+
 function spawnAhead() {
     while (topAnchor.y < camY + viewH * 1.6) spawnNext();
     updateWalls();

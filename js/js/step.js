@@ -249,11 +249,15 @@ function cleanupEntities() {
     }
     for (let i = coins.length - 1; i >= 0; i--) {
         if (coins[i].taken || coins[i].y < cutO) {
-            coins.splice(i, 1);
+            coins[i] = coins[coins.length - 1];
+            coins.pop();
         }
     }
     for (let i = spikes.length - 1; i >= 0; i--) {
-        if (spikes[i].y < cutO) spikes.splice(i, 1);
+        if (spikes[i].y < cutO) {
+            spikes[i] = spikes[spikes.length - 1];
+            spikes.pop();
+        }
     }
 }
 
@@ -266,7 +270,8 @@ function updateParticles(dt) {
         const p = particles[i];
         p.life -= dt;
         if (p.life <= 0) {
-            particles.splice(i, 1);
+            particles[i] = particles[particles.length - 1];
+            particles.pop();
             continue;
         }
         p.vy -= 6 * dt;
@@ -280,7 +285,10 @@ function updateFloats(dt) {
         const f = floats[i];
         f.life -= dt;
         f.y += 1.2 * dt;
-        if (f.life <= 0) floats.splice(i, 1);
+        if (f.life <= 0) {
+            floats[i] = floats[floats.length - 1];
+            floats.pop();
+        }
     }
 }
 
@@ -290,7 +298,6 @@ function updateTimers(dt) {
 }
 
 function updateBGParticles(dt) {
-    const speed = 0.3; // базовая скорость
     for (const p of bgParticles) {
         p.x += p.vx * dt * 60; // 60 = нормализация к 60 FPS
         p.y += p.vy * dt * 60;
