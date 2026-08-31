@@ -22,7 +22,7 @@ function hudSync() {
     if (coinsRun !== hudC) { hudC = coinsRun; el.coinsHud.textContent = '◈ ' + coinsRun; }
     if (combo !== hudCombo) {
         hudCombo = combo;
-        if (combo >= 1) {
+        if (combo >= 2) {
             const mult = getComboMult();
             el.combo.textContent = t('series') + ' ×' + combo + ' (×' + mult + ')';
             el.combo.classList.add('show');
