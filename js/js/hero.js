@@ -28,7 +28,7 @@ function checkStreakReward(type, count, x, y) {
             const color = FEEDBACK_COLORS[type];
 
             // Надпись серии
-            addFloat(x, y + 1.5, t('streak') + ' ×' + count + ' +' + bonusCoins + '◈', color, 30);
+            addFloat(x, y + 1.5, t('streak') + streakText(count) + ' +' + bonusCoins + '◈', color, 30);
             burst(x, y, 16, color, 6);
             if (state === 'play') Snd.perfect();
 
@@ -40,6 +40,11 @@ function checkStreakReward(type, count, x, y) {
             break;  // только один уровень за раз
         }
     }
+}
+
+// Формирует строку серии: "" для 1, " ×N" для N>1
+function streakText(count) {
+    return count > 1 ? ' ×' + count : '';
 }
 
 function tryGrab() {
@@ -110,8 +115,9 @@ function tryGrab() {
                 if (flightRatio >= COMBO.megaJump.threshold) {
                     const bonusCoins = COMBO.megaJump.bonusCoins || 15;
                     coinsRun += bonusCoins;
+                    streakLongJump++;
 
-                    addFloat(best.x, best.y + 1.2, t('megaJump') + ' +' + bonusCoins + '◈', FEEDBACK_COLORS.megaJump, 30);
+                    addFloat(best.x, best.y + 1.2, t('megaJump') + streakText(streakLongJump) + ' +' + bonusCoins + '◈', FEEDBACK_COLORS.megaJump, 30);
                     burst(best.x, best.y, 20, '#ff4fd8', 6);
                     burst(best.x, best.y, 10, '#ffc23d', 4);
                     if (state === 'play') Snd.perfect();
@@ -121,6 +127,9 @@ function tryGrab() {
                         shakeT = 0.3;
                         if (vibrationEnabled && navigator.vibrate) navigator.vibrate([50, 30, 50]);
                     }
+
+                    // Проверяем уровень серии
+                    checkStreakReward('longJump', streakLongJump, best.x, best.y);
                 }
                 // ДАЛЬНИЙ! (75%+ высоты)
                 else if (flightRatio >= COMBO.longJump.threshold) {
@@ -129,7 +138,7 @@ function tryGrab() {
                     const bonusCoins = COMBO.longJump.bonusCoins || 5;
                     coinsRun += bonusCoins;
 
-                    addFloat(best.x, best.y + 1.0, t('longJump') + ' ×' + streakLongJump + ' +' + bonusCoins + '◈', FEEDBACK_COLORS.longJump, 26);
+                    addFloat(best.x, best.y + 1.0, t('longJump') + streakText(streakLongJump) + ' +' + bonusCoins + '◈', FEEDBACK_COLORS.longJump, 26);
                     burst(best.x, best.y, 14, '#ff4fd8', 5);
                     if (state === 'play') Snd.perfect();
 
@@ -140,6 +149,9 @@ function tryGrab() {
 
                     // Проверяем уровень серии
                     checkStreakReward('longJump', streakLongJump, best.x, best.y);
+                } else {
+                    // Полёт не дальний — сбрасываем серию
+                    streakLongJump = 0;
                 }
 
                 // Сбрасываем после зацепа
@@ -153,7 +165,7 @@ function tryGrab() {
                 streakPerfect++;
 
                 // Надпись
-                addFloat(best.x, best.y + 0.4, t('perfect') + ' ×' + streakPerfect, FEEDBACK_COLORS.perfect, 24);
+                addFloat(best.x, best.y + 0.4, t('perfect') + streakText(streakPerfect), FEEDBACK_COLORS.perfect, 24);
                 burst(best.x, best.y, 14, '#ffc23d', 4);
                 if (state === 'play') Snd.perfect();
 
@@ -169,7 +181,7 @@ function tryGrab() {
                 streakFastGrab++;
 
                 // Надпись
-                addFloat(best.x, best.y + 0.8, t('fastGrab') + ' ×' + streakFastGrab, FEEDBACK_COLORS.fastGrab, 22);
+                addFloat(best.x, best.y + 0.8, t('fastGrab') + streakText(streakFastGrab), FEEDBACK_COLORS.fastGrab, 22);
                 if (state === 'play') Snd.perfect();
 
                 // Проверяем уровень серии
@@ -219,7 +231,7 @@ function doRelease() {
         streakFastRelease++;
 
         // Надпись
-        addFloat(hero.x, hero.y + 0.6, t('fastRelease') + ' ×' + streakFastRelease, FEEDBACK_COLORS.fastRelease, 22);
+        addFloat(hero.x, hero.y + 0.6, t('fastRelease') + streakText(streakFastRelease), FEEDBACK_COLORS.fastRelease, 22);
         if (state === 'play') Snd.perfect();
 
         // Проверяем уровень серии
