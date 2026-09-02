@@ -14,6 +14,34 @@ function releaseVel() {
 }
 function power() { return hero.attached ? hero.omega * hero.r : 0; }
 
+// Проверка награды за серию
+function checkStreakReward(type, count, x, y) {
+    // Берём массив уровней для конкретной серии
+    const levels = STREAKS[type];
+
+    for (const level of levels) {
+        if (count === level.count) {
+            const bonusCoins = level.bonusCoins;
+            coinsRun += bonusCoins;
+
+            // Цвет берём из FEEDBACK_COLORS
+            const color = FEEDBACK_COLORS[type];
+
+            // Надпись серии
+            addFloat(x, y + 1.5, t('streak') + ' ×' + count + ' +' + bonusCoins + '◈', color, 30);
+            burst(x, y, 16, color, 6);
+            if (state === 'play') Snd.perfect();
+
+            // Запоминаем вспышку (если она редче текущей)
+            if (!pendingStreakFlash || STREAKS.priority[type] > STREAKS.priority[pendingStreakFlash.type]) {
+                pendingStreakFlash = { type: type, color: color, intensity: 0.5 };
+            }
+
+            break;  // только один уровень за раз
+        }
+    }
+}
+
 function tryGrab() {
     let best = null;
     let bestScore = -Infinity;
@@ -96,18 +124,22 @@ function tryGrab() {
                 }
                 // ДАЛЬНИЙ! (75%+ высоты)
                 else if (flightRatio >= COMBO.longJump.threshold) {
+                    streakLongJump++;
+
                     const bonusCoins = COMBO.longJump.bonusCoins || 5;
                     coinsRun += bonusCoins;
 
-                    addFloat(best.x, best.y + 1.0, t('longJump') + ' +' + bonusCoins + '◈', FEEDBACK_COLORS.longJump, 26);
+                    addFloat(best.x, best.y + 1.0, t('longJump') + ' ×' + streakLongJump + ' +' + bonusCoins + '◈', FEEDBACK_COLORS.longJump, 26);
                     burst(best.x, best.y, 14, '#ff4fd8', 5);
                     if (state === 'play') Snd.perfect();
 
-                    // Лёгкая тряска и вибрация (если включена и не бот)
                     if (!bot) {
                         shakeT = 0.2;
                         if (vibrationEnabled && navigator.vibrate) navigator.vibrate(30);
                     }
+
+                    // Проверяем уровень серии
+                    checkStreakReward('longJump', streakLongJump, best.x, best.y);
                 }
 
                 // Сбрасываем после зацепа
@@ -115,19 +147,35 @@ function tryGrab() {
                 hero.flightProgress = 0;
             }
 
-            // Перфект: зацеп за следующую точку без пропуска
-            if (skipCount === 0) {
-                perfectFlash = 0.35;
-                addFloat(best.x, best.y + 0.4, t('perfect') + ' ×' + combo, FEEDBACK_COLORS.perfect, combo > 1 ? 24 : 20);
+            // ПЕРФЕКТ: идеальный тайминг (зацеп на вспышку)
+            const flash = anchorVisualState(best);
+            if (flash >= STREAKS.perfectFlashThreshold) {
+                streakPerfect++;
+
+                // Надпись
+                addFloat(best.x, best.y + 0.4, t('perfect') + ' ×' + streakPerfect, FEEDBACK_COLORS.perfect, 24);
                 burst(best.x, best.y, 14, '#ffc23d', 4);
                 if (state === 'play') Snd.perfect();
+
+                // Проверяем уровень серии
+                checkStreakReward('perfect', streakPerfect, best.x, best.y);
+            } else {
+                streakPerfect = 0;  // сброс серии если не на вспышку
             }
 
-            // МГНОВЕННЫЙ ЗАЦЕП! если зацепились в первые 0.2с после релиза
+            // ЦЕП: быстрый зацеп
             const timeSinceRelease = uiT - hero.lastReleaseTime;
             if (timeSinceRelease <= COMBO.fastThreshold) {
-                addFloat(best.x, best.y + 0.8, t('fastGrab'), FEEDBACK_COLORS.fastGrab, 22);
+                streakFastGrab++;
+
+                // Надпись
+                addFloat(best.x, best.y + 0.8, t('fastGrab') + ' ×' + streakFastGrab, FEEDBACK_COLORS.fastGrab, 22);
                 if (state === 'play') Snd.perfect();
+
+                // Проверяем уровень серии
+                checkStreakReward('fastGrab', streakFastGrab, best.x, best.y);
+            } else {
+                streakFastGrab = 0;  // сброс серии если не быстро
             }
         }
 
@@ -165,11 +213,19 @@ function doRelease() {
     if (!hero.attached) return;
     hero.attached = false; hero.lastAnchor = hero.anchor;
 
-    // МГНОВЕННЫЙ РЕЛИЗ! если отпустили в первые 0.2с
+    // ПУФ: быстрое отпускание
     const holdTime = uiT - hero.grabTime;
     if (holdTime <= COMBO.fastThreshold) {
-        addFloat(hero.x, hero.y + 0.6, t('fastRelease'), FEEDBACK_COLORS.fastRelease, 22);
+        streakFastRelease++;
+
+        // Надпись
+        addFloat(hero.x, hero.y + 0.6, t('fastRelease') + ' ×' + streakFastRelease, FEEDBACK_COLORS.fastRelease, 22);
         if (state === 'play') Snd.perfect();
+
+        // Проверяем уровень серии
+        checkStreakReward('fastRelease', streakFastRelease, hero.x, hero.y);
+    } else {
+        streakFastRelease = 0;  // сброс серии если не быстро
     }
 
     const v = releaseVel();

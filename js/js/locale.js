@@ -66,6 +66,8 @@ const LOCALES = {
         qualityMedium: 'Среднее',
         qualityHigh: 'Высокое',
         qualityAuto: 'Авто',
+
+        streak: 'СЕРИЯ',
     },
 
     en: {
@@ -134,6 +136,8 @@ const LOCALES = {
         qualityMedium: 'Medium',
         qualityHigh: 'High',
         qualityAuto: 'Auto',
+
+        streak: 'STREAK',
     },
 };
 

@@ -375,9 +375,16 @@ function drawVignette(c) {
     const g = c.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75);
     g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,10,0.55)');
     c.fillStyle = g; c.fillRect(0, 0, W, H);
-    if (perfectFlash > 0) {
-        c.fillStyle = 'rgba(255,194,61,' + (perfectFlash * 0.5 * flashIntensity) + ')';  // ← добавь * flashIntensity
+
+    // Вспышка серии (приоритет по редкости)
+    if (pendingStreakFlash && pendingStreakFlash.intensity > 0) {
+        const r = parseInt(pendingStreakFlash.color.slice(1, 3), 16);
+        const g2 = parseInt(pendingStreakFlash.color.slice(3, 5), 16);
+        const b = parseInt(pendingStreakFlash.color.slice(5, 7), 16);
+        c.fillStyle = 'rgba(' + r + ',' + g2 + ',' + b + ',' + (pendingStreakFlash.intensity * flashIntensity) + ')';
         c.fillRect(0, 0, W, H);
+        pendingStreakFlash.intensity -= 0.02;  // затухание
+        if (pendingStreakFlash.intensity <= 0) pendingStreakFlash = null;
     }
 }
 

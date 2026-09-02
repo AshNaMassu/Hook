@@ -8,6 +8,15 @@ let perfectFlash = 0, shakeT = 0, uiT = 0, bot = false;
 let lavaY = LAVA.startY;
 let firstGrabDone = false;
 
+// Серии наград
+let streakPerfect = 0;       // серия идеальных зацепов
+let streakFastGrab = 0;      // серия быстрых зацепов
+let streakFastRelease = 0;   // серия быстрых отпусканий
+let streakLongJump = 0;      // серия дальних прыжков
+
+// Вспышка серии (чтобы не накладывать несколько)
+let pendingStreakFlash = null;  // { type, color, intensity }
+
 // Стены из лавы
 let wallLeft = -10;   // левая стена (будет обновлена при генерации)
 let wallRight = 10;   // правая стена

@@ -38,6 +38,14 @@ function resetWorld(newSeed, isBot) {
     reviveAvail = !isBot;
     revivePoint = { x: 0, y: -2.5 };
     bot = !!isBot;
+
+    // Сброс серий
+    streakPerfect = 0;
+    streakFastGrab = 0;
+    streakFastRelease = 0;
+    streakLongJump = 0;
+    pendingStreakFlash = null;
+
     spawnAhead();
 
     // Вычисляем максимальный полёт один раз

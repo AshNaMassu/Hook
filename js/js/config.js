@@ -97,3 +97,46 @@ const FEEDBACK_COLORS = {
     slow: '#ff2e5f',         // Время вышло — красный
     coin: '#ffc23d',         // Монеты — золотой
 };
+
+/* ---------- Серии наград ---------- */
+const STREAKS = {
+    // Порог идеального тайминга для ПЕРФЕКТа
+    perfectFlashThreshold: 0.85,
+
+    // Приоритет вспышек (выше = важнее)
+    priority: {
+        longJump: 5,
+        perfect: 4,
+        fastGrab: 3,
+        fastRelease: 2,
+    },
+
+    // Уровни наград ДЛЯ КАЖДОЙ СЕРИИ (разные монеты)
+    perfect: [
+        { count: 3, bonusCoins: 3 },
+        { count: 6, bonusCoins: 6 },
+        { count: 9, bonusCoins: 10 },
+        { count: 12, bonusCoins: 15 },
+    ],
+
+    fastGrab: [
+        { count: 3, bonusCoins: 2 },
+        { count: 6, bonusCoins: 4 },
+        { count: 9, bonusCoins: 7 },
+        { count: 12, bonusCoins: 10 },
+    ],
+
+    fastRelease: [
+        { count: 3, bonusCoins: 2 },
+        { count: 6, bonusCoins: 4 },
+        { count: 9, bonusCoins: 7 },
+        { count: 12, bonusCoins: 10 },
+    ],
+
+    longJump: [
+        { count: 3, bonusCoins: 5 },
+        { count: 6, bonusCoins: 10 },
+        { count: 9, bonusCoins: 15 },
+        { count: 12, bonusCoins: 25 },
+    ],
+};

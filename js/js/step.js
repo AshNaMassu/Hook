@@ -295,6 +295,12 @@ function updateFloats(dt) {
 function updateTimers(dt) {
     if (perfectFlash > 0) perfectFlash -= dt;
     if (shakeT > 0) shakeT -= dt;
+
+    // Затухание вспышки серии (если не в рендере)
+    if (pendingStreakFlash && pendingStreakFlash.intensity > 0) {
+        pendingStreakFlash.intensity -= dt * 0.8;
+        if (pendingStreakFlash.intensity <= 0) pendingStreakFlash = null;
+    }
 }
 
 function updateBGParticles(dt) {
