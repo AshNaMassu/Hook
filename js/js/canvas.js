@@ -1,13 +1,13 @@
-/* ---------- canvas / layout ---------- */
+п»ї/* ---------- canvas / layout ---------- */
 const stage = document.getElementById('stage'), cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 
-// offscreen canvas для bloom
+// offscreen canvas РґР»СЏ bloom
 const bloomCv = document.createElement('canvas');
 const bloomCtx = bloomCv.getContext('2d');
 
 let W = 0, H = 0, scale = 1, viewW = 10, viewH = 16, dpr = 1;
 
-let currentViewWidth = CAMERA.viewWidth;  // текущий обзор (начинаем с базового)
+let currentViewWidth = CAMERA.viewWidth;  // С‚РµРєСѓС‰РёР№ РѕР±Р·РѕСЂ (РЅР°С‡РёРЅР°РµРј СЃ Р±Р°Р·РѕРІРѕРіРѕ)
 
 function resize() {
     let sw = window.innerWidth, sh = window.innerHeight;
@@ -18,13 +18,13 @@ function resize() {
     cv.style.width = sw + 'px'; cv.style.height = sh + 'px';
     W = cv.width; H = cv.height;
 
-    // Начинаем с минимального обзора (для старта)
+    // РќР°С‡РёРЅР°РµРј СЃ РјРёРЅРёРјР°Р»СЊРЅРѕРіРѕ РѕР±Р·РѕСЂР° (РґР»СЏ СЃС‚Р°СЂС‚Р°)
     currentViewWidth = CAMERA.viewWidthMin;
     viewW = currentViewWidth;
     viewH = viewW * (H / W);
     scale = W / viewW;
 
-    // offscreen для bloom (половинное разрешение для производительности)
+    // offscreen РґР»СЏ bloom (РїРѕР»РѕРІРёРЅРЅРѕРµ СЂР°Р·СЂРµС€РµРЅРёРµ РґР»СЏ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЊРЅРѕСЃС‚Рё)
     bloomCv.width = Math.round(W / 2);
     bloomCv.height = Math.round(H / 2);
 }
@@ -37,19 +37,30 @@ const SX = x => W / 2 + (x - camX) * scale;
 const camTop = () => camY + viewH / 2;
 const SY = y => (camTop() - y) * scale;
 
-// Динамическая камера: обновление видимой области на основе скорости
-
+// Р”РёРЅР°РјРёС‡РµСЃРєР°СЏ РєР°РјРµСЂР°: РѕР±РЅРѕРІР»РµРЅРёРµ РІРёРґРёРјРѕР№ РѕР±Р»Р°СЃС‚Рё РЅР° РѕСЃРЅРѕРІРµ СЃРєРѕСЂРѕСЃС‚Рё
 function updateViewport(dt) {
-    // Текущая скорость героя
-    const speed = Math.hypot(hero.vx, hero.vy);
+    let effectiveSpeed;
 
-    // Целевой viewWidth: от viewWidthMin до viewWidthMax в зависимости от скорости
-    const targetViewWidth = lerp(CAMERA.viewWidthMin, CAMERA.viewWidthMax, Math.min(1, speed / CAMERA.speedThreshold));
+    if (hero.attached) {
+        // РџСЂРё Р·Р°С†РµРїРµ: РёСЃРїРѕР»СЊР·СѓРµРј РїРѕС‚РµРЅС†РёР°Р»СЊРЅСѓСЋ СЃРєРѕСЂРѕСЃС‚СЊ РїРѕР»С‘С‚Р°
+        // РЎРєРѕСЂРѕСЃС‚СЊ РЅР° РєРѕРЅС†Рµ РІРµСЂС‘РІРєРё = П‰ Г— r
+        effectiveSpeed = hero.omega * hero.r;
+    } else {
+        // Р’ РїРѕР»С‘С‚Рµ: РёСЃРїРѕР»СЊР·СѓРµРј С‚РµРєСѓС‰СѓСЋ СЃРєРѕСЂРѕСЃС‚СЊ
+        effectiveSpeed = Math.hypot(hero.vx, hero.vy);
+    }
 
-    // Плавное изменение (чтобы не дёргалось)
+    // Р¦РµР»РµРІРѕР№ viewWidth РЅР° РѕСЃРЅРѕРІРµ СЌС„С„РµРєС‚РёРІРЅРѕР№ СЃРєРѕСЂРѕСЃС‚Рё
+    const targetViewWidth = lerp(
+        CAMERA.viewWidthMin,
+        CAMERA.viewWidthMax,
+        Math.min(1, effectiveSpeed / CAMERA.speedThreshold)
+    );
+
+    // РџР»Р°РІРЅРѕРµ РёР·РјРµРЅРµРЅРёРµ (СѓРІРµР»РёС‡РёР»Рё СЃ 2 РґРѕ 0.8 РґР»СЏ Р±РѕР»СЊС€РµР№ РїР»Р°РІРЅРѕСЃС‚Рё)
     currentViewWidth = lerp(currentViewWidth, targetViewWidth, dt * CAMERA.smoothness);
 
-    // Пересчёт видимой области
+    // РџРµСЂРµСЃС‡С‘С‚ РІРёРґРёРјРѕР№ РѕР±Р»Р°СЃС‚Рё
     viewW = currentViewWidth;
     viewH = viewW * (H / W);
     scale = W / viewW;
