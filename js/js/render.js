@@ -89,9 +89,14 @@ function reachableSet() {
     const set = new Set();
     if (!hero.attached || dying) return set;
     const v = releaseVel();
+
+    // Адаптивный диапазон проверки по качеству графики
+    const maxReach = QUALITY_SETTINGS[RenderQuality.current].maxReach;
+
     for (const a of anchors) {
         if (!hero.anchor) break;
-        if (a.idx === hero.anchor.idx + 1 || a.idx === hero.anchor.idx + 2) {
+        const idxDiff = a.idx - hero.anchor.idx;
+        if (idxDiff >= 1 && idxDiff <= maxReach) {
             if (flightHits(hero.x, hero.y, v.vx, v.vy, a.x, a.y)) set.add(a.idx);
         }
     }

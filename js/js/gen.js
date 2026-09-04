@@ -1,5 +1,8 @@
 function flightHits(px, py, vx, vy, tx, ty, steps, dt) {
-    steps = steps || 30; dt = dt || 0.05;
+    // Адаптивное количество шагов по качеству графики
+    steps = steps || QUALITY_SETTINGS[RenderQuality.current].flightSteps;
+    dt = dt || 0.05;
+
     for (let i = 0; i < steps; i++) {
         vy -= PF.g * dt; px += vx * dt; py += vy * dt;
         const dx = px - tx, dy = py - ty;
@@ -7,19 +10,6 @@ function flightHits(px, py, vx, vy, tx, ty, steps, dt) {
     }
     return false;
 }
-//function reachQuality(ax, ay, sd, tx, ty) {
-//    let hits = 0, mid = 0, total = 0;
-//    for (const r of [2.1, 3.0])
-//        for (const w of [4.5, 5.75, 6.5])
-//            for (let k = 0; k < 16; k++) {
-//                const th = k / 16 * TAU; total++;
-//                const px = ax + Math.cos(th) * r, py = ay + Math.sin(th) * r, sp = w * r;
-//                if (flightHits(px, py, -Math.sin(th) * sd * sp, Math.cos(th) * sd * sp + PF.upAssist, tx, ty, 24, 0.06)) {
-//                    hits++; if (w <= 5.75) mid++;
-//                }
-//            }
-//    return [hits / total, mid];
-//}
 
 function reachQuality(ax, ay, sd, tx, ty) {
     let hits = 0, total = 0;

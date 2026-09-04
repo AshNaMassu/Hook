@@ -140,3 +140,11 @@ const STREAKS = {
         { count: 12, bonusCoins: 25 },
     ],
 };
+
+/* ---------- Настройки по уровням качества ---------- */
+const QUALITY_SETTINGS = {
+    // LOW = 0, MEDIUM = 1, HIGH = 2
+    0: { maxReach: 2, flightSteps: 30 },   // LOW
+    1: { maxReach: 3, flightSteps: 38 },   // MEDIUM
+    2: { maxReach: 4, flightSteps: 45 },   // HIGH
+};
