@@ -120,39 +120,35 @@ function updateAutoGrab() {
 
 function updateCamera(dt) {
     if (!dying) {
-        const camXTgt = clamp(hero.x * 0.3, -CAMERA.anchorClamp * 0.3, CAMERA.anchorClamp * 0.3);
+        // Когда герой закреплён — камера на точке зацепа, не следует за героем
+        const focusX = hero.attached && hero.anchor ? hero.anchor.x : hero.x;
+        const camXTgt = clamp(focusX * 0.3, -CAMERA.anchorClamp * 0.3, CAMERA.anchorClamp * 0.3);
         camX += (camXTgt - camX) * Math.min(1, 2 * dt);
     }
-    
+
     if (camFreeze > 0) {
         camFreeze -= dt;
     } else {
-        // Адаптивный lookahead в зависимости от движения
-        let targetLookahead = -1.5;  // базовое значение
-        
+        // Адаптивный lookahead
+        let targetLookahead = -1.5;
+
         if (!hero.attached && !dying) {
-            // В полёте: смотрим вперёд по направлению движения
             if (hero.vy > 2) {
-                // Летим вверх — показываем больше сверху (до -3.5)
                 targetLookahead = -1.5 - Math.min(2.0, hero.vy * 0.25);
             } else if (hero.vy < -2) {
-                // Летим вниз — показываем больше снизу (до +0.5)
                 targetLookahead = -0.5 + Math.min(2.0, Math.abs(hero.vy) * 0.2);
             }
         } else if (hero.attached) {
-            // При зацепе: стандартный вид
             targetLookahead = -1.5;
         }
-        
-        // Плавное изменение lookahead (быстрее реакция)
+
         currentLookahead += (targetLookahead - currentLookahead) * Math.min(1, 5 * dt);
-        
-        // Используем адаптивный lookahead
+
+        // По Y тоже на точку зацепа при закреплении
         const focusY = hero.attached && hero.anchor ? hero.anchor.y : hero.y;
         const tgt = focusY + currentLookahead;
-        
+
         if (!dying) {
-            // Увеличенная скорость камеры чтобы успевать
             const maxCamSpeed = 18 * dt;
             let delta = tgt - camY;
             if (Math.abs(delta) > maxCamSpeed) {
