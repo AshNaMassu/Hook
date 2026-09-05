@@ -42,22 +42,27 @@ function updateViewport(dt) {
     let effectiveSpeed;
 
     if (hero.attached) {
-        // При зацепе: используем потенциальную скорость полёта
-        // Скорость на конце верёвки = ω × r
+        // При зацепе: потенциальная скорость полёта
         effectiveSpeed = hero.omega * hero.r;
     } else {
-        // В полёте: используем текущую скорость
+        // В полёте: текущая скорость
         effectiveSpeed = Math.hypot(hero.vx, hero.vy);
     }
 
     // Целевой viewWidth на основе эффективной скорости
-    const targetViewWidth = lerp(
+    let targetViewWidth = lerp(
         CAMERA.viewWidthMin,
         CAMERA.viewWidthMax,
         Math.min(1, effectiveSpeed / CAMERA.speedThreshold)
     );
 
-    // Плавное изменение (увеличили с 2 до 0.8 для большей плавности)
+    // Ограничение по стенам: не показывать больше чем расстояние между стенами
+    if (WALLS.enabled) {
+        const wallsWidth = wallRight - wallLeft;
+        targetViewWidth = Math.min(targetViewWidth, wallsWidth);
+    }
+
+    // Плавное изменение
     currentViewWidth = lerp(currentViewWidth, targetViewWidth, dt * CAMERA.smoothness);
 
     // Пересчёт видимой области
