@@ -50,11 +50,8 @@ function updateViewport(dt) {
     }
 
     // Целевой viewWidth на основе эффективной скорости
-    let targetViewWidth = lerp(
-        CAMERA.viewWidthMin,
-        CAMERA.viewWidthMax,
-        Math.min(1, effectiveSpeed / CAMERA.speedThreshold)
-    );
+    const t = clamp((effectiveSpeed - CAMERA.speedMin) / (CAMERA.speedThreshold - CAMERA.speedMin), 0, 1);
+    let targetViewWidth = lerp(CAMERA.viewWidthMin, CAMERA.viewWidthMax, t);
 
     // Ограничение по стенам: не показывать больше чем расстояние между стенами
     if (WALLS.enabled) {
@@ -69,4 +66,12 @@ function updateViewport(dt) {
     viewW = currentViewWidth;
     viewH = viewW * (H / W);
     scale = W / viewW;
+
+    window._debugViewport = {
+        effectiveSpeed: effectiveSpeed.toFixed(1),
+        targetViewWidth: targetViewWidth.toFixed(1),
+        currentViewWidth: currentViewWidth.toFixed(1),
+        t: t.toFixed(2),
+        attached: hero.attached,
+    };
 }

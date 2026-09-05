@@ -595,4 +595,33 @@ function render() {
         trail.push({ x: hero.x, y: hero.y }); 
         if (trail.length > 28) trail.shift(); 
     }
+
+    // Отладка
+    drawDebugInfo();
+}
+
+function drawDebugInfo(c) {
+    c = c || ctx;
+    if (!window._debugViewport) return;
+
+    const d = window._debugViewport;
+    const x = 10 * dpr;
+    const y = H - 60 * dpr;  // левый нижний угол
+
+    c.save();
+    c.font = (12 * dpr) + 'px monospace';
+    c.textAlign = 'left';
+    c.fillStyle = 'rgba(255, 255, 255, 0.5)';
+
+    const lines = [
+        'speed: ' + d.effectiveSpeed + (d.attached ? ' (ω×r)' : ' (|v|)'),
+        'viewW: ' + d.currentViewWidth + ' / ' + d.targetViewWidth,
+        't: ' + d.t,
+    ];
+
+    for (let i = 0; i < lines.length; i++) {
+        c.fillText(lines[i], x, y + i * 16 * dpr);
+    }
+
+    c.restore();
 }
