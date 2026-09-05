@@ -53,12 +53,6 @@ function updateViewport(dt) {
     const t = clamp((effectiveSpeed - CAMERA.speedMin) / (CAMERA.speedThreshold - CAMERA.speedMin), 0, 1);
     let targetViewWidth = lerp(CAMERA.viewWidthMin, CAMERA.viewWidthMax, t);
 
-    // Ограничение по стенам: не показывать больше чем расстояние между стенами
-    if (WALLS.enabled) {
-        const wallsWidth = wallRight - wallLeft;
-        targetViewWidth = Math.min(targetViewWidth, wallsWidth);
-    }
-
     // Плавное изменение
     currentViewWidth = lerp(currentViewWidth, targetViewWidth, dt * CAMERA.smoothness);
 

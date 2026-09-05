@@ -120,10 +120,23 @@ function updateAutoGrab() {
 
 function updateCamera(dt) {
     if (!dying) {
-        // Когда герой закреплён — камера на точке зацепа, не следует за героем
         const focusX = hero.attached && hero.anchor ? hero.anchor.x : hero.x;
         const camXTgt = clamp(focusX * 0.3, -CAMERA.anchorClamp * 0.3, CAMERA.anchorClamp * 0.3);
         camX += (camXTgt - camX) * Math.min(1, 2 * dt);
+
+        // Ограничение камеры по стенам: край экрана не выходит за стену
+        if (WALLS.enabled) {
+            const halfView = viewW / 2;
+            const minCamX = wallLeft + halfView;
+            const maxCamX = wallRight - halfView;
+
+            // Если стены уже чем вью — центрируем камеру
+            if (minCamX > maxCamX) {
+                camX = (wallLeft + wallRight) / 2;
+            } else {
+                camX = clamp(camX, minCamX, maxCamX);
+            }
+        }
     }
 
     if (camFreeze > 0) {
