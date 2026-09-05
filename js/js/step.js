@@ -74,24 +74,6 @@ function updateHero(dt) {
             hero.y = a.y + Math.sin(hero.theta) * hero.r;
             hero.attachT += dt;
 
-            // === Логирование разгона ===
-            const currentSpeed = hero.omega * hero.r;
-
-            // Начало измерения (первый кадр зацепа)
-            if (!_accelStarted) {
-                _accelStartTime = uiT;
-                _accelStarted = true;
-                _accelLogged = false;
-            }
-
-            // Логируем когда достигли максимальной скорости (15+)
-            if (_accelStarted && !_accelLogged && currentSpeed >= 15) {
-                const accelTime = uiT - _accelStartTime;
-                console.log(`⏱️ Разгон до ${currentSpeed.toFixed(1)} занял ${accelTime.toFixed(2)} сек | r=${hero.r.toFixed(2)} | ω=${hero.omega.toFixed(2)}`);
-                _accelLogged = true;
-            }
-            // === Конец логирования ===
-
             // Таймер комбо
             if (hero.comboTimer > 0) {
                 hero.comboTimer -= dt;
@@ -101,9 +83,6 @@ function updateHero(dt) {
                 }
             }
         } else {
-            // Сброс логирования при полёте
-            _accelStarted = false;
-
             hero.vy -= PF.g * dt;
             hero.x += hero.vx * dt;
             hero.y += hero.vy * dt;

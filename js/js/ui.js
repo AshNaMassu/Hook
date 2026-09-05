@@ -90,6 +90,11 @@ function startRun(newSeed) {
     coinsRun = 0;
     maxAlt = 0;
 
+    // Сброс камеры к начальному состоянию
+    currentViewWidth = CAMERA.viewWidthMin;
+    smoothedSpeed = 0;
+    currentLookahead = -1.5;
+
     resetWorld(newSeed, false);
     state = 'play';
     sdkGameplayStart();  
@@ -319,6 +324,45 @@ vibrationToggles.forEach(toggle => {
         Snd.ui();
     });
 });
+
+// Динамическая камера
+const dynamicCameraToggle = document.getElementById('dynamicCameraToggle');
+const fixedViewSlider = document.getElementById('fixedViewSlider');
+const fixedViewLabel = document.getElementById('fixedViewLabel');
+const fixedViewRow = document.getElementById('fixedViewRow');
+
+function updateCameraSettingsUI() {
+    if (dynamicCameraToggle) {
+        dynamicCameraToggle.checked = CAMERA.dynamicEnabled;
+    }
+    if (fixedViewSlider) {
+        fixedViewSlider.value = CAMERA.fixedViewWidth;
+        fixedViewLabel.textContent = CAMERA.fixedViewWidth;
+        // Скрываем слайдер если динамика включена
+        if (fixedViewRow) {
+            fixedViewRow.style.display = CAMERA.dynamicEnabled ? 'none' : 'flex';
+        }
+    }
+}
+
+if (dynamicCameraToggle) {
+    dynamicCameraToggle.addEventListener('change', (e) => {
+        CAMERA.dynamicEnabled = e.target.checked;
+        updateCameraSettingsUI();
+        saveAllDataDebounced();
+        Snd.ui();
+    });
+}
+
+if (fixedViewSlider) {
+    fixedViewSlider.addEventListener('input', (e) => {
+        CAMERA.fixedViewWidth = parseInt(e.target.value);
+        fixedViewLabel.textContent = CAMERA.fixedViewWidth;
+        saveAllDataDebounced();
+    });
+}
+
+updateCameraSettingsUI();
 
 // Качество графики
 const qualityButtons = document.querySelectorAll('.qualityBtn');

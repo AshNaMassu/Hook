@@ -29,6 +29,17 @@ let vibrationEnabled = store.get('vibration', true);
 // По умолчанию: автоопределение (-1)
 let graphicsQuality = store.get('graphicsQuality', -1);
 
+// Настройки камеры (загружаются после config.js)
+setTimeout(() => {
+    if (typeof CAMERA !== 'undefined') {
+        const dynamicCamera = store.get('dynamicCamera', true);
+        if (dynamicCamera !== null) CAMERA.dynamicEnabled = dynamicCamera;
+
+        const fixedViewWidth = store.get('fixedViewWidth', 13);
+        if (fixedViewWidth !== null) CAMERA.fixedViewWidth = fixedViewWidth;
+    }
+}, 100);
+
 // Массив скинов
 const SKINS = [
     { id: 'cyan', color: '#26e0ff', price: 0 },    // бесплатный
@@ -55,7 +66,9 @@ function saveAllData() {
     store.set('shakeIntensity', shakeIntensity);
     store.set('flashIntensity', flashIntensity);
     store.set('vibration', vibrationEnabled); 
-    store.set('graphicsQuality', graphicsQuality); 
+    store.set('graphicsQuality', graphicsQuality);
+    store.set('dynamicCamera', CAMERA.dynamicEnabled);
+    store.set('fixedViewWidth', CAMERA.fixedViewWidth);
 
     // Сохраняем в облако (не блокируя игру)
     if (typeof sdkReady !== 'undefined' && sdkReady) {

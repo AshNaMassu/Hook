@@ -6,8 +6,11 @@ const bloomCv = document.createElement('canvas');
 const bloomCtx = bloomCv.getContext('2d');
 
 let W = 0, H = 0, scale = 1, viewW = 10, viewH = 16, dpr = 1;
+// Динамическая камера: обновление видимой области на основе скорости
+// Скользящее среднее скорости (глобальная переменная)
+let smoothedSpeed = 0;
 
-let currentViewWidth = CAMERA.viewWidth;  // текущий обзор (начинаем с базового)
+let currentViewWidth = CAMERA.viewWidthMin;  // текущий обзор (начинаем с базового)
 
 function resize() {
     let sw = window.innerWidth, sh = window.innerHeight;
@@ -20,6 +23,7 @@ function resize() {
 
     // Начинаем с минимального обзора (для старта)
     currentViewWidth = CAMERA.viewWidthMin;
+    smoothedSpeed = 0;
     viewW = currentViewWidth;
     viewH = viewW * (H / W);
     scale = W / viewW;
@@ -37,11 +41,16 @@ const SX = x => W / 2 + (x - camX) * scale;
 const camTop = () => camY + viewH / 2;
 const SY = y => (camTop() - y) * scale;
 
-// Динамическая камера: обновление видимой области на основе скорости
-// Скользящее среднее скорости (глобальная переменная)
-let smoothedSpeed = 0;
-
 function updateViewport(dt) {
+    // Если динамическая камера выключена — фиксированный вью
+    if (!CAMERA.dynamicEnabled) {
+        currentViewWidth = CAMERA.fixedViewWidth;
+        viewW = currentViewWidth;
+        viewH = viewW * (H / W);
+        scale = W / viewW;
+        return;
+    }
+
     if (hero.attached) {
         // Текущая скорость (ω × текущая длина верёвки)
         const effectiveSpeed = hero.omega * hero.r;
@@ -66,18 +75,4 @@ function updateViewport(dt) {
     viewW = currentViewWidth;
     viewH = viewW * (H / W);
     scale = W / viewW;
-
-    // Отладочные значения
-    const effectiveSpeed = hero.attached
-        ? hero.omega * hero.r
-        : Math.hypot(hero.vx, hero.vy);
-
-    window._debugViewport = {
-        effectiveSpeed: effectiveSpeed.toFixed(1),
-        smoothedSpeed: smoothedSpeed.toFixed(1),
-        targetViewWidth: targetViewWidth.toFixed(1),
-        currentViewWidth: currentViewWidth.toFixed(1),
-        t: t.toFixed(2),
-        attached: hero.attached,
-    };
 }

@@ -1,9 +1,5 @@
 let lastGrabIdx = -1;
 
-// Логирование разгона (для отладки)
-let _accelStartTime = null;
-let _accelStarted = false;
-let _accelLogged = false;
 function getComboMult() {
     let mult = 1.0;
     for (const m of COMBO.multipliers) {
@@ -164,9 +160,11 @@ function tryGrab() {
                 hero.flightProgress = 0;
             }
 
-            // ПЕРФЕКТ: идеальный тайминг (зацеп на вспышку)
-            const flash = anchorVisualState(best);
-            if (flash >= STREAKS.perfectFlashThreshold) {
+            // ПЕРФЕКТ: ранний зацеп (зацеп на краю радиуса = максимальная скорость)
+            const d = Math.hypot(hero.x - best.x, hero.y - best.y);
+            const earlyGrabQuality = d / PF.grabRadius;  // 1.0 = на краю, 0 = на точке
+
+            if (earlyGrabQuality >= STREAKS.perfectEarlyGrabThreshold) {
                 streakPerfect++;
 
                 // Надпись
@@ -177,7 +175,7 @@ function tryGrab() {
                 // Проверяем уровень серии
                 checkStreakReward('perfect', streakPerfect, best.x, best.y);
             } else {
-                streakPerfect = 0;  // сброс серии если не на вспышку
+                streakPerfect = 0;  // сброс серии если не ранний зацеп
             }
 
             // ЦЕП: быстрый зацеп

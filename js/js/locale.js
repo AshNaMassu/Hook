@@ -68,6 +68,8 @@ const LOCALES = {
         qualityAuto: 'Авто',
 
         streak: 'СЕРИЯ',
+        settingsLabelDynamicCamera: '📷 Динамическая камера',
+        settingsLabelCameraZoom: '🔍 Масштаб камеры:',
     },
 
     en: {
@@ -138,6 +140,8 @@ const LOCALES = {
         qualityAuto: 'Auto',
 
         streak: 'STREAK',
+        settingsLabelDynamicCamera: '📷 Dynamic camera',
+        settingsLabelCameraZoom: '🔍 Camera zoom:',
     },
 };
 

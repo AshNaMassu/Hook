@@ -118,6 +118,25 @@
                 </div>
             </div>
 
+            <div style="width:100%;max-width:320px;margin:10px 0 20px">
+                <div style="color:#9fc6e8;font-size:14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+                    <span class="settingsLabelDynamicCamera">📷 Динамическая камера</span>
+                    <label class="switch">
+                        <input type="checkbox" class="dynamicCameraToggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div style="width:100%;max-width:320px;margin:10px 0 20px" class="fixedViewRow" style="display:none">
+                <div style="color:#9fc6e8;font-size:14px;margin-bottom:8px">
+                    <span class="settingsLabelCameraZoom">🔍 Масштаб камеры: </span>
+                    <span class="fixedViewLabel">13</span>
+                </div>
+                <input type="range" class="fixedViewSlider" min="10" max="16" step="1" value="13"
+                       style="width:100%;accent-color:#26e0ff;height:6px">
+            </div>
+
             <button class="btn primary" id="btnBackMenu">← НАЗАД</button>
         </div>
 
@@ -180,6 +199,25 @@
                     <button class="qualityBtn" data-quality="2">Высокое</button>
                     <button class="qualityBtn" data-quality="-1">Авто</button>
                 </div>
+            </div>
+
+            <div style="width:100%;max-width:320px;margin:10px 0 20px">
+                <div style="color:#9fc6e8;font-size:14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+                    <span class="settingsLabelDynamicCamera">📷 Динамическая камера</span>
+                    <label class="switch">
+                        <input type="checkbox" class="dynamicCameraToggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div style="width:100%;max-width:320px;margin:10px 0 20px" class="fixedViewRow" style="display:none">
+                <div style="color:#9fc6e8;font-size:14px;margin-bottom:8px">
+                    <span class="settingsLabelCameraZoom">🔍 Масштаб камеры: </span>
+                    <span class="fixedViewLabel">13</span>
+                </div>
+                <input type="range" class="fixedViewSlider" min="10" max="16" step="1" value="13"
+                       style="width:100%;accent-color:#26e0ff;height:6px">
             </div>
 
             <button class="btn primary" id="btnResume">ПРОДОЛЖИТЬ</button>

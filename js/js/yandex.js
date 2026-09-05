@@ -57,6 +57,8 @@ function sdkSaveData() {
             sfxVol: sfxVol,
             shakeIntensity: shakeIntensity,
             flashIntensity: flashIntensity,
+            dynamicCamera: CAMERA.dynamicEnabled,
+            fixedViewWidth: CAMERA.fixedViewWidth,
         };
         sdkPlayer.setData(data)
             .then(() => console.log('Data saved to cloud'))
@@ -78,6 +80,8 @@ function sdkLoadData() {
             if (data.sfxVol !== undefined) sfxVol = data.sfxVol;
             if (data.shakeIntensity !== undefined) shakeIntensity = data.shakeIntensity;
             if (data.flashIntensity !== undefined) flashIntensity = data.flashIntensity;
+            if (data.dynamicCamera !== undefined) CAMERA.dynamicEnabled = data.dynamicCamera;
+            if (data.fixedViewWidth !== undefined) CAMERA.fixedViewWidth = data.fixedViewWidth;
             console.log('Data loaded from cloud');
         })
         .catch(e => console.error('Load error', e));
