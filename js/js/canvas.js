@@ -46,10 +46,13 @@ function updateViewport(dt) {
         // Текущая скорость (ω × текущая длина верёвки)
         const effectiveSpeed = hero.omega * hero.r;
 
-        // Медленное сглаживание: камера не прыгает при раскачке
-        // 0.3 сек на достижение 95% цели
-        const rampAlpha = 1 - Math.pow(0.05, dt / 0.3);
-        smoothedSpeed = lerp(smoothedSpeed, effectiveSpeed, rampAlpha);
+        // Асимметричное сглаживание:
+        // - быстрая реакция на увеличение скорости (камера отдаляется)
+        // - медленная реакция на уменьшение (камера сжимается)
+        const baseAlpha = (effectiveSpeed > smoothedSpeed) ? CAMERA.speedAttack : CAMERA.speedRelease;
+        const alpha = 1 - Math.pow(1 - baseAlpha, dt * 60);
+
+        smoothedSpeed = lerp(smoothedSpeed, effectiveSpeed, alpha);
     }
     // В полёте — smoothedSpeed не меняется
 
