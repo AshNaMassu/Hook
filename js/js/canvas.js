@@ -38,31 +38,43 @@ const camTop = () => camY + viewH / 2;
 const SY = y => (camTop() - y) * scale;
 
 // Динамическая камера: обновление видимой области на основе скорости
-function updateViewport(dt) {
-    let effectiveSpeed;
+// Скользящее среднее скорости (глобальная переменная)
+let smoothedSpeed = 0;
 
+function updateViewport(dt) {
+    // Меняем сглаженную скорость ТОЛЬКО при зацепе
+    // В полёте smoothedSpeed зафиксирован (чтобы избежать покачивания от гравитации)
     if (hero.attached) {
-        // При зацепе: потенциальная скорость полёта
-        effectiveSpeed = hero.omega * hero.r;
-    } else {
-        // В полёте: текущая скорость
-        effectiveSpeed = Math.hypot(hero.vx, hero.vy);
+        const effectiveSpeed = hero.omega * hero.r;
+
+        // Асимметричное сглаживание: быстрая реакция на ускорение, медленная на замедление
+        const baseAlpha = (effectiveSpeed > smoothedSpeed) ? CAMERA.speedAttack : CAMERA.speedRelease;
+
+        // Привязка к dt: одинаковое сглаживание на 60/30/15 FPS
+        const alpha = 1 - Math.pow(1 - baseAlpha, dt * 60);
+
+        smoothedSpeed = smoothedSpeed * (1 - alpha) + effectiveSpeed * alpha;
     }
 
-    // Целевой viewWidth на основе эффективной скорости
-    const t = clamp((effectiveSpeed - CAMERA.speedMin) / (CAMERA.speedThreshold - CAMERA.speedMin), 0, 1);
-    let targetViewWidth = lerp(CAMERA.viewWidthMin, CAMERA.viewWidthMax, t);
+    // Целевой вью всегда на основе smoothedSpeed (даже в полёте)
+    const t = clamp((smoothedSpeed - CAMERA.speedMin) / (CAMERA.speedThreshold - CAMERA.speedMin), 0, 1);
+    const targetViewWidth = lerp(CAMERA.viewWidthMin, CAMERA.viewWidthMax, t);
 
-    // Плавное изменение
+    // Плавный переход к целевому вью работает всегда
     currentViewWidth = lerp(currentViewWidth, targetViewWidth, dt * CAMERA.smoothness);
 
-    // Пересчёт видимой области
     viewW = currentViewWidth;
     viewH = viewW * (H / W);
     scale = W / viewW;
 
+    // Отладочные значения
+    const effectiveSpeed = hero.attached
+        ? hero.omega * hero.r
+        : Math.hypot(hero.vx, hero.vy);
+
     window._debugViewport = {
         effectiveSpeed: effectiveSpeed.toFixed(1),
+        smoothedSpeed: smoothedSpeed.toFixed(1),
         targetViewWidth: targetViewWidth.toFixed(1),
         currentViewWidth: currentViewWidth.toFixed(1),
         t: t.toFixed(2),
