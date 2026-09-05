@@ -42,25 +42,22 @@ const SY = y => (camTop() - y) * scale;
 let smoothedSpeed = 0;
 
 function updateViewport(dt) {
-    // Меняем сглаженную скорость ТОЛЬКО при зацепе
-    // В полёте smoothedSpeed зафиксирован (чтобы избежать покачивания от гравитации)
     if (hero.attached) {
+        // Текущая скорость (ω × текущая длина верёвки)
         const effectiveSpeed = hero.omega * hero.r;
 
-        // Асимметричное сглаживание: быстрая реакция на ускорение, медленная на замедление
-        const baseAlpha = (effectiveSpeed > smoothedSpeed) ? CAMERA.speedAttack : CAMERA.speedRelease;
-
-        // Привязка к dt: одинаковое сглаживание на 60/30/15 FPS
-        const alpha = 1 - Math.pow(1 - baseAlpha, dt * 60);
-
-        smoothedSpeed = smoothedSpeed * (1 - alpha) + effectiveSpeed * alpha;
+        // Медленное сглаживание: камера не прыгает при раскачке
+        // 0.3 сек на достижение 95% цели
+        const rampAlpha = 1 - Math.pow(0.05, dt / 0.3);
+        smoothedSpeed = lerp(smoothedSpeed, effectiveSpeed, rampAlpha);
     }
+    // В полёте — smoothedSpeed не меняется
 
-    // Целевой вью всегда на основе smoothedSpeed (даже в полёте)
+    // Целевой вью на основе smoothedSpeed
     const t = clamp((smoothedSpeed - CAMERA.speedMin) / (CAMERA.speedThreshold - CAMERA.speedMin), 0, 1);
     const targetViewWidth = lerp(CAMERA.viewWidthMin, CAMERA.viewWidthMax, t);
 
-    // Плавный переход к целевому вью работает всегда
+    // Плавный переход к целевому вью
     currentViewWidth = lerp(currentViewWidth, targetViewWidth, dt * CAMERA.smoothness);
 
     viewW = currentViewWidth;

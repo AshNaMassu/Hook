@@ -1,4 +1,9 @@
 let lastGrabIdx = -1;
+
+// Логирование разгона (для отладки)
+let _accelStartTime = null;
+let _accelStarted = false;
+let _accelLogged = false;
 function getComboMult() {
     let mult = 1.0;
     for (const m of COMBO.multipliers) {

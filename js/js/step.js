@@ -59,22 +59,39 @@ function updateHero(dt) {
         if (hero.attached) {
             hero.omega = Math.min(PF.wMax, hero.omega + PF.spinAccel * dt);
             hero.theta += hero.spinDir * hero.omega * dt;
-            
+
             // Плавная анимация длины верёвки
             if (hero.targetR !== undefined) {
                 hero.r += (hero.targetR - hero.r) * Math.min(1, 8 * dt);
-                // Когда верёвка достигла цели — убираем targetR
                 if (Math.abs(hero.targetR - hero.r) < 0.01) {
                     hero.r = hero.targetR;
                     delete hero.targetR;
                 }
             }
-            
+
             const a = hero.anchor;
             hero.x = a.x + Math.cos(hero.theta) * hero.r;
             hero.y = a.y + Math.sin(hero.theta) * hero.r;
             hero.attachT += dt;
-            
+
+            // === Логирование разгона ===
+            const currentSpeed = hero.omega * hero.r;
+
+            // Начало измерения (первый кадр зацепа)
+            if (!_accelStarted) {
+                _accelStartTime = uiT;
+                _accelStarted = true;
+                _accelLogged = false;
+            }
+
+            // Логируем когда достигли максимальной скорости (15+)
+            if (_accelStarted && !_accelLogged && currentSpeed >= 15) {
+                const accelTime = uiT - _accelStartTime;
+                console.log(`⏱️ Разгон до ${currentSpeed.toFixed(1)} занял ${accelTime.toFixed(2)} сек | r=${hero.r.toFixed(2)} | ω=${hero.omega.toFixed(2)}`);
+                _accelLogged = true;
+            }
+            // === Конец логирования ===
+
             // Таймер комбо
             if (hero.comboTimer > 0) {
                 hero.comboTimer -= dt;
@@ -84,13 +101,16 @@ function updateHero(dt) {
                 }
             }
         } else {
+            // Сброс логирования при полёте
+            _accelStarted = false;
+
             hero.vy -= PF.g * dt;
             hero.x += hero.vx * dt;
             hero.y += hero.vy * dt;
 
             // Обновляем прогресс дальнего прыжка (только высота)
             if (hero.lastReleasePos && maxFlightDist > 0) {
-                const currentHeight = hero.y - hero.lastReleasePos.y;  // ← только вертикаль
+                const currentHeight = hero.y - hero.lastReleasePos.y;
                 hero.flightProgress = Math.max(0, currentHeight / maxFlightDist);
             }
         }
@@ -99,9 +119,9 @@ function updateHero(dt) {
         hero.x += hero.vx * dt;
         hero.y += hero.vy * dt;
     }
-    
+
     if (shieldT > 0) shieldT -= dt;
-    
+
     if (state === 'play' && !dying) {
         maxAlt = Math.max(maxAlt, hero.y);
     }
