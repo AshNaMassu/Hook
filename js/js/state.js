@@ -7,6 +7,8 @@ let shieldT = 0, dying = false, deathT = 0, deathFinished = false, reviveAvail =
 let perfectFlash = 0, shakeT = 0, uiT = 0, bot = false;
 let lavaY = LAVA.startY;
 let firstGrabDone = false;
+let tutorialActive = false;
+let timeScale = 1.0;
 
 // Серии наград
 let streakPerfect = 0;       // серия идеальных зацепов

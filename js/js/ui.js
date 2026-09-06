@@ -82,6 +82,14 @@ function startRun(newSeed) {
     lastSeed = newSeed;
     deathFinished = false; 
 
+    // Запускаем обучалку при первом запуске
+    if (typeof tutorialCompleted === 'undefined') {
+        // Если переменная не определена — считаем что обучалка не завершена
+        startTutorial();
+    } else if (!tutorialCompleted && hero.grabs === 0) {
+        startTutorial();
+    }
+
     // Сброс комбо и статистики забега
     lastGrabIdx = -1;
     maxReachedIdx = 0;

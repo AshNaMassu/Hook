@@ -71,6 +71,15 @@ const LOCALES = {
         settingsLabelDynamicCamera: '📷 Динамическая камера',
         settingsLabelCameraZoom: '🔍 Масштаб камеры:',
         qualityHint: 'Влияет на точность симуляции достижимости точек',
+
+        tutorialWelcome: 'Добро пожаловать в NEON HOOK!',
+        tutorialGrab: 'ДЕРЖИ чтобы зацепиться за точку',
+        tutorialHold: 'Раскачивайся! Держи кнопку',
+        tutorialRelease: 'ОТПУСТИ чтобы прыгнуть',
+        tutorialGrab2: 'Зацепись за следующую точку',
+        tutorialPerfect: 'Зацепись когда точка ЯРКАЯ!',
+        tutorialDone: 'Готово! Продолжай подниматься',
+        tutorialBonus: 'Обучение завершено!',
     },
 
     en: {
@@ -144,6 +153,15 @@ const LOCALES = {
         settingsLabelDynamicCamera: '📷 Dynamic camera',
         settingsLabelCameraZoom: '🔍 Camera zoom:',
         qualityHint: 'need text',
+
+        tutorialWelcome: 'Добро пожаловать в NEON HOOK!',
+        tutorialGrab: 'ДЕРЖИ чтобы зацепиться за точку',
+        tutorialHold: 'Раскачивайся! Держи кнопку',
+        tutorialRelease: 'ОТПУСТИ чтобы прыгнуть',
+        tutorialGrab2: 'Зацепись за следующую точку',
+        tutorialPerfect: 'Зацепись когда точка ЯРКАЯ!',
+        tutorialDone: 'Готово! Продолжай подниматься',
+        tutorialBonus: 'Обучение завершено!',
     },
 };
 

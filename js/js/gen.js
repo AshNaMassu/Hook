@@ -130,6 +130,11 @@ function maybeSpike(path, prevA, newA, diffG, idx) {
 }
 
 function spawnNext() {
+    // В обучалке генерируем простые точки
+    if (tutorialActive && anchorIdx < 5) {
+        return spawnTutorialAnchor();
+    }
+
     const side = pickSide(), prev = topAnchor;
     prev.spinDir = side;
 
@@ -192,6 +197,25 @@ function spawnNext() {
     topAnchor = a;
     placeCoins(best.shot.path, bonus ? 5 : 3);
     maybeSpike(best.shot.path, prev, a, diffG, idx);
+}
+
+function spawnTutorialAnchor() {
+    const side = pickSide();
+    const prev = topAnchor;
+    prev.spinDir = side;
+
+    const idx = anchorIdx++;
+
+    // Простая точка прямо над предыдущей
+    const px = prev.x + side * 2.5;
+    const py = prev.y + 3.0;
+
+    const a = { x: px, y: py, idx, spinDir: 0 };
+    anchors.push(a);
+    topAnchor = a;
+
+    // Монеты на пути
+    placeCoins([{ x: px, y: py }], 2);
 }
 
 function spawnAhead() {

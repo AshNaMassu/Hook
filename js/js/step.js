@@ -1,5 +1,4 @@
 let currentLookahead = -1.5;
-let tutorialActive = false;
 
 // ============================================================================
 // ОРКЕСТРАТОР: главная функция обновления мира
@@ -7,7 +6,12 @@ let tutorialActive = false;
 
 function stepWorld(dt) {
     if (state === 'pause') return;
-    
+
+    // Обучалка
+    if (tutorialActive) {
+        updateTutorial(dt);
+    }
+
     // Инициализация
     if (state === 'play' && runT === 0) lavaY = LAVA.startY;
     

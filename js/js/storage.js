@@ -28,6 +28,7 @@ let vibrationEnabled = store.get('vibration', true);
 // Качество графики: 0 = низкое, 1 = среднее, 2 = высокое
 // По умолчанию: автоопределение (-1)
 let graphicsQuality = store.get('graphicsQuality', -1);
+let tutorialCompleted = false;// store.get('tutorialCompleted', false);
 
 // Настройки камеры (загружаются после config.js)
 setTimeout(() => {
