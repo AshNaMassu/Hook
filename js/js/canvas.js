@@ -66,7 +66,7 @@ function updateViewport(dt) {
     // В полёте — smoothedSpeed не меняется
 
     // Целевой вью на основе smoothedSpeed
-    const t = clamp((smoothedSpeed - CAMERA.speedMin) / (CAMERA.speedThreshold - CAMERA.speedMin), 0, 1);
+    const t = clamp((smoothedSpeed - CAMERA.speedMin) / CAMERA.speedRange, 0, 1);
     const targetViewWidth = lerp(CAMERA.viewWidthMin, CAMERA.viewWidthMax, t);
 
     // Плавный переход к целевому вью

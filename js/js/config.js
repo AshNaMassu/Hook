@@ -49,7 +49,7 @@ const CAMERA = {
 
     speedMin: 7,         // ← минимальная скорость (wMin × rMin)
     speedThreshold: 16,    // Скорость при которой достигается максимум
-
+    speedRange: speedThreshold - speedMin,
     // Плавность изменения (меньше = плавнее)
     smoothness: 0.6,       // ← уменьшили с 2 до 0.8 (меньше рывков)
 
@@ -58,6 +58,8 @@ const CAMERA = {
     // Асимметричное сглаживание скорости (attack/release)
     speedAttack: 0.4,   // реакция на ускорение (быстрее)
     speedRelease: 0.08, // реакция на замедление (медленнее)
+
+    anchorClampScaled: anchorClamp * 0.3,
 }
 
 /* ---------- Стены из лавы ---------- */
@@ -157,4 +159,13 @@ const QUALITY_SETTINGS = {
     0: { maxReach: 2, flightSteps: 30 },   // LOW
     1: { maxReach: 3, flightSteps: 38 },   // MEDIUM
     2: { maxReach: 4, flightSteps: 45 },   // HIGH
+};
+
+/* ------------------ Предвычисленные константы физики ---------- */
+const PHYSICS_PRECOMPUTED = {
+    maxSpeed: PF.wMax * PF.rMax,                                    // 16.5
+    maxJumpDist: (PF.wMax * PF.rMax) ** 2 / (2 * PF.g) * 0.8,      // ~7.8
+    maxJumpDistNoMargin: (PF.wMax * PF.rMax) ** 2 / (2 * PF.g),   // ~9.7
+    avgRadius: (PF.rMin + PF.rMax) / 2,       // 2.1
+    avgSpeed: PF.wMin + (PF.wMax - PF.wMin) * 0.6,  // 4.5
 };
