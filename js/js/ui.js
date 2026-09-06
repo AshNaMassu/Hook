@@ -121,6 +121,9 @@ function pauseGame() {
     sdkGameplayStop(); 
     show(el.pauseScr);
     updateVolumeUI();
+    updateCameraSettingsUI();
+    syncVibrationToggles();
+    syncQualityButtons();
     Snd.startMusic('menu');
 }
 
@@ -166,6 +169,9 @@ function showSettings() {
     hide(el.menu);
     show(el.settingsScr);
     updateVolumeUI();
+    updateCameraSettingsUI();
+    syncVibrationToggles();
+    syncQualityButtons();
     Snd.ui();
 }
 
@@ -325,44 +331,66 @@ vibrationToggles.forEach(toggle => {
     });
 });
 
-// Динамическая камера
-const dynamicCameraToggle = document.getElementById('dynamicCameraToggle');
-const fixedViewSlider = document.getElementById('fixedViewSlider');
-const fixedViewLabel = document.getElementById('fixedViewLabel');
-const fixedViewRow = document.getElementById('fixedViewRow');
+// ============================================================================
+// ДИНАМИЧЕСКАЯ КАМЕРА
+// ============================================================================
+const dynamicCameraToggles = document.querySelectorAll('.dynamicCameraToggle');
+const fixedViewSliders = document.querySelectorAll('.fixedViewSlider');
+const fixedViewLabels = document.querySelectorAll('.fixedViewLabel');
+const fixedViewRows = document.querySelectorAll('.fixedViewRow');
 
 function updateCameraSettingsUI() {
-    if (dynamicCameraToggle) {
-        dynamicCameraToggle.checked = CAMERA.dynamicEnabled;
-    }
-    if (fixedViewSlider) {
-        fixedViewSlider.value = CAMERA.fixedViewWidth;
-        fixedViewLabel.textContent = CAMERA.fixedViewWidth;
-        // Скрываем слайдер если динамика включена
-        if (fixedViewRow) {
-            fixedViewRow.style.display = CAMERA.dynamicEnabled ? 'none' : 'flex';
-        }
-    }
+    // Синхронизируем чекбоксы
+    dynamicCameraToggles.forEach(t => t.checked = CAMERA.dynamicEnabled);
+
+    // Синхронизируем слайдеры и лейблы
+    fixedViewSliders.forEach(s => s.value = CAMERA.fixedViewWidth);
+    fixedViewLabels.forEach(l => l.textContent = CAMERA.fixedViewWidth);
+
+    // Показываем/скрываем слайдеры
+    fixedViewRows.forEach(row => {
+        row.style.display = CAMERA.dynamicEnabled ? 'none' : 'flex';
+    });
 }
 
-if (dynamicCameraToggle) {
-    dynamicCameraToggle.addEventListener('change', (e) => {
+// Обработчики для чекбоксов (их два — в настройках и в паузе)
+dynamicCameraToggles.forEach(toggle => {
+    toggle.addEventListener('change', (e) => {
         CAMERA.dynamicEnabled = e.target.checked;
         updateCameraSettingsUI();
         saveAllDataDebounced();
         Snd.ui();
     });
-}
+});
 
-if (fixedViewSlider) {
-    fixedViewSlider.addEventListener('input', (e) => {
+// Обработчики для слайдеров (их два — в настройках и в паузе)
+fixedViewSliders.forEach(slider => {
+    slider.addEventListener('input', (e) => {
         CAMERA.fixedViewWidth = parseInt(e.target.value);
-        fixedViewLabel.textContent = CAMERA.fixedViewWidth;
+        fixedViewLabels.forEach(l => l.textContent = CAMERA.fixedViewWidth);
         saveAllDataDebounced();
+    });
+});
+
+// Инициализация при загрузке
+updateCameraSettingsUI();
+
+// ============================================================================
+// СИНХРОНИЗАЦИЯ ВСЕХ НАСТРОЕК ПРИ ОТКРЫТИИ МЕНЮ
+// ============================================================================
+function syncVibrationToggles() {
+    document.querySelectorAll('.vibrationToggle').forEach(t => {
+        t.checked = vibrationEnabled;
     });
 }
 
-updateCameraSettingsUI();
+function syncQualityButtons() {
+    const currentQ = (graphicsQuality === -1) ? -1 : RenderQuality.current;
+    document.querySelectorAll('.qualityBtn').forEach(btn => {
+        const q = parseInt(btn.dataset.quality);
+        btn.classList.toggle('active', q === graphicsQuality);
+    });
+}
 
 // Качество графики
 const qualityButtons = document.querySelectorAll('.qualityBtn');
