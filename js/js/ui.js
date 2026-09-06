@@ -81,13 +81,16 @@ function buildSkins() {
 function startRun(newSeed) {
     lastSeed = newSeed;
     deathFinished = false; 
+    // Сбрасываем статистику героя после бота
+    hero.grabs = 0;
+    hero.attached = false;
+    hero.lastAnchor = null;
 
-    // Запускаем обучалку при первом запуске
-    if (typeof tutorialCompleted === 'undefined') {
-        // Если переменная не определена — считаем что обучалка не завершена
-        startTutorial();
-    } else if (!tutorialCompleted && hero.grabs === 0) {
-        startTutorial();
+    // Запускаем обучалку только при первом запуске
+    if (typeof tutorialCompleted === 'undefined' || !tutorialCompleted) {
+        if (hero.grabs === 0) {  // только если герой ещё не делал зацепов
+            startTutorial();
+        }
     }
 
     // Сброс комбо и статистики забега
