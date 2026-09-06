@@ -30,6 +30,7 @@ function drawCoin(c_item, c) {
     if (c_item.taken) return;
     const px = SX(c_item.x), py = SY(c_item.y);
     if (py < -40 || py > H + 40) return;
+    if (!isFinite(scale)) return;
     const w = Math.cos(uiT * 4 + c_item.phase);
     const R = 0.3 * scale;
     c.save(); c.translate(px, py);
@@ -51,6 +52,7 @@ function drawSpike(s, c) {
     c = c || ctx;
     const px = SX(s.x), py = SY(s.y);
     if (py < -50 || py > H + 50) return;
+    if (!isFinite(scale)) return;
     const R = 0.45 * scale, rot = s.rot + uiT * 1.2;
     c.save(); c.translate(px, py); c.rotate(rot);
     c.globalCompositeOperation = 'lighter';
@@ -229,19 +231,33 @@ function drawHero(c) {
     c = c || ctx;
     if (dying) return;
     const px = SX(hero.x), py = SY(hero.y), col = skinColor();
-    c.save(); c.translate(px, py);
+    if (!isFinite(scale)) return;
+    c.save();
+    c.translate(px, py);
     c.globalCompositeOperation = 'lighter';
     const R = 0.55 * scale;
     const g = c.createRadialGradient(0, 0, 0, 0, 0, R);
     g.addColorStop(0, hexA(col, 0.7)); g.addColorStop(1, 'rgba(0,0,0,0)');
-    c.fillStyle = g; c.fillRect(-R, -R, R * 2, R * 2);
+    c.fillStyle = g;
+    c.fillRect(-R, -R, R * 2, R * 2);
     c.globalCompositeOperation = 'source-over';
-    c.fillStyle = col; c.beginPath(); c.arc(0, 0, 0.19 * scale, 0, TAU); c.fill();
-    c.fillStyle = '#fff'; c.beginPath(); c.arc(0, 0, 0.1 * scale, 0, TAU); c.fill();
+    c.fillStyle = col;
+    c.beginPath();
+    c.arc(0, 0, 0.19 * scale, 0, TAU);
+    c.fill();
+    c.fillStyle = '#fff';
+    c.beginPath();
+    c.arc(0, 0, 0.1 * scale, 0, TAU);
+    c.fill();
     if (shieldT > 0) {
         c.strokeStyle = 'rgba(120,240,255,' + (0.4 + 0.3 * Math.sin(uiT * 8)) + ')';
-        c.lineWidth = 2 * dpr; c.setLineDash([6 * dpr, 5 * dpr]); c.lineDashOffset = -uiT * 40;
-        c.beginPath(); c.arc(0, 0, 0.5 * scale, 0, TAU); c.stroke(); c.setLineDash([]);
+        c.lineWidth = 2 * dpr;
+        c.setLineDash([6 * dpr, 5 * dpr]);
+        c.lineDashOffset = -uiT * 40;
+        c.beginPath();
+        c.arc(0, 0, 0.5 * scale, 0, TAU);
+        c.stroke();
+        c.setLineDash([]);
     }
 
     // Прогресс-бар дальнего прыжка

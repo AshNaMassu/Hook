@@ -24,9 +24,9 @@ function resize() {
     // Начинаем с минимального обзора (для старта)
     currentViewWidth = CAMERA.viewWidthMin;
     smoothedSpeed = 0;
-    viewW = currentViewWidth;
+    viewW = currentViewWidth || CAMERA.viewWidthMin;  // защита от 0
     viewH = viewW * (H / W);
-    scale = W / viewW;
+    scale = W / viewW || 1;  // защита от NaN
 
     // offscreen для bloom (половинное разрешение для производительности)
     bloomCv.width = Math.round(W / 2);
@@ -72,7 +72,7 @@ function updateViewport(dt) {
     // Плавный переход к целевому вью
     currentViewWidth = lerp(currentViewWidth, targetViewWidth, dt * CAMERA.smoothness);
 
-    viewW = currentViewWidth;
+    viewW = currentViewWidth || CAMERA.viewWidthMin;
     viewH = viewW * (H / W);
-    scale = W / viewW;
+    scale = W / viewW || 1;
 }

@@ -182,10 +182,10 @@ function updateLava(dt) {
     const distToLava = hero.y - lavaY;
     
     // Rubber-band: отстал >18 юнитов → ×1.5, подошла ближе ~4 → ×0.75
-    if (distToLava > 18) {
-        lavaSpeed *= 1.5;
-    } else if (distToLava < 4) {
-        lavaSpeed *= 0.75;
+    if (distToLava > LAVA.rubberBandFar) {
+        lavaSpeed *= LAVA.rubberBandFarMult;
+    } else if (distToLava < LAVA.rubberBandClose) {
+        lavaSpeed *= LAVA.rubberBandCloseMult;
     }
     
     lavaY += lavaSpeed * dt;

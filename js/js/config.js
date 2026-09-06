@@ -19,23 +19,67 @@ const PF = {
     lookahead: -1.5     // начальное смещение камеры по Y (отрицательное = камера выше героя)
 };
 
-// Ограничения генерации и камеры
-const ANCH_CLAMP = 3.8,  // максимальное горизонтальное смещение камеры
-    MAXDX = 5.2,         // максимальное горизонтальное расстояние между точками
-    SPIKE_X = 4.6;       // горизонтальное смещение шипов от точек
+/* ------------------ Параметры генерации уровней ---------- */
+const GEN = {
+    // Горизонтальные ограничения
+    anchorClamp: 3.8,      // макс. смещение точек по X
+    maxDx: 5.2,            // макс. расстояние между точками по X
+    spikeX: 4.6,           // макс. смещение шипов по X
+
+    // Плотность точек (вертикальное расстояние)
+    densityClose: 2.5,     // близко на старте (0-50м)
+    densityFar: 4.5,       // далеко (200м+)
+    densityStartHeight: 50,
+    densityEndHeight: 200,
+
+    // Минимальный горизонтальный разброс (чтобы не в один столбец)
+    minDxClose: 2.5,       // до 100м
+    minDxFar: 1.5,         // после 100м
+    minDxThreshold: 100,   // граница плотности по X
+
+    // Свобода по вертикали на старте
+    verticalFreedom: 0.7,  // множитель mdy для старта
+
+    // Рандомизация позиций
+    angleJitter: 25,        // ±градусов от базового угла
+    jitterScaleMax: 1.0,    // макс. смещение
+    jitterDiffScale: 0.5,   // как быстро уменьшается с сложностью
+    jitterVertical: 0.6,    // множитель вертикального смещения
+
+    // Шипы
+    spikeStartIdx: 100,     // после какой точки спавнить
+    spikeBaseChance: 0.22,  // базовый шанс спавна
+    spikeDiffScale: 0.4,    // рост шанса со сложностью
+    spikeMinDistToAnchor: 3.8,
+    spikeMinDistToOther: 2.4,
+    spikeMinDistToPath: 1.9,
+    spikeMinDistToCoin: 1.0,
+    spikeRadiusMin: 1.9,
+    spikeRadiusMax: 3.4,
+
+    // Строгое чередование сторон на старте
+    strictSideHeight: 50,
+
+    // "Спокойные" точки (без шипов, меньшая плотность)
+    calmPeriod: 11,
+    calmOffset: 10,
+    calmDensityFactor: 0.6,
+
+    // Бонусные секции (больше монет)
+    bonusPeriod: 10,
+    bonusThreshold: 7,
+};
 
 /* ---------- Лава (палач) ---------- */
 const LAVA = {
-    startY: -10,         // начальная позиция лавы
-    baseSpeed: 0.8,      // базовая скорость подъёма лавы
-    speedRamp: 1.4,      // ускорение лавы со временем (линейный рост)
-    rubberBand: 3,       // при каком расстоянии от лавы тормозить камеру
-    killMargin: 0.5,     // запас для смерти (hero.y < lavaY - killMargin)
-};
-
-const SETTINGS = {
-    shakeIntensity: 1.0,
-    flashIntensity: 1.0,
+    startY: -10,
+    baseSpeed: 0.8,
+    speedRamp: 1.4,
+    rubberBandFar: 18,     // при таком расстоянии ускоряем
+    rubberBandFarMult: 1.5,
+    rubberBandClose: 4,    // при таком замедляем
+    rubberBandCloseMult: 0.75,
+    killMargin: 0.5,
 };
 
 /* ---------- Камера ---------- */
