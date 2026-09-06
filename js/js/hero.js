@@ -17,29 +17,29 @@ function power() { return hero.attached ? hero.omega * hero.r : 0; }
 
 // Проверка награды за серию
 function checkStreakReward(type, count, x, y) {
-    // Берём массив уровней для конкретной серии
-    const levels = STREAKS[type];
+    const reward = STREAKS.rewards[type];
+    if (!reward) return;
 
-    for (const level of levels) {
-        if (count === level.count) {
-            const bonusCoins = level.bonusCoins;
-            coinsRun += bonusCoins;
+    // Проверяем: текущий стрик кратен freq?
+    if (count % reward.freq !== 0) return;
 
-            // Цвет берём из FEEDBACK_COLORS
-            const color = FEEDBACK_COLORS[type];
+    // Вычисляем номер награды (1, 2, 3, 4...)
+    const rewardNumber = count / reward.freq;
 
-            // Надпись серии
-            addFloat(x, y + 1.5, t('streak') + streakText(count) + ' +' + bonusCoins + '◈', color, 30);
-            burst(x, y, 16, color, 6);
-            if (state === 'play') Snd.perfect();
+    // Множитель: 1.0 + (rewardNumber - 1) × multiplierStep
+    const multiplier = 1.0 + (rewardNumber - 1) * reward.multiplierStep;
 
-            // Запоминаем вспышку (если она редче текущей)
-            if (!pendingStreakFlash || STREAKS.priority[type] > STREAKS.priority[pendingStreakFlash.type]) {
-                pendingStreakFlash = { type: type, color: color, intensity: 0.5 };
-            }
+    const bonusCoins = Math.round(reward.coins * multiplier);
+    coinsRun += bonusCoins;
 
-            break;  // только один уровень за раз
-        }
+    const color = FEEDBACK_COLORS[type];
+    addFloat(x, y + 1.5, t('streak') + streakText(count) + ' +' + bonusCoins + '◈', color, 30);
+    burst(x, y, 16, color, 6);
+
+    if (state === 'play') Snd.perfect();
+
+    if (!pendingStreakFlash || STREAKS.priority[type] > STREAKS.priority[pendingStreakFlash.type]) {
+        pendingStreakFlash = { type: type, color: color, intensity: 0.5 };
     }
 }
 

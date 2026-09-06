@@ -168,34 +168,14 @@ const STREAKS = {
         fastRelease: 2,
     },
 
-    // Уровни наград ДЛЯ КАЖДОЙ СЕРИИ (разные монеты)
-    perfect: [
-        { count: 3, bonusCoins: 3 },
-        { count: 6, bonusCoins: 6 },
-        { count: 9, bonusCoins: 10 },
-        { count: 12, bonusCoins: 15 },
-    ],
-
-    fastGrab: [
-        { count: 3, bonusCoins: 2 },
-        { count: 6, bonusCoins: 4 },
-        { count: 9, bonusCoins: 7 },
-        { count: 12, bonusCoins: 10 },
-    ],
-
-    fastRelease: [
-        { count: 3, bonusCoins: 2 },
-        { count: 6, bonusCoins: 4 },
-        { count: 9, bonusCoins: 7 },
-        { count: 12, bonusCoins: 10 },
-    ],
-
-    longJump: [
-        { count: 3, bonusCoins: 5 },
-        { count: 6, bonusCoins: 10 },
-        { count: 9, bonusCoins: 15 },
-        { count: 12, bonusCoins: 25 },
-    ],
+    // freq: каждые N зацепов даётся награда
+    // coins: размер награды
+    rewards: {
+        perfect: { freq: 3, coins: 3, multiplierStep: 0.5 },      // каждые 3 перфекта по 3 монеты
+        fastGrab: { freq: 3, coins: 1, multiplierStep: 0.2 },     // каждые 3 зацепа по 1 монете
+        fastRelease: { freq: 3, coins: 1, multiplierStep: 0.3 },  // каждые 3 релиза по 1 монете
+        longJump: { freq: 3, coins: 5, multiplierStep: 1 },     // каждые 3 прыжка по 5 монет
+    },
 };
 
 /* ---------- Настройки по уровням качества ---------- */
