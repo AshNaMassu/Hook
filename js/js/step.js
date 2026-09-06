@@ -120,7 +120,7 @@ function updateAutoGrab() {
 function updateCamera(dt) {
     if (!dying) {
         const focusX = hero.attached && hero.anchor ? hero.anchor.x : hero.x;
-        const camXTgt = clamp(focusX * 0.3, -CAMERA.anchorClampScaled, CAMERA.anchorClampScaled);
+        const camXTgt = clamp(focusX * CAMERA.followFactorX, -PHYSICS_PRECOMPUTED.anchorClampScaled, PHYSICS_PRECOMPUTED.anchorClampScaled);
         camX += (camXTgt - camX) * Math.min(1, 2 * dt);
 
         // Ограничение камеры по стенам: край экрана не выходит за стену

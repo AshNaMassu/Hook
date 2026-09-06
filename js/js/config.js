@@ -49,7 +49,6 @@ const CAMERA = {
 
     speedMin: 7,         // ← минимальная скорость (wMin × rMin)
     speedThreshold: 16,    // Скорость при которой достигается максимум
-    speedRange: speedThreshold - speedMin,
     // Плавность изменения (меньше = плавнее)
     smoothness: 0.6,       // ← уменьшили с 2 до 0.8 (меньше рывков)
 
@@ -59,7 +58,9 @@ const CAMERA = {
     speedAttack: 0.4,   // реакция на ускорение (быстрее)
     speedRelease: 0.08, // реакция на замедление (медленнее)
 
-    anchorClampScaled: anchorClamp * 0.3,
+    // Коэффициент влияния позиции героя на камеру по X (0-1)
+    // 0.3 = камера следует за героем на 30% от его смещения
+    followFactorX: 0.3,
 }
 
 /* ---------- Стены из лавы ---------- */
@@ -168,4 +169,6 @@ const PHYSICS_PRECOMPUTED = {
     maxJumpDistNoMargin: (PF.wMax * PF.rMax) ** 2 / (2 * PF.g),   // ~9.7
     avgRadius: (PF.rMin + PF.rMax) / 2,       // 2.1
     avgSpeed: PF.wMin + (PF.wMax - PF.wMin) * 0.6,  // 4.5
+    speedRange: CAMERA.speedThreshold - CAMERA.speedMin,
+    anchorClampScaled: CAMERA.anchorClamp * CAMERA.followFactorX,
 };
