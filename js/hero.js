@@ -226,11 +226,10 @@ function tryGrab() {
 }
 function doRelease() {
     if (!hero.attached) return;
-    hero.attached = false; hero.lastAnchor = hero.anchor;
 
     // ПУФ: быстрое отпускание
     const holdTime = uiT - hero.grabTime;
-    if (holdTime <= COMBO.fastThreshold) {
+    if (holdTime <= COMBO.fastThreshold && hero.lastAnchor != hero.anchor) {
         streakFastRelease++;
 
         // Надпись
@@ -242,6 +241,9 @@ function doRelease() {
     } else {
         streakFastRelease = 0;  // сброс серии если не быстро
     }
+
+    hero.attached = false;
+    hero.lastAnchor = hero.anchor;
 
     const v = releaseVel();
     hero.vx = v.vx; hero.vy = v.vy;
