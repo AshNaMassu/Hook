@@ -13,7 +13,6 @@ function die() {
 function finishDeath() {
     if (deathFinished) return;  // ← ЗАЩИТА от повторных вызовов
     deathFinished = true;
-    coinsDoubled = false;
     sdkGameplayStop(); 
     lastGrabIdx = -1;
     dying = false;
