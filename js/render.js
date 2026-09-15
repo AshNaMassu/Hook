@@ -301,11 +301,6 @@ function drawOnboarding(c) {
 
     if (state !== 'play' && state !== 'menu') return;
 
-    // Обучалка: рисуем подсказки
-    if (tutorialActive) {
-        drawTutorialOverlay(c);
-    }
-
     // Радиус захвата для первых 3 зацепов
     if (hero.grabs < 3 && !hero.attached && !dying) {
         c.strokeStyle = 'rgba(38, 224, 255, 0.22)';
@@ -334,90 +329,6 @@ function drawOnboarding(c) {
         }
         c.globalAlpha = 1;
     }
-}
-
-function drawTutorialOverlay(c) {
-    c = c || ctx;
-
-    const text = getTutorialText();
-    if (!text) return;
-
-    // Затемняем фон
-    c.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    c.fillRect(0, 0, W, H);
-
-    // Фон подсказки
-    const boxW = 320 * dpr;
-    const boxH = 80 * dpr;
-    const boxX = W / 2 - boxW / 2;
-    const boxY = H / 2 - boxH / 2;
-
-    c.fillStyle = 'rgba(0, 0, 0, 0.85)';
-    c.beginPath();
-    c.roundRect(boxX, boxY, boxW, boxH, 12 * dpr);
-    c.fill();
-
-    // Рамка
-    c.strokeStyle = tutorialWaiting ? '#ffc23d' : '#26e0ff';
-    c.lineWidth = 2 * dpr;
-    c.stroke();
-
-    // Текст подсказки
-    c.fillStyle = '#ffffff';
-    c.font = (18 * dpr) + 'px "Russo One", sans-serif';
-    c.textAlign = 'center';
-    c.textBaseline = 'middle';
-    c.fillText(text, W / 2, boxY + boxH / 2);
-
-    // Индикатор ожидания
-    if (tutorialWaiting) {
-        const pulse = 0.5 + 0.5 * Math.sin(uiT * 3);
-        c.fillStyle = 'rgba(255, 194, 61, ' + (0.5 + pulse * 0.5) + ')';
-        c.font = (14 * dpr) + 'px "Russo One", sans-serif';
-        c.fillText('...', W / 2, boxY + boxH + 20 * dpr);
-    }
-
-    // Стрелка к точке
-    if (tutorialStep === 1 || tutorialStep === 4 || tutorialStep === 5) {
-        drawTutorialArrow(c);
-    }
-}
-
-function drawTutorialArrow(c) {
-    c = c || ctx;
-
-    // Находим ближайшую точку
-    let nearest = null;
-    let minDist = Infinity;
-
-    for (const a of anchors) {
-        if (a === hero.lastAnchor) continue;
-        const d = Math.hypot(a.x - hero.x, a.y - hero.y);
-        if (d < minDist && d < PF.grabRadius * 2) {
-            minDist = d;
-            nearest = a;
-        }
-    }
-
-    if (!nearest) return;
-
-    const px = SX(nearest.x);
-    const py = SY(nearest.y);
-
-    // Пульсирующая стрелка
-    const pulse = 0.5 + 0.5 * Math.sin(uiT * 4);
-    const arrowSize = 20 * dpr * (1 + pulse * 0.3);
-
-    c.save();
-    c.translate(px, py - 50 * dpr);
-    c.fillStyle = 'rgba(255, 194, 61, ' + (0.6 + pulse * 0.4) + ')';
-    c.beginPath();
-    c.moveTo(0, arrowSize);
-    c.lineTo(-arrowSize * 0.6, 0);
-    c.lineTo(arrowSize * 0.6, 0);
-    c.closePath();
-    c.fill();
-    c.restore();
 }
 
 function drawParticles(c) {
