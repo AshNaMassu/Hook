@@ -15,7 +15,10 @@
 
         <div id="hud" class="hidden">
             <div id="hudTop">
-                <div><div id="meters">0 м</div><div id="mLbl">ВЫСОТА</div></div>
+                <div>
+                    <div id="meters">0 м</div>
+                    <div id="mLbl">ВЫСОТА</div>
+                </div>
                 <div id="hudRight">
                     <div id="coinsHud">◈ 0</div>
                     <div class="row" style="gap:6px">
@@ -34,7 +37,7 @@
             <button class="btn primary" id="btnPlay">ИГРАТЬ</button>
             <button class="btn" id="btnSettings">⚙ НАСТРОЙКИ</button>
             <div class="stat dim" id="bestLine">Рекорд: 0 м</div>
-            <div class="walletLine">Кошелёк: ◈ <span id="walletMenu">0</span></div>
+            <div class="walletLine"><span class="walletLabel">Кошелёк</span>: ◈ <span id="walletMenu">0</span></div>
             <div id="skins"></div>
             <div class="howto">лови <span style="color:#fff">вспышку</span> точки — это момент максимальной силы<br>ранний зацеп = дальний полёт</div>
             <div class="foot">ПРОТОТИП · GDD v2 · ONE-TOUCH</div>
@@ -44,7 +47,7 @@
             <div class="title" style="font-size:clamp(30px,10vw,54px)"><span class="t2">СРЫВ</span></div>
             <div id="recordBadge" class="hidden">★ НОВЫЙ РЕКОРД ★</div>
             <div id="overMeters">0 м</div>
-            <div class="stat dim">высота</div>
+            <div class="stat dim heightLabel">высота</div>
             <div class="row" style="gap:22px">
                 <div class="stat goldT" id="overCoins">◈ +0</div>
                 <div class="stat dim" id="overCombo">серия ×0</div>
