@@ -73,6 +73,7 @@ const LOCALES = {
 
         heightLabel: 'высота',
         btnContinue: '▶ ПРОДОЛЖИТЬ',
+        btnDoubleCoins: '💰 УДВОИТЬ МОНЕТЫ (реклама)',
     },
 
     en: {
@@ -148,6 +149,7 @@ const LOCALES = {
 
         heightLabel: 'height',
         btnContinue: '▶ CONTINUE',
+        btnDoubleCoins: '💰 DOUBLE COINS (ad)',
     },
 };
 
