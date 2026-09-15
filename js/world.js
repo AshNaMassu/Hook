@@ -50,4 +50,6 @@ function resetWorld(newSeed, isBot) {
 
     // Вычисляем максимальный полёт один раз
     maxFlightDist = calculateMaxFlight();
+
+    wallsInitialized = false;
 }

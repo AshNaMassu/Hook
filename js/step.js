@@ -1,4 +1,4 @@
-let currentLookahead = -1.5;
+let currentLookahead = PF.lookahead;
 
 // ============================================================================
 // ОРКЕСТРАТОР: главная функция обновления мира
@@ -6,11 +6,6 @@ let currentLookahead = -1.5;
 
 function stepWorld(dt) {
     if (state === 'pause') return;
-
-    // Обучалка
-    if (tutorialActive) {
-        updateTutorial(dt);
-    }
 
     // Инициализация
     if (state === 'play' && runT === 0) lavaY = LAVA.startY;
@@ -146,7 +141,7 @@ function updateCamera(dt) {
         camFreeze -= dt;
     } else {
         // Адаптивный lookahead
-        let targetLookahead = -1.5;
+        let targetLookahead = PF.lookahead;
 
         if (!hero.attached && !dying) {
             if (hero.vy > 2) {
@@ -155,7 +150,7 @@ function updateCamera(dt) {
                 targetLookahead = -0.5 + Math.min(2.0, Math.abs(hero.vy) * 0.2);
             }
         } else if (hero.attached) {
-            targetLookahead = -1.5;
+            targetLookahead = PF.lookahead;
         }
 
         currentLookahead += (targetLookahead - currentLookahead) * Math.min(1, 5 * dt);
@@ -176,8 +171,6 @@ function updateCamera(dt) {
 }
 
 function updateLava(dt) {
-    // Лава не двигается в обучении
-    if (tutorialActive) return;
     
     const diff = Math.min(1, runT / 180);
     const heightDiff = Math.min(1, maxAlt / 300);
@@ -225,7 +218,7 @@ function collectCoins(dt) {
 }
 
 function checkSpikes(dt) {
-    if (tutorialActive || dying || shieldT > 0) return;
+    if (dying || shieldT > 0) return;
     
     for (const s of spikes) {
         if (Math.hypot(s.x - hero.x, s.y - hero.y) < 0.5) {
@@ -236,12 +229,12 @@ function checkSpikes(dt) {
 }
 
 function checkLavaDeath() {
-    if (tutorialActive || dying) return;
+    if (dying) return;
     if (hero.y < lavaY - LAVA.killMargin) die();
 }
 
 function checkWalls() {
-    if (!WALLS.enabled || tutorialActive || dying) return;
+    if (!WALLS.enabled || dying) return;
     if (hero.x < wallLeft || hero.x > wallRight) {
         die();
     }
@@ -305,7 +298,6 @@ function updateFloats(dt) {
 }
 
 function updateTimers(dt) {
-    if (perfectFlash > 0) perfectFlash -= dt;
     if (shakeT > 0) shakeT -= dt;
 
     // Затухание вспышки серии (если не в рендере)

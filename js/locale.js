@@ -17,7 +17,6 @@ const LOCALES = {
 
         // Реакции
         perfect: 'ПЕРФЕКТ',
-        fast: 'БЫСТРО!',
         fastGrab: 'ЦЕП!',
         fastRelease: 'ПУФ!',
         longJump: 'ДАЛЬНИЙ!',
@@ -72,14 +71,7 @@ const LOCALES = {
         settingsLabelCameraZoom: '🔍 Масштаб камеры:',
         qualityHint: 'Влияет на точность симуляции достижимости точек',
 
-        tutorialWelcome: 'Добро пожаловать в NEON HOOK!',
-        tutorialGrab: 'ДЕРЖИ чтобы зацепиться за точку',
-        tutorialHold: 'Раскачивайся! Держи кнопку',
-        tutorialRelease: 'ОТПУСТИ чтобы прыгнуть',
-        tutorialGrab2: 'Зацепись за следующую точку',
-        tutorialPerfect: 'Зацепись когда точка ЯРКАЯ!',
-        tutorialDone: 'Готово! Продолжай подниматься',
-        tutorialBonus: 'Обучение завершено!',
+        heightLabel: 'высота',
     },
 
     en: {
@@ -99,7 +91,6 @@ const LOCALES = {
 
         // Reactions
         perfect: 'PERFECT',
-        fast: 'FAST!',
         fastGrab: 'CLACK!',
         fastRelease: 'POOF!',
         longJump: 'LONG JUMP!',
@@ -152,16 +143,9 @@ const LOCALES = {
         streak: 'STREAK',
         settingsLabelDynamicCamera: '📷 Dynamic camera',
         settingsLabelCameraZoom: '🔍 Camera zoom:',
-        qualityHint: 'need text',
+        qualityHint: 'Affects reachability simulation accuracy',
 
-        tutorialWelcome: 'Добро пожаловать в NEON HOOK!',
-        tutorialGrab: 'ДЕРЖИ чтобы зацепиться за точку',
-        tutorialHold: 'Раскачивайся! Держи кнопку',
-        tutorialRelease: 'ОТПУСТИ чтобы прыгнуть',
-        tutorialGrab2: 'Зацепись за следующую точку',
-        tutorialPerfect: 'Зацепись когда точка ЯРКАЯ!',
-        tutorialDone: 'Готово! Продолжай подниматься',
-        tutorialBonus: 'Обучение завершено!',
+        heightLabel: 'height',
     },
 };
 
@@ -218,4 +202,42 @@ function applyLocale() {
     document.querySelectorAll('.settingsLabelFlash').forEach(el => el.textContent = t('settingsFlash'));
     document.querySelectorAll('.settingsLabelVibration').forEach(el => el.textContent = t('settingsVibration'));
     document.querySelectorAll('.settingsLabelQuality').forEach(el => el.textContent = t('settingsQuality'));
+    document.querySelectorAll('.qualityHint').forEach(el => el.textContent = t('qualityHint'));
+    document.querySelectorAll('.qualityBtn[data-quality="0"]').forEach(el => el.textContent = t('qualityLow'));
+    document.querySelectorAll('.qualityBtn[data-quality="1"]').forEach(el => el.textContent = t('qualityMedium'));
+    document.querySelectorAll('.qualityBtn[data-quality="2"]').forEach(el => el.textContent = t('qualityHigh'));
+    document.querySelectorAll('.qualityBtn[data-quality="-1"]').forEach(el => el.textContent = t('qualityAuto'));
+
+    // === Заголовки экранов ===
+    const overTitle = document.querySelector('#over .t2');
+    if (overTitle) overTitle.textContent = t('gameOver');
+
+    const recordBadge = document.getElementById('recordBadge');
+    if (recordBadge) recordBadge.textContent = t('newRecord');
+
+    // "высота" под рекордом на экране смерти
+    const overHeightLabel = document.querySelector('#over .stat.dim:not(#overCombo)');
+    // Нужен более точный селектор, чтобы не трогать "высота" из HUD
+    // Лучше добавить класс в HTML
+    document.querySelectorAll('.heightLabel').forEach(el => el.textContent = t('heightLabel'));
+
+    const settingsTitle = document.querySelector('#settingsScr .t1');
+    if (settingsTitle) settingsTitle.textContent = t('settings');
+
+    const pauseTitle = document.querySelector('#pauseScr .t1');
+    if (pauseTitle) pauseTitle.textContent = t('pause');
+
+    // === Кошелёк в меню ===
+    const walletLabelEl = document.querySelector('.walletLabel');
+    if (walletLabelEl) walletLabelEl.textContent = t('walletLabel');
+
+    // === Кнопки качества (4 кнопки × 2 места) ===
+    document.querySelectorAll('.qualityBtn[data-quality="0"]').forEach(el => el.textContent = t('qualityLow'));
+    document.querySelectorAll('.qualityBtn[data-quality="1"]').forEach(el => el.textContent = t('qualityMedium'));
+    document.querySelectorAll('.qualityBtn[data-quality="2"]').forEach(el => el.textContent = t('qualityHigh'));
+    document.querySelectorAll('.qualityBtn[data-quality="-1"]').forEach(el => el.textContent = t('qualityAuto'));
+
+    // === Подписи камеры ===
+    document.querySelectorAll('.settingsLabelDynamicCamera').forEach(el => el.textContent = t('settingsLabelDynamicCamera'));
+    document.querySelectorAll('.settingsLabelCameraZoom').forEach(el => el.textContent = t('settingsLabelCameraZoom'));
 }

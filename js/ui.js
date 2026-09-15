@@ -86,13 +86,6 @@ function startRun(newSeed) {
     hero.attached = false;
     hero.lastAnchor = null;
 
-    // Запускаем обучалку только при первом запуске
-    if (typeof tutorialCompleted === 'undefined' || !tutorialCompleted) {
-        if (hero.grabs === 0) {  // только если герой ещё не делал зацепов
-            startTutorial();
-        }
-    }
-
     // Сброс комбо и статистики забега
     lastGrabIdx = -1;
     maxReachedIdx = 0;
