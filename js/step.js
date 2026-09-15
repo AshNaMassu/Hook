@@ -1,4 +1,4 @@
-let currentLookahead = -1.5;
+let currentLookahead = PF.lookahead;
 
 // ============================================================================
 // ОРКЕСТРАТОР: главная функция обновления мира
@@ -141,7 +141,7 @@ function updateCamera(dt) {
         camFreeze -= dt;
     } else {
         // Адаптивный lookahead
-        let targetLookahead = -1.5;
+        let targetLookahead = PF.lookahead;
 
         if (!hero.attached && !dying) {
             if (hero.vy > 2) {
@@ -150,7 +150,7 @@ function updateCamera(dt) {
                 targetLookahead = -0.5 + Math.min(2.0, Math.abs(hero.vy) * 0.2);
             }
         } else if (hero.attached) {
-            targetLookahead = -1.5;
+            targetLookahead = PF.lookahead;
         }
 
         currentLookahead += (targetLookahead - currentLookahead) * Math.min(1, 5 * dt);

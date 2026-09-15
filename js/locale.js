@@ -17,7 +17,6 @@ const LOCALES = {
 
         // Реакции
         perfect: 'ПЕРФЕКТ',
-        fast: 'БЫСТРО!',
         fastGrab: 'ЦЕП!',
         fastRelease: 'ПУФ!',
         longJump: 'ДАЛЬНИЙ!',
@@ -90,7 +89,6 @@ const LOCALES = {
 
         // Reactions
         perfect: 'PERFECT',
-        fast: 'FAST!',
         fastGrab: 'CLACK!',
         fastRelease: 'POOF!',
         longJump: 'LONG JUMP!',
@@ -143,7 +141,7 @@ const LOCALES = {
         streak: 'STREAK',
         settingsLabelDynamicCamera: '📷 Dynamic camera',
         settingsLabelCameraZoom: '🔍 Camera zoom:',
-        qualityHint: 'need text',
+        qualityHint: 'Affects reachability simulation accuracy',
     },
 };
 
@@ -200,4 +198,5 @@ function applyLocale() {
     document.querySelectorAll('.settingsLabelFlash').forEach(el => el.textContent = t('settingsFlash'));
     document.querySelectorAll('.settingsLabelVibration').forEach(el => el.textContent = t('settingsVibration'));
     document.querySelectorAll('.settingsLabelQuality').forEach(el => el.textContent = t('settingsQuality'));
+    document.querySelectorAll('.qualityHint').forEach(el => el.textContent = t('qualityHint'))
 }
