@@ -78,3 +78,8 @@ function doRevive() {
     addFloat(ra.x, ra.y + 1, t('shieldText'), '#26e0ff', 18);
     Snd.ui();
 }
+
+function continueRevive() {
+    reviveReady = false;
+    resumeGame();  // просто продолжаем — состояние уже есть
+}

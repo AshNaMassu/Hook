@@ -79,6 +79,7 @@ function buildSkins() {
 }
 
 function startRun(newSeed) {
+    reviveReady = false;
     lastSeed = newSeed;
     deathFinished = false; 
     // Сбрасываем статистику героя после бота
@@ -111,6 +112,7 @@ function startRun(newSeed) {
 function toMenu() {
     resetWorld((Math.random() * 2 ** 31) | 0, true);
     state = 'menu';
+    reviveReady = false;
     sdkGameplayStop(); 
     hide(el.over); hide(el.pauseScr); hide(el.hud); hide(el.settingsScr); show(el.menu);
     el.bestLine.textContent = t('bestLabel') + ': ' + bestMeters + ' ' + t('metersShort');
@@ -285,14 +287,29 @@ el.btnRestart.addEventListener('click', () => {
 });
 
 el.btnRevive.addEventListener('click', () => {
-    // Показываем rewarded рекламу перед ревайвом
-    if (sdkReady) {
+    if (reviveReady) {
+        // Реклама уже просмотрена — просто продолжаем
+        continueRevive();
+    } else if (sdkReady) {
+        // Показать рекламу БЕЗ авторезьюма
         sdkShowRewarded(
-            () => doRevive(),  // успех — ревайвим
-            () => doRevive()   // отказ — все равно ревайвим (мягкий режим)
+            () => {
+                // Успех — готов к продолжению
+                reviveReady = true;
+                reviveAvail = false;  // больше нельзя ревайвиться
+                Snd.ui();
+                // Меняем текст кнопки
+                el.btnRevive.textContent = t('btnContinue');
+                el.btnRevive.classList.remove('hidden');
+            },
+            () => {
+                // Отказ — ничего не делаем (SDK сам покажет предупреждение)
+                Snd.deny();
+            },
+            false  // ← НЕ размораживать автоматически
         );
     } else {
-        doRevive();  // без SDK ревайвим сразу
+        doRevive();
     }
 });
 

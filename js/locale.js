@@ -72,6 +72,7 @@ const LOCALES = {
         qualityHint: 'Влияет на точность симуляции достижимости точек',
 
         heightLabel: 'высота',
+        btnContinue: '▶ ПРОДОЛЖИТЬ',
     },
 
     en: {
@@ -146,6 +147,7 @@ const LOCALES = {
         qualityHint: 'Affects reachability simulation accuracy',
 
         heightLabel: 'height',
+        btnContinue: '▶ CONTINUE',
     },
 };
 
