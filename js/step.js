@@ -225,7 +225,7 @@ function collectShields() {
         if (s.taken) continue;
         if (Math.hypot(s.x - hero.x, s.y - hero.y) < 0.6) {
             s.taken = true;
-            if (shields < 2) {
+            if (shields < SHIELDS.max) {
                 shields++;
                 addFloat(s.x, s.y, '🛡️', '#26e0ff', 18);
                 Snd.perfect();

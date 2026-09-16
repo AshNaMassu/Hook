@@ -36,7 +36,7 @@ function finishDeath() {
     el.overCoins.textContent = '◈ +' + earnedCoins;
     el.overCombo.textContent = t('series') + ' ×' + maxCombo;
     el.recordBadge.classList.toggle('hidden', !rec);
-    el.btnRevive.classList.toggle('hidden', !reviveAvail);
+    el.btnRevive.classList.toggle('hidden', !reviveAvail && !debugMode);
     show(el.over);
 
     // Показываем кнопку удвоения если есть монеты и не удвоено
@@ -69,7 +69,7 @@ function doRevive() {
     coinsRun = pendingReviveCoins;
     pendingReviveCoins = 0;
 
-    reviveAvail = false;
+    if (!debugMode) reviveAvail = false;
     deathFinished = false;
     hide(el.over); show(el.hud); state = 'play'; dying = false;
     // Сброс комбо при ревайве

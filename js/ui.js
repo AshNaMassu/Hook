@@ -30,7 +30,7 @@ function hudSync() {
     }
     if (shields !== hudShields) {
         hudShields = shields;
-        el.shieldsHud.textContent = '🛡️ ' + shields + '/2';
+        el.shieldsHud.textContent = '🛡️ ' + shields + '/' + SHIELDS.max;
     }
     if (combo !== hudCombo) {
         hudCombo = combo;
@@ -319,6 +319,13 @@ el.btnRestart.addEventListener('click', () => {
 });
 
 el.btnRevive.addEventListener('click', () => {
+
+    // Дебаг — сразу ревайвим без рекламы
+    if (debugMode) {
+        doRevive();
+        return;
+    }
+
     if (reviveReady) {
         // Реклама уже просмотрена — просто продолжаем
         continueRevive();
