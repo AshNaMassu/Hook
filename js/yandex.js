@@ -1,9 +1,9 @@
-/* ---------- Yandex Games SDK ---------- */
+п»ї/* ---------- Yandex Games SDK ---------- */
 let ysdk = null;
 let sdkReady = false;
 let sdkPlayer = null;
 
-// Инициализация при запуске
+// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РїСЂРё Р·Р°РїСѓСЃРєРµ
 function initYandex() {
     if (typeof YaGames === 'undefined') {
         console.log('SDK not found - running in local mode');
@@ -18,16 +18,16 @@ function initYandex() {
             initPlayer();
             detectLocale();
 
-            // Блокируем портретную ориентацию
+            // Р‘Р»РѕРєРёСЂСѓРµРј РїРѕСЂС‚СЂРµС‚РЅСѓСЋ РѕСЂРёРµРЅС‚Р°С†РёСЋ
             ysdk.screen?.lockOrientation?.('portrait')?.catch?.(() => { });
 
-            // Сигнал Яндексу, что игра готова (ВАЖНО: после инициализации!)
+            // РЎРёРіРЅР°Р» РЇРЅРґРµРєСЃСѓ, С‡С‚Рѕ РёРіСЂР° РіРѕС‚РѕРІР° (Р’РђР–РќРћ: РїРѕСЃР»Рµ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё!)
             ysdk.features?.LoadingAPI?.ready?.()?.catch?.(() => { });
         })
         .catch(e => console.error('SDK init error', e));
 }
 
-// Получение игрока
+// РџРѕР»СѓС‡РµРЅРёРµ РёРіСЂРѕРєР°
 function initPlayer() {
     if (!ysdk) return;
     ysdk.getPlayer({ scopes: false })
@@ -38,13 +38,13 @@ function initPlayer() {
         .catch(e => console.error('Player load error', e));
 }
 
-// === СОХРАНЕНИЕ ДАННЫХ ===
+// === РЎРћРҐР РђРќР•РќРР• Р”РђРќРќР«РҐ ===
 let saveDataTimeout = null;
 
 function sdkSaveData() {
     if (!sdkReady || !sdkPlayer) return;
 
-    // Дебаунсинг: не чаще чем раз в 1000мс
+    // Р”РµР±Р°СѓРЅСЃРёРЅРі: РЅРµ С‡Р°С‰Рµ С‡РµРј СЂР°Р· РІ 1000РјСЃ
     if (saveDataTimeout) clearTimeout(saveDataTimeout);
     saveDataTimeout = setTimeout(() => {
         const data = {
@@ -87,7 +87,7 @@ function sdkLoadData() {
         .catch(e => console.error('Load error', e));
 }
 
-// === ЛИДЕРБОРДЫ ===
+// === Р›РР”Р•Р Р‘РћР Р”Р« ===
 function sdkSubmitScore(score) {
     if (!sdkReady || !ysdk) return;
     ysdk.getLeaderboards()
@@ -96,15 +96,14 @@ function sdkSubmitScore(score) {
         .catch(e => console.error('Leaderboard error', e));
 }
 
-// === РЕКЛАМА ===
-// Rewarded реклама для ревайва
-function sdkShowRewarded(onSuccess, onFail) {
+// === Р Р•РљР›РђРњРђ ===
+// Rewarded СЂРµРєР»Р°РјР° РґР»СЏ СЂРµРІР°Р№РІР°
+function sdkShowRewarded(onSuccess, onFail, autoResume = true) {
     if (!ysdk) { onFail && onFail(); return; }
     let rewarded = false;
     ysdk.adv.showRewardedVideo({
         callbacks: {
             onOpen: () => {
-                // Останавливаем игру перед рекламой
                 pauseForAd();
             },
             onRewarded: () => {
@@ -112,11 +111,11 @@ function sdkShowRewarded(onSuccess, onFail) {
                 onSuccess && onSuccess();
             },
             onClose: () => {
-                resumeAfterAd();
+                if (autoResume) resumeAfterAd();  // в†ђ РЈРЎР›РћР’РќРћ
                 if (!rewarded) onFail && onFail();
             },
             onError: (e) => {
-                resumeAfterAd();
+                if (autoResume) resumeAfterAd();  // в†ђ РЈРЎР›РћР’РќРћ
                 console.error('Ad error', e);
                 onFail && onFail();
             }
@@ -124,11 +123,11 @@ function sdkShowRewarded(onSuccess, onFail) {
     });
 }
 
-// Interstitial между забегами
+// Interstitial РјРµР¶РґСѓ Р·Р°Р±РµРіР°РјРё
 let lastInterstitialTime = 0;
 function sdkShowInterstitial() {
     if (!ysdk) return;
-    // Троттлинг: не чаще чем раз в 3 забега или 60 секунд
+    // РўСЂРѕС‚С‚Р»РёРЅРі: РЅРµ С‡Р°С‰Рµ С‡РµРј СЂР°Р· РІ 3 Р·Р°Р±РµРіР° РёР»Рё 60 СЃРµРєСѓРЅРґ
     const now = Date.now();
     if (now - lastInterstitialTime < 60000) return;
     lastInterstitialTime = now;
@@ -145,13 +144,13 @@ function sdkShowInterstitial() {
     });
 }
 
-// === ПАУЗА ДЛЯ РЕКЛАМЫ ===
+// === РџРђРЈР—Рђ Р”Р›РЇ Р Р•РљР›РђРњР« ===
 let stateBeforeAd = null;
 function pauseForAd() {
     stateBeforeAd = state;
     sdkGameplayStop(); 
     if (state === 'play') pauseGame();
-    // Гасим звук музыки
+    // Р“Р°СЃРёРј Р·РІСѓРє РјСѓР·С‹РєРё
     if (Snd && Snd.stopMusic) Snd.stopMusic();
 }
 
@@ -166,7 +165,7 @@ function resumeAfterAd() {
     }
 }
 
-// ====== ГЕЙМПЛЕЙ API ======
+// ====== Р“Р•Р™РњРџР›Р•Р™ API ======
 function sdkGameplayStart() {
     ysdk?.features?.GameplayAPI?.start?.()?.catch?.(() => { });
 }
@@ -175,7 +174,7 @@ function sdkGameplayStop() {
     ysdk?.features?.GameplayAPI?.stop?.()?.catch?.(() => { });
 }
 
-// ====== ЯРЛЫК НА РАБОЧИЙ СТОЛ ======
+// ====== РЇР Р›Р«Рљ РќРђ Р РђР‘РћР§РР™ РЎРўРћР› ======
 function sdkShowShortcut(onSuccess, onSkip) {
     if (!ysdk || !ysdk.shortcut) {
         onSkip && onSkip();
@@ -201,7 +200,7 @@ function sdkShowShortcut(onSuccess, onSkip) {
 }
 
 function detectLocale() {
-    // Защита: проверяем, что locale.js загружен
+    // Р—Р°С‰РёС‚Р°: РїСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ locale.js Р·Р°РіСЂСѓР¶РµРЅ
     if (typeof LOCALES === 'undefined' || typeof applyLocale === 'undefined') {
         console.warn('locale.js not loaded, skipping');
         return;
@@ -225,5 +224,5 @@ function detectLocale() {
     applyLocale();
 }
 
-// Инициализация при загрузке страницы
+// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РїСЂРё Р·Р°РіСЂСѓР·РєРµ СЃС‚СЂР°РЅРёС†С‹
 initYandex();

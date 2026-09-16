@@ -1,3 +1,5 @@
+let pendingReviveCoins = 0;
+
 function die() {
     if (dying) return;
     maxReachedIdx = 0;
@@ -16,8 +18,8 @@ function finishDeath() {
     dying = false;
     shakeT = 0;  // ← ОСТАНОВИТЬ ТРЯСКУ!
 
-    const earnedCoins = coinsRun;  // запоминаем заработанное
-    coinsRun = 0;  // ← ОБНУЛЯЕМ, чтобы повторный вызов не добавлял
+    const earnedCoins = coinsRun;
+    pendingReviveCoins = earnedCoins;
 
     Snd.startMusic('menu')
     if (state === 'menu') { resetWorld((Math.random() * 2 ** 31) | 0, true); return; }
@@ -28,14 +30,22 @@ function finishDeath() {
         bestMeters = m;
         if (sdkReady) sdkSubmitScore(m);
     }
-    wallet += earnedCoins;  // добавляем запомненное значение
+
     saveAllData();
     el.overMeters.textContent = m + ' ' + t('metersShort');
     el.overCoins.textContent = '◈ +' + earnedCoins;
     el.overCombo.textContent = t('series') + ' ×' + maxCombo;
     el.recordBadge.classList.toggle('hidden', !rec);
     el.btnRevive.classList.toggle('hidden', !reviveAvail);
-    show(el.over); hide(el.hud);
+    show(el.over);
+
+    // Показываем кнопку удвоения если есть монеты и не удвоено
+    if (coinsRun > 0 && !coinsDoubled) {
+        el.btnDoubleCoins.classList.remove('hidden');
+        el.btnDoubleCoins.textContent = t('btnDoubleCoins');
+    }
+
+    hide(el.hud);
 
     //TODO: shortcut
     // Предложить ярлык после 3 игр с рекордом
@@ -56,6 +66,9 @@ function finishDeath() {
 }
 
 function doRevive() {
+    coinsRun = pendingReviveCoins;
+    pendingReviveCoins = 0;
+
     reviveAvail = false;
     deathFinished = false;
     hide(el.over); show(el.hud); state = 'play'; dying = false;
@@ -77,4 +90,9 @@ function doRevive() {
     burst(ra.x, ra.y, 16, '#26e0ff', 4);
     addFloat(ra.x, ra.y + 1, t('shieldText'), '#26e0ff', 18);
     Snd.ui();
+}
+
+function continueRevive() {
+    reviveReady = false;
+    doRevive();
 }
