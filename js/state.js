@@ -1,3 +1,5 @@
+let reviveReady = false;
+
 let state = 'menu';           // menu | play | pause | over
 let seed = 1, lastSeed = 1, rng = Math.random;
 let anchors = [], coins = [], spikes = [], particles = [], floats = [];

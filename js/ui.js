@@ -1,4 +1,6 @@
 let saveTimeout = null;
+let coinsDoubled = false;
+
 function saveAllDataDebounced() {
     if (saveTimeout) clearTimeout(saveTimeout);
     saveTimeout = setTimeout(() => {
@@ -10,7 +12,7 @@ const el = {};
 ['hud', 'meters', 'coinsHud', 'combo', 'hint', 'menu', 'over', 'pauseScr', 'settingsScr', 'bestLine', 'walletMenu', 'skins',
     'overMeters', 'overCoins', 'overCombo', 'recordBadge', 'btnPlay', 'btnAgain', 'btnSame', 'btnMenu1', 'btnMenu2',
     'btnRevive', 'btnResume', 'btnRestart', 'btnMute', 'btnPause',
-    'btnSettings', 'btnBackMenu'].forEach(id => el[id] = document.getElementById(id));
+    'btnSettings', 'btnBackMenu', 'btnDoubleCoins'].forEach(id => el[id] = document.getElementById(id));
 
 const show = e => e.classList.remove('hidden'), hide = e => e.classList.add('hidden');
 
@@ -79,6 +81,11 @@ function buildSkins() {
 }
 
 function startRun(newSeed) {
+
+    pendingReviveCoins = 0;
+    coinsDoubled = false;
+
+    reviveReady = false;
     lastSeed = newSeed;
     deathFinished = false; 
     // Сбрасываем статистику героя после бота
@@ -113,7 +120,16 @@ function startRun(newSeed) {
 
 function toMenu() {
     resetWorld((Math.random() * 2 ** 31) | 0, true);
+
+    // Если вышли в меню с незавершённым ревайвом — монеты в кошелёк
+    if (pendingReviveCoins > 0) {
+        wallet += pendingReviveCoins;
+        pendingReviveCoins = 0;
+        saveAllData();
+    }
+
     state = 'menu';
+    reviveReady = false;
     sdkGameplayStop(); 
     shields = 0;
     shields_spawn.length = 0;
@@ -290,14 +306,29 @@ el.btnRestart.addEventListener('click', () => {
 });
 
 el.btnRevive.addEventListener('click', () => {
-    // Показываем rewarded рекламу перед ревайвом
-    if (sdkReady) {
+    if (reviveReady) {
+        // Реклама уже просмотрена — просто продолжаем
+        continueRevive();
+    } else if (sdkReady) {
+        // Показать рекламу БЕЗ авторезьюма
         sdkShowRewarded(
-            () => doRevive(),  // успех — ревайвим
-            () => doRevive()   // отказ — все равно ревайвим (мягкий режим)
+            () => {
+                // Успех — готов к продолжению
+                reviveReady = true;
+                reviveAvail = false;  // больше нельзя ревайвиться
+                Snd.ui();
+                // Меняем текст кнопки
+                el.btnRevive.textContent = t('btnContinue');
+                el.btnRevive.classList.remove('hidden');
+            },
+            () => {
+                // Отказ — ничего не делаем (SDK сам покажет предупреждение)
+                Snd.deny();
+            },
+            false  // ← НЕ размораживать автоматически
         );
     } else {
-        doRevive();  // без SDK ревайвим сразу
+        doRevive();
     }
 });
 
@@ -428,6 +459,43 @@ qualityButtons.forEach(btn => {
         updateQualityButtons();
         Snd.ui();
     });
+});
+
+el.btnDoubleCoins.addEventListener('click', () => {
+    if (coinsDoubled) return;  // уже удвоено
+
+    if (sdkReady) {
+        sdkShowRewarded(
+            () => {
+                // Успех — удваиваем монеты
+                coinsDoubled = true;
+                coinsRun *= 2;
+                pendingReviveCoins *= 2;
+
+                // Обновляем отображение
+                el.overCoins.textContent = '◈ +' + coinsRun;
+                hudSync();
+
+                // Скрываем кнопку
+                el.btnDoubleCoins.classList.add('hidden');
+
+                Snd.coin();
+                Snd.perfect();
+            },
+            () => {
+                // Отказ — ничего не делаем
+                Snd.deny();
+            },
+            true  // авто-резьюм
+        );
+    } else {
+        // Без SDK — удваиваем сразу
+        coinsDoubled = true;
+        coinsRun *= 2;
+        pendingReviveCoins *= 2;
+        el.overCoins.textContent = '◈ +' + coinsRun;
+        el.btnDoubleCoins.classList.add('hidden');
+    }
 });
 
 // Инициализация при загрузке

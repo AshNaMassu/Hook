@@ -26,10 +26,12 @@ const LOCALES = {
         // Смерть
         gameOver: 'СРЫВ',
         newRecord: '★ НОВЫЙ РЕКОРД ★',
-        btnAgain: 'ЕЩЁ РАЗ',
-        btnSame: 'ТОТ ЖЕ МАРШРУТ',
-        btnMenu: 'МЕНЮ',
-        btnRevive: '▶ ПРОДОЛЖИТЬ',
+        btnAgain: 'НОВЫЙ ЗАБЕГ',
+        btnSame: 'ПОВТОРИТЬ',
+        btnMenu: 'ГЛАВНОЕ МЕНЮ',
+        btnRevive: '▶ ВОЗРОДИТЬСЯ',
+        btnContinue: '▶ ПРОДОЛЖИТЬ',
+        btnDoubleCoins: '💰 УДВОИТЬ МОНЕТЫ (реклама)',
 
         // Настройки
         settings: 'НАСТРОЙКИ',
@@ -100,10 +102,12 @@ const LOCALES = {
         // Death
         gameOver: 'FALL',
         newRecord: '★ NEW RECORD ★',
-        btnAgain: 'AGAIN',
-        btnSame: 'SAME ROUTE',
-        btnMenu: 'MENU',
-        btnRevive: '▶ CONTINUE',
+        btnAgain: 'NEW RUN',
+        btnSame: 'REPEAT',
+        btnMenu: 'MAIN MENU',
+        btnRevive: '▶ REVIVE',
+        btnContinue: '▶ CONTINUE',
+        btnDoubleCoins: '💰 DOUBLE COINS (ad)',
 
         // Settings
         settings: 'SETTINGS',
