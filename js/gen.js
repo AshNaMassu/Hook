@@ -1,4 +1,3 @@
-let shields_spawn = [];  // позиции щитов на уровне
 function flightHits(px, py, vx, vy, tx, ty, steps, dt) {
     // Адаптивное количество шагов по качеству графики
     steps = steps || QUALITY_SETTINGS[RenderQuality.current].flightSteps;
@@ -218,9 +217,8 @@ function isReachableByDistance(prevA, newA) {
 }
 
 function maybeShield(path, idx) {
-    // Щиты каждые 50м (примерно каждые 10 точек)
     if (idx < 10 || idx % 10 !== 0) return;
-
+    console.log('Shield spawned at idx:', idx);
     const p = path[Math.floor(path.length * 0.5)];
     shields_spawn.push({ x: p.x, y: p.y, taken: false });
 }
