@@ -192,6 +192,7 @@ function spawnNext() {
     topAnchor = a;
     placeCoins(best.shot.path, bonus ? 5 : 3);
     maybeSpike(best.shot.path, prev, a, diffG, idx);
+    maybeShield(best.shot.path, idx);
 }
 
 function spawnAhead() {
@@ -218,7 +219,11 @@ function isReachableByDistance(prevA, newA) {
 
 function maybeShield(path, idx) {
     if (idx < 10 || idx % 10 !== 0) return;
-    console.log('Shield spawned at idx:', idx);
     const p = path[Math.floor(path.length * 0.5)];
-    shields_spawn.push({ x: p.x, y: p.y, taken: false });
+    shields_spawn.push({
+        x: p.x + (rng() * 2 - 1) * 0.15,
+        y: p.y + (rng() * 2 - 1) * 0.15,
+        phase: rng() * TAU,  // ← фаза вращения как у монеты
+        taken: false
+    });
 }
