@@ -48,6 +48,42 @@ function drawCoin(c_item, c) {
     c.beginPath(); c.moveTo(0, -R * 0.45); c.lineTo(R * 0.3, 0); c.lineTo(0, R * 0.45); c.lineTo(-R * 0.3, 0); c.closePath(); c.fill();
     c.restore();
 }
+
+function drawShield(s, c) {
+    c = c || ctx;
+    if (s.taken) return;
+    const px = SX(s.x), py = SY(s.y);
+    if (py < -40 || py > H + 40) return;
+    if (!isFinite(scale)) return;
+
+    // Вращение как у монеты
+    const w = Math.cos(uiT * 4 + (s.phase || 0));
+    const R = 0.3 * scale;
+
+    c.save();
+    c.translate(px, py);
+
+    // Свечение
+    c.globalCompositeOperation = 'lighter';
+    const g = c.createRadialGradient(0, 0, 0, 0, 0, R * 2.2);
+    g.addColorStop(0, 'rgba(38, 224, 255, 0.5)');
+    g.addColorStop(1, 'rgba(38, 224, 255, 0)');
+    c.fillStyle = g;
+    c.fillRect(-R * 2.2, -R * 2.2, R * 4.4, R * 4.4);
+    c.globalCompositeOperation = 'source-over';
+
+    // Сжатие при вращении (как у монеты)
+    c.scale(Math.max(0.15, Math.abs(w)), 1);
+
+    // Иконка щита через эмодзи
+    c.font = Math.floor(R * 1.8) + 'px sans-serif';
+    c.textAlign = 'center';
+    c.textBaseline = 'middle';
+    c.fillText('🛡️', 0, 0);
+
+    c.restore();
+}
+
 function drawSpike(s, c) {
     c = c || ctx;
     const px = SX(s.x), py = SY(s.y);
@@ -258,6 +294,18 @@ function drawHero(c) {
         c.arc(0, 0, 0.5 * scale, 0, TAU);
         c.stroke();
         c.setLineDash([]);
+    }
+    // Индикация постоянных щитов (количество колец = количество щитов)
+    if (shields > 0) {
+        for (let i = 0; i < shields; i++) {
+            const angle = (uiT * 1.5 + i * Math.PI * 2 / shields) % (Math.PI * 2);
+            const ringR = 0.45 * scale;
+            c.strokeStyle = 'rgba(38, 224, 255, 0.7)';
+            c.lineWidth = 2.5 * dpr;
+            c.beginPath();
+            c.arc(0, 0, ringR, angle, angle + Math.PI * 0.7);
+            c.stroke();
+        }
     }
 
     // Прогресс-бар дальнего прыжка
@@ -505,6 +553,12 @@ function applyShake(c) {
     }
 }
 
+function drawEntities(c) {
+    for (const item of coins) drawCoin(item, c);
+    for (const s of spikes) drawSpike(s, c);
+    for (const s of shields_spawn) drawShield(s, c);
+}
+
 function drawScene(c, reach) {
     drawBG(c);
     drawBGParticles(c);
@@ -512,8 +566,8 @@ function drawScene(c, reach) {
     c.save();
     applyShake(c);
     
-    for (const co of coins) drawCoin(co, c);
-    for (const s of spikes) drawSpike(s, c);
+    drawEntities(c);
+
     drawAnchors(reach, c);
     drawOnboarding(c);
     drawRope(c);
@@ -559,8 +613,9 @@ function renderHighQuality(reach) {
     drawBG(bloomCtx);
     bloomCtx.save();
     applyShake(bloomCtx);
-    for (const c of coins) drawCoin(c, bloomCtx);
-    for (const s of spikes) drawSpike(s, bloomCtx);
+
+    drawEntities(bloomCtx);
+
     drawAnchors(reach, bloomCtx);
     drawOnboarding(bloomCtx);
     drawRope(bloomCtx);
@@ -580,8 +635,9 @@ function renderHighQuality(reach) {
     drawBGParticles(ctx);
     ctx.save();
     applyShake(ctx);
-    for (const c of coins) drawCoin(c, ctx);
-    for (const s of spikes) drawSpike(s, ctx);
+
+    drawEntities(ctx);
+
     drawAnchors(reach, ctx);
     drawOnboarding(ctx);
     drawRope(ctx);

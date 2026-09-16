@@ -12,16 +12,26 @@ const el = {};
 ['hud', 'meters', 'coinsHud', 'combo', 'hint', 'menu', 'over', 'pauseScr', 'settingsScr', 'bestLine', 'walletMenu', 'skins',
     'overMeters', 'overCoins', 'overCombo', 'recordBadge', 'btnPlay', 'btnAgain', 'btnSame', 'btnMenu1', 'btnMenu2',
     'btnRevive', 'btnResume', 'btnRestart', 'btnMute', 'btnPause',
-    'btnSettings', 'btnBackMenu', 'btnDoubleCoins'].forEach(id => el[id] = document.getElementById(id));
+    'btnSettings', 'btnBackMenu', 'btnDoubleCoins', 'shieldsHud'].forEach(id => el[id] = document.getElementById(id));
 
 const show = e => e.classList.remove('hidden'), hide = e => e.classList.add('hidden');
 
-let hudM = -1, hudC = -1, hudCombo = -1;
+let hudM = -1, hudC = -1, hudCombo = -1, hudShields = -1;
 function hudSync() {
     if (state !== 'play') return;
     const m = Math.floor(maxAlt);
-    if (m !== hudM) { hudM = m; el.meters.textContent = m + ' ' + t('metersShort'); }
-    if (coinsRun !== hudC) { hudC = coinsRun; el.coinsHud.textContent = '◈ ' + coinsRun; }
+    if (m !== hudM) {
+        hudM = m;
+        el.meters.textContent = m + ' ' + t('metersShort');
+    }
+    if (coinsRun !== hudC) {
+        hudC = coinsRun;
+        el.coinsHud.textContent = '◈ ' + coinsRun;
+    }
+    if (shields !== hudShields) {
+        hudShields = shields;
+        el.shieldsHud.textContent = '🛡️ ' + shields + '/2';
+    }
     if (combo !== hudCombo) {
         hudCombo = combo;
         if (combo >= 2) {
@@ -93,6 +103,9 @@ function startRun(newSeed) {
     hero.attached = false;
     hero.lastAnchor = null;
 
+    shields = 0;
+    shields_spawn.length = 0;
+
     // Сброс комбо и статистики забега
     lastGrabIdx = -1;
     maxReachedIdx = 0;
@@ -110,7 +123,10 @@ function startRun(newSeed) {
     state = 'play';
     sdkGameplayStart();  
     hide(el.menu); hide(el.over); hide(el.pauseScr); hide(el.settingsScr); show(el.hud);
-    hudM = -1; hudC = -1; hudCombo = -1;
+    hudM = -1;
+    hudC = -1;
+    hudCombo = -1;
+    hudShields = -1;
     Snd.startMusic('game');
     Snd.setMusicIntensity(0);
 }
@@ -128,6 +144,8 @@ function toMenu() {
     state = 'menu';
     reviveReady = false;
     sdkGameplayStop(); 
+    shields = 0;
+    shields_spawn.length = 0;
     hide(el.over); hide(el.pauseScr); hide(el.hud); hide(el.settingsScr); show(el.menu);
     el.bestLine.textContent = t('bestLabel') + ': ' + bestMeters + ' ' + t('metersShort');
     el.walletMenu.textContent = wallet;
