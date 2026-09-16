@@ -24,6 +24,7 @@ function stepWorld(dt) {
     // Геймплей
     if (!dying) {
         collectCoins(dt);
+        collectShields();
         checkSpikes(dt);
         checkLavaDeath();
         checkWalls();
@@ -217,11 +218,37 @@ function collectCoins(dt) {
     }
 }
 
+function collectShields() {
+    if (dying) return;
+
+    for (const s of shields_spawn) {
+        if (s.taken) continue;
+        if (Math.hypot(s.x - hero.x, s.y - hero.y) < 0.6) {
+            s.taken = true;
+            if (shields < 2) {
+                shields++;
+                addFloat(s.x, s.y, '🛡️', '#26e0ff', 18);
+                Snd.perfect();
+                burst(s.x, s.y, 10, '#26e0ff', 3);
+            }
+        }
+    }
+}
+
 function checkSpikes(dt) {
     if (dying || shieldT > 0) return;
-    
+
     for (const s of spikes) {
         if (Math.hypot(s.x - hero.x, s.y - hero.y) < 0.5) {
+            // Проверка постоянных щитов
+            if (shields > 0) {
+                shields--;
+                shieldT = 0.5;  // короткая неуязвимость
+                burst(hero.x, hero.y, 15, '#26e0ff', 4);
+                addFloat(hero.x, hero.y + 1, '🛡️', '#26e0ff', 24);
+                Snd.ui();
+                return;  // НЕ умираем
+            }
             die();
             break;
         }
@@ -262,6 +289,12 @@ function cleanupEntities() {
         if (spikes[i].y < cutO) {
             spikes[i] = spikes[spikes.length - 1];
             spikes.pop();
+        }
+    }
+    for (let i = shields_spawn.length - 1; i >= 0; i--) {
+        if (shields_spawn[i].taken || shields_spawn[i].y < cutO) {
+            shields_spawn[i] = shields_spawn[shields_spawn.length - 1];
+            shields_spawn.pop();
         }
     }
 }

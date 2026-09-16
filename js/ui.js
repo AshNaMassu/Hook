@@ -86,6 +86,9 @@ function startRun(newSeed) {
     hero.attached = false;
     hero.lastAnchor = null;
 
+    shields = 0;
+    shields_spawn.length = 0;
+
     // Сброс комбо и статистики забега
     lastGrabIdx = -1;
     maxReachedIdx = 0;
@@ -112,6 +115,8 @@ function toMenu() {
     resetWorld((Math.random() * 2 ** 31) | 0, true);
     state = 'menu';
     sdkGameplayStop(); 
+    shields = 0;
+    shields_spawn.length = 0;
     hide(el.over); hide(el.pauseScr); hide(el.hud); hide(el.settingsScr); show(el.menu);
     el.bestLine.textContent = t('bestLabel') + ': ' + bestMeters + ' ' + t('metersShort');
     el.walletMenu.textContent = wallet;

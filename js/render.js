@@ -48,6 +48,45 @@ function drawCoin(c_item, c) {
     c.beginPath(); c.moveTo(0, -R * 0.45); c.lineTo(R * 0.3, 0); c.lineTo(0, R * 0.45); c.lineTo(-R * 0.3, 0); c.closePath(); c.fill();
     c.restore();
 }
+
+function drawShield(s, c) {
+    c = c || ctx;
+    if (s.taken) return;
+    const px = SX(s.x), py = SY(s.y);
+    if (py < -40 || py > H + 40) return;
+    if (!isFinite(scale)) return;
+
+    const R = 0.35 * scale;
+    c.save();
+    c.translate(px, py);
+    c.globalCompositeOperation = 'lighter';
+
+    // Свечение
+    const g = c.createRadialGradient(0, 0, 0, 0, 0, R * 2);
+    g.addColorStop(0, 'rgba(38, 224, 255, 0.4)');
+    g.addColorStop(1, 'rgba(38, 224, 255, 0)');
+    c.fillStyle = g;
+    c.fillRect(-R * 2, -R * 2, R * 4, R * 4);
+
+    c.globalCompositeOperation = 'source-over';
+
+    // Кольцо щита
+    const pulse = 0.5 + 0.5 * Math.sin(uiT * 3);
+    c.strokeStyle = 'rgba(38, 224, 255, ' + (0.6 + pulse * 0.3) + ')';
+    c.lineWidth = 2.5 * dpr;
+    c.beginPath();
+    c.arc(0, 0, R, 0, TAU);
+    c.stroke();
+
+    // Иконка щита внутри
+    c.fillStyle = 'rgba(38, 224, 255, 0.8)';
+    c.beginPath();
+    c.arc(0, 0, R * 0.4, 0, TAU);
+    c.fill();
+
+    c.restore();
+}
+
 function drawSpike(s, c) {
     c = c || ctx;
     const px = SX(s.x), py = SY(s.y);
@@ -258,6 +297,18 @@ function drawHero(c) {
         c.arc(0, 0, 0.5 * scale, 0, TAU);
         c.stroke();
         c.setLineDash([]);
+    }
+    // Индикация постоянных щитов (количество колец = количество щитов)
+    if (shields > 0) {
+        for (let i = 0; i < shields; i++) {
+            const angle = (uiT * 1.5 + i * Math.PI * 2 / shields) % (Math.PI * 2);
+            const ringR = 0.45 * scale;
+            c.strokeStyle = 'rgba(38, 224, 255, 0.7)';
+            c.lineWidth = 2.5 * dpr;
+            c.beginPath();
+            c.arc(0, 0, ringR, angle, angle + Math.PI * 0.7);
+            c.stroke();
+        }
     }
 
     // Прогресс-бар дальнего прыжка
@@ -514,6 +565,7 @@ function drawScene(c, reach) {
     
     for (const co of coins) drawCoin(co, c);
     for (const s of spikes) drawSpike(s, c);
+    for (const s of shields_spawn) drawShield(s, c);
     drawAnchors(reach, c);
     drawOnboarding(c);
     drawRope(c);

@@ -8,6 +8,7 @@ let shakeT = 0, uiT = 0, bot = false;
 let lavaY = LAVA.startY;
 let firstGrabDone = false;
 let timeScale = 1.0;
+let shields = 0;  // постоянные щиты (максимум 2)
 
 // Серии наград
 let streakPerfect = 0;       // серия идеальных зацепов
