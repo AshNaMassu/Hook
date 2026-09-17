@@ -58,7 +58,7 @@ function drawShield(s, c) {
 
     // Вращение как у монеты
     const w = Math.cos(uiT * 4 + (s.phase || 0));
-    const R = 0.3 * scale;
+    const R = SHIELDS.size * scale;
 
     c.save();
     c.translate(px, py);
@@ -66,8 +66,8 @@ function drawShield(s, c) {
     // Свечение
     c.globalCompositeOperation = 'lighter';
     const g = c.createRadialGradient(0, 0, 0, 0, 0, R * 2.2);
-    g.addColorStop(0, 'rgba(38, 224, 255, 0.5)');
-    g.addColorStop(1, 'rgba(38, 224, 255, 0)');
+    g.addColorStop(0, hexA(SHIELDS.color, 0.5));
+    g.addColorStop(1, hexA(SHIELDS.color, 0));
     c.fillStyle = g;
     c.fillRect(-R * 2.2, -R * 2.2, R * 4.4, R * 4.4);
     c.globalCompositeOperation = 'source-over';
@@ -89,16 +89,16 @@ function drawSpike(s, c) {
     const px = SX(s.x), py = SY(s.y);
     if (py < -50 || py > H + 50) return;
     if (!isFinite(scale)) return;
-    const R = 0.45 * scale, rot = s.rot + uiT * 1.2;
+    const R = SPIKES.size * scale, rot = s.rot + uiT * 1.2;
     c.save(); c.translate(px, py); c.rotate(rot);
     c.globalCompositeOperation = 'lighter';
     const g = c.createRadialGradient(0, 0, 0, 0, 0, R * 2.4);
-    g.addColorStop(0, 'rgba(255,46,95,0.5)');
-    g.addColorStop(1, 'rgba(255,46,95,0)');
+    g.addColorStop(0, hexA(SPIKES.color, 0.5));
+    g.addColorStop(1, hexA(SPIKES.color, 0));
     c.fillStyle = g;
     c.fillRect(-R * 2.4, -R * 2.4, R * 4.8, R * 4.8);
     c.globalCompositeOperation = 'source-over';
-    c.fillStyle = '#ff2e5f';
+    c.fillStyle = SPIKES.color;
     c.beginPath();
     for (let i = 0; i < 8; i++) {
         const a1 = i / 8 * TAU, a2 = (i + 0.5) / 8 * TAU;
@@ -300,7 +300,7 @@ function drawHero(c) {
         for (let i = 0; i < shields; i++) {
             const angle = (uiT * 1.5 + i * Math.PI * 2 / shields) % (Math.PI * 2);
             const ringR = 0.45 * scale;
-            c.strokeStyle = 'rgba(38, 224, 255, 0.7)';
+            c.strokeStyle = hexA(SHIELDS.color, 0.7);
             c.lineWidth = 2.5 * dpr;
             c.beginPath();
             c.arc(0, 0, ringR, angle, angle + Math.PI * 0.7);

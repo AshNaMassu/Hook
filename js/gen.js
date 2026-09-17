@@ -94,33 +94,40 @@ function placeCoins(path, n) {
 }
 
 function maybeSpike(path, prevA, newA, diffG, idx) {
-    if (idx < GEN.spikeStartIdx) return;
-    if (rng() > GEN.spikeBaseChance + GEN.spikeDiffScale * diffG) return;
+    if (idx < SPIKES.spikeStartIdx) return;
+    if (rng() > SPIKES.spikeBaseChance + SPIKES.spikeDiffScale * diffG) return;
 
     const b = path[Math.floor(path.length * (0.25 + rng() * 0.5))];
 
     for (let k = 0; k < 7; k++) {
         const ang = rng() * TAU;
-        const off = GEN.spikeRadiusMin + rng() * (GEN.spikeRadiusMax - GEN.spikeRadiusMin);
+        const off = SPIKES.spikeRadiusMin + rng() * (SPIKES.spikeRadiusMax - SPIKES.spikeRadiusMin);
         const x = clamp(b.x + Math.cos(ang) * off, -GEN.spikeX, GEN.spikeX);
         const y = b.y + Math.sin(ang) * off;
 
-        if (Math.hypot(x - prevA.x, y - prevA.y) < GEN.spikeMinDistToAnchor) continue;
-        if (Math.hypot(x - newA.x, y - newA.y) < GEN.spikeMinDistToAnchor) continue;
+        // Проверка до ВСЕХ якорей (не только соседних)
+        let tooCloseToAnchor = false;
+        for (const a of anchors) {
+            if (Math.hypot(x - a.x, y - a.y) < SPIKES.spikeMinDistToAnchor) {
+                tooCloseToAnchor = true;
+                break;
+            }
+        }
+        if (tooCloseToAnchor) continue;
 
         let ok = true;
         for (const pt of path) {
-            if (Math.hypot(x - pt.x, y - pt.y) < GEN.spikeMinDistToPath) { ok = false; break; }
+            if (Math.hypot(x - pt.x, y - pt.y) < SPIKES.spikeMinDistToPath) { ok = false; break; }
         }
         if (!ok) continue;
 
         for (const s of spikes) {
-            if (Math.hypot(x - s.x, y - s.y) < GEN.spikeMinDistToOther) { ok = false; break; }
+            if (Math.hypot(x - s.x, y - s.y) < SPIKES.spikeMinDistToOther) { ok = false; break; }
         }
         if (!ok) continue;
 
         for (const c of coins) {
-            if (!c.taken && Math.hypot(x - c.x, y - c.y) < GEN.spikeMinDistToCoin) { ok = false; break; }
+            if (!c.taken && Math.hypot(x - c.x, y - c.y) < SPIKES.spikeMinDistToCoin) { ok = false; break; }
         }
         if (!ok) continue;
 

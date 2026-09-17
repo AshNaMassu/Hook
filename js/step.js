@@ -227,9 +227,9 @@ function collectShields() {
             s.taken = true;
             if (shields < SHIELDS.max) {
                 shields++;
-                addFloat(s.x, s.y, '🛡️', '#26e0ff', 18);
+                addFloat(s.x, s.y, '🛡️', SHIELDS.color, 18);
                 Snd.perfect();
-                burst(s.x, s.y, 10, '#26e0ff', 3);
+                burst(s.x, s.y, 10, SHIELDS.color, 3);
             }
         }
     }
@@ -239,15 +239,15 @@ function checkSpikes(dt) {
     if (dying || shieldT > 0) return;
 
     for (const s of spikes) {
-        if (Math.hypot(s.x - hero.x, s.y - hero.y) < 0.5) {
+        if (Math.hypot(s.x - hero.x, s.y - hero.y) < SPIKES.size) {
             // Проверка постоянных щитов
             if (shields > 0) {
                 shields--;
-                shieldT = 0.5;  // короткая неуязвимость
-                burst(hero.x, hero.y, 15, '#26e0ff', 4);
-                addFloat(hero.x, hero.y + 1, '🛡️', '#26e0ff', 24);
+                shieldT = SHIELDS.invincibilityAfterUse;
+                burst(hero.x, hero.y, 15, SHIELDS.color, 4);
+                addFloat(hero.x, hero.y + 1, '🛡️', SHIELDS.color, 24);
                 Snd.ui();
-                return;  // НЕ умираем
+                return;
             }
             die();
             break;

@@ -71,7 +71,9 @@ function doRevive() {
 
     if (!debugMode) reviveAvail = false;
     deathFinished = false;
-    hide(el.over); show(el.hud); state = 'play'; dying = false;
+    hide(el.over); show(el.hud);
+    state = 'play';
+    dying = false;
     // Сброс комбо при ревайве
     combo = 0;
     maxCombo = Math.max(maxCombo, combo);
@@ -86,7 +88,9 @@ function doRevive() {
     anchors.push(ra);
     hero.x = ra.x; hero.y = ra.y + 3; hero.vx = 0; hero.vy = 0;
     hero.attached = false; hero.lastAnchor = null;
-    camY = ra.y + 1; camFreeze = 2.5; shieldT = 3;
+    camY = ra.y + 1;
+    camFreeze = 2.5;
+    shieldT = SHIELDS.reviveShieldTime;
     burst(ra.x, ra.y, 16, '#26e0ff', 4);
     addFloat(ra.x, ra.y + 1, t('shieldText'), '#26e0ff', 18);
     Snd.ui();
