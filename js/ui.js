@@ -30,7 +30,7 @@ function hudSync() {
     }
     if (shields !== hudShields) {
         hudShields = shields;
-        el.shieldsHud.textContent = '🛡️ ' + shields + '/2';
+        el.shieldsHud.textContent = '🛡️ ' + shields + '/' + SHIELDS.max;
     }
     if (combo !== hudCombo) {
         hudCombo = combo;
@@ -120,7 +120,25 @@ function startRun(newSeed) {
     currentLookahead = -1.5;
 
     resetWorld(newSeed, false);
+
+    // Дебаг: пропустить до нужной точки
+    if (debugMode && debugStartIdx > 0) {
+        for (let i = 0; i < debugStartIdx; i++) {
+            spawnNext();
+        }
+        // Установить героя на позицию последнего якоря
+        const lastAnchor = anchors[anchors.length - 1];
+        hero.y = lastAnchor.y + 2;
+        hero.x = lastAnchor.x;
+        camY = hero.y - 5;
+        maxAlt = hero.y;
+        console.log('🐛 Сгенерировано точек:', anchors.length, 'Высота:', Math.floor(hero.y));
+    }
+
     state = 'play';
+
+    state = 'play';
+
     sdkGameplayStart();  
     hide(el.menu); hide(el.over); hide(el.pauseScr); hide(el.settingsScr); show(el.hud);
     hudM = -1;
@@ -319,6 +337,13 @@ el.btnRestart.addEventListener('click', () => {
 });
 
 el.btnRevive.addEventListener('click', () => {
+
+    // Дебаг — сразу ревайвим без рекламы
+    if (debugMode) {
+        doRevive();
+        return;
+    }
+
     if (reviveReady) {
         // Реклама уже просмотрена — просто продолжаем
         continueRevive();

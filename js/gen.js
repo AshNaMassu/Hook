@@ -84,43 +84,57 @@ function placeCoins(path, n) {
     for (let i = 0; i < n; i++) {
         const f = 0.22 + 0.56 * (n === 1 ? 0.5 : i / (n - 1));
         const p = path[Math.floor(f * (path.length - 1))];
-        coins.push({
-            x: p.x + (rng() * 2 - 1) * 0.15,
-            y: p.y + (rng() * 2 - 1) * 0.15,
-            phase: rng() * TAU,
-            taken: false,
-        });
+        const x = p.x + (rng() * 2 - 1) * 0.15;
+        const y = p.y + (rng() * 2 - 1) * 0.15;
+
+        if (isSpaceFree(x, y, 0.8)) {
+            coins.push({ x, y, phase: rng() * TAU, taken: false });
+        }
     }
 }
 
 function maybeSpike(path, prevA, newA, diffG, idx) {
-    if (idx < GEN.spikeStartIdx) return;
-    if (rng() > GEN.spikeBaseChance + GEN.spikeDiffScale * diffG) return;
+    if (idx < SPIKES.startIdx) return;
+
+    // Интерполяция сложности: 0 → 500м
+    const spikeProgress = Math.min(1, idx / SPIKES.difficultyPoints);
+    const diffScale = lerp(SPIKES.diffScaleStart, SPIKES.diffScaleEnd, spikeProgress);
+    const minDistToAnchor = lerp(SPIKES.minDistToAnchorStart, SPIKES.minDistToAnchorEnd, spikeProgress);
+    const minDistToPath = lerp(SPIKES.minDistToPathStart, SPIKES.minDistToPathEnd, spikeProgress);
+
+    if (rng() > SPIKES.baseChance + diffScale * diffG) return;
 
     const b = path[Math.floor(path.length * (0.25 + rng() * 0.5))];
 
     for (let k = 0; k < 7; k++) {
         const ang = rng() * TAU;
-        const off = GEN.spikeRadiusMin + rng() * (GEN.spikeRadiusMax - GEN.spikeRadiusMin);
+        const off = SPIKES.radiusMin + rng() * (SPIKES.radiusMax - SPIKES.radiusMin);
         const x = clamp(b.x + Math.cos(ang) * off, -GEN.spikeX, GEN.spikeX);
         const y = b.y + Math.sin(ang) * off;
 
-        if (Math.hypot(x - prevA.x, y - prevA.y) < GEN.spikeMinDistToAnchor) continue;
-        if (Math.hypot(x - newA.x, y - newA.y) < GEN.spikeMinDistToAnchor) continue;
+        // Проверка до ВСЕХ якорей
+        let tooCloseToAnchor = false;
+        for (const a of anchors) {
+            if (Math.hypot(x - a.x, y - a.y) < minDistToAnchor) {
+                tooCloseToAnchor = true;
+                break;
+            }
+        }
+        if (tooCloseToAnchor) continue;
 
         let ok = true;
         for (const pt of path) {
-            if (Math.hypot(x - pt.x, y - pt.y) < GEN.spikeMinDistToPath) { ok = false; break; }
+            if (Math.hypot(x - pt.x, y - pt.y) < minDistToPath) { ok = false; break; }
         }
         if (!ok) continue;
 
         for (const s of spikes) {
-            if (Math.hypot(x - s.x, y - s.y) < GEN.spikeMinDistToOther) { ok = false; break; }
+            if (Math.hypot(x - s.x, y - s.y) < SPIKES.minDistToOther) { ok = false; break; }
         }
         if (!ok) continue;
 
         for (const c of coins) {
-            if (!c.taken && Math.hypot(x - c.x, y - c.y) < GEN.spikeMinDistToCoin) { ok = false; break; }
+            if (!c.taken && Math.hypot(x - c.x, y - c.y) < SPIKES.minDistToCoin) { ok = false; break; }
         }
         if (!ok) continue;
 
@@ -218,12 +232,35 @@ function isReachableByDistance(prevA, newA) {
 }
 
 function maybeShield(path, idx) {
-    if (idx < 10 || idx % 10 !== 0) return;
-    const p = path[Math.floor(path.length * 0.5)];
-    shields_spawn.push({
-        x: p.x + (rng() * 2 - 1) * 0.15,
-        y: p.y + (rng() * 2 - 1) * 0.15,
-        phase: rng() * TAU,  // ← фаза вращения как у монеты
-        taken: false
-    });
+    if (idx < SHIELDS.startIdx || idx % SHIELDS.every !== 0) return;
+
+    const p = path[Math.floor(path.length * SHIELDS.pathPos)];
+    const x = p.x + (rng() * 2 - 1) * 0.1;
+    const y = p.y + (rng() * 2 - 1) * 0.1;
+
+    if (isSpaceFree(x, y, SHIELDS.minDist)) {
+        shields_spawn.push({ x, y, phase: rng() * TAU, taken: false });
+    }
+}
+
+// Единая проверка свободного пространства для любого объекта
+function isSpaceFree(x, y, minDist) {
+    // Якоря
+    for (const a of anchors) {
+        if (Math.hypot(x - a.x, y - a.y) < minDist) return false;
+    }
+    // Монеты
+    for (const c of coins) {
+        if (!c.taken && Math.hypot(x - c.x, y - c.y) < minDist) return false;
+    }
+    // Шипы
+    for (const s of spikes) {
+        if (Math.hypot(x - s.x, y - s.y) < minDist) return false;
+    }
+    // Щиты
+    for (const s of shields_spawn) {
+        if (!s.taken && Math.hypot(x - s.x, y - s.y) < minDist) return false;
+    }
+    // Будущие объекты: просто добавить сюда новый цикл
+    return true;
 }
