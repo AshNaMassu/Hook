@@ -33,7 +33,7 @@ function finishDeath() {
 
     saveAllData();
     el.overMeters.textContent = m + ' ' + t('metersShort');
-    el.overCoins.textContent = '◈ +' + earnedCoins;
+    el.overCoins.textContent = '◈ +' + Math.ceil(earnedCoins);
     el.overCombo.textContent = t('series') + ' ×' + maxCombo;
     el.recordBadge.classList.toggle('hidden', !rec);
     el.btnRevive.classList.toggle('hidden', !reviveAvail && !debugMode);
