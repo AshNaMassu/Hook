@@ -95,7 +95,14 @@ function placeCoins(path, n) {
 
 function maybeSpike(path, prevA, newA, diffG, idx) {
     if (idx < SPIKES.startIdx) return;
-    if (rng() > SPIKES.baseChance + SPIKES.diffScale * diffG) return;
+
+    // Интерполяция сложности: 0 → 500м
+    const spikeProgress = Math.min(1, idx / SPIKES.difficultyPoints);
+    const diffScale = lerp(SPIKES.diffScaleStart, SPIKES.diffScaleEnd, spikeProgress);
+    const minDistToAnchor = lerp(SPIKES.minDistToAnchorStart, SPIKES.minDistToAnchorEnd, spikeProgress);
+    const minDistToPath = lerp(SPIKES.minDistToPathStart, SPIKES.minDistToPathEnd, spikeProgress);
+
+    if (rng() > SPIKES.baseChance + diffScale * diffG) return;
 
     const b = path[Math.floor(path.length * (0.25 + rng() * 0.5))];
 
@@ -105,10 +112,10 @@ function maybeSpike(path, prevA, newA, diffG, idx) {
         const x = clamp(b.x + Math.cos(ang) * off, -GEN.spikeX, GEN.spikeX);
         const y = b.y + Math.sin(ang) * off;
 
-        // Проверка до ВСЕХ якорей (не только соседних)
+        // Проверка до ВСЕХ якорей
         let tooCloseToAnchor = false;
         for (const a of anchors) {
-            if (Math.hypot(x - a.x, y - a.y) < SPIKES.minDistToAnchor) {
+            if (Math.hypot(x - a.x, y - a.y) < minDistToAnchor) {
                 tooCloseToAnchor = true;
                 break;
             }
@@ -117,7 +124,7 @@ function maybeSpike(path, prevA, newA, diffG, idx) {
 
         let ok = true;
         for (const pt of path) {
-            if (Math.hypot(x - pt.x, y - pt.y) < SPIKES.minDistToPath) { ok = false; break; }
+            if (Math.hypot(x - pt.x, y - pt.y) < minDistToPath) { ok = false; break; }
         }
         if (!ok) continue;
 
