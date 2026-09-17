@@ -238,13 +238,13 @@ const CAMERA = {
     speedMin: 7,         // ← минимальная скорость (wMin × rMin)
     speedThreshold: 16,    // Скорость при которой достигается максимум
     // Плавность изменения (меньше = плавнее)
-    smoothness: 0.6,       // ← уменьшили с 2 до 0.8 (меньше рывков)
+    smoothness: 0.15,       // ← уменьшили с 2 до 0.8 (меньше рывков)
 
     // Остальное
     anchorClamp: 4.5,
     // Асимметричное сглаживание скорости (attack/release)
-    speedAttack: 0.4,   // реакция на ускорение (быстрее)
-    speedRelease: 0.08, // реакция на замедление (медленнее)
+    speedAttack: 0.1,   // реакция на ускорение (быстрее)
+    speedRelease: 0.05, // реакция на замедление (медленнее)
 
     // Коэффициент влияния позиции героя на камеру по X (0-1)
     // 0.3 = камера следует за героем на 30% от его смещения
@@ -333,6 +333,6 @@ const PHYSICS_PRECOMPUTED = {
     maxJumpDistNoMargin: (PF.wMax * PF.rMax) ** 2 / (2 * PF.g),   // ~9.7
     avgRadius: (PF.rMin + PF.rMax) / 2,       // 2.1
     avgSpeed: PF.wMin + (PF.wMax - PF.wMin) * 0.6,  // 4.5
-    speedRange: PF.wMax * PF.rMax - 0.5 - CAMERA.speedMin,
+    speedRange: CAMERA.speedThreshold - CAMERA.speedMin,
     anchorClampScaled: CAMERA.anchorClamp * CAMERA.followFactorX,
 };
