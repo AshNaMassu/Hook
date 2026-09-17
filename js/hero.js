@@ -268,7 +268,7 @@ function releaseAction() {
 
 function calculateMaxFlight() {
     // Максимальная скорость на конце верёвки
-    const maxSpeed = PF.wMax * PF.rMax;
+    const maxSpeed = PHYSICS_PRECOMPUTED.maxSpeed;
 
     // Симулируем 8 разных углов релиза и берём максимум высоты
     let maxHeight = 0;

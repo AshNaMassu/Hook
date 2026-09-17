@@ -29,9 +29,13 @@ let wallRight = 10;   // правая стена
 // Максимально возможный полёт (вычисляется один раз при старте)
 let maxFlightDist = 0;
 
-// В начале файла:
 const debugMode = new URLSearchParams(window.location.search).has('debug');
-if (debugMode) console.log('🐛 DEBUG MODE: бесконечные жизни, щиты, монеты');
+const debugStartIdx = parseInt(new URLSearchParams(window.location.search).get('startIdx')) || 0;
+
+if (debugMode) {
+    console.log('🐛 DEBUG MODE: бесконечные жизни, щиты, монеты');
+    if (debugStartIdx > 0) console.log('🐛 Старт с точки:', debugStartIdx, '(~' + (debugStartIdx * 5) + 'м)');
+}
 
 const hero = {
     x: 0, y: 0, vx: 0, vy: 0, attached: false, anchor: null, lastAnchor: null,

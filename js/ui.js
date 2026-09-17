@@ -120,7 +120,25 @@ function startRun(newSeed) {
     currentLookahead = -1.5;
 
     resetWorld(newSeed, false);
+
+    // Дебаг: пропустить до нужной точки
+    if (debugMode && debugStartIdx > 0) {
+        for (let i = 0; i < debugStartIdx; i++) {
+            spawnNext();
+        }
+        // Установить героя на позицию последнего якоря
+        const lastAnchor = anchors[anchors.length - 1];
+        hero.y = lastAnchor.y + 2;
+        hero.x = lastAnchor.x;
+        camY = hero.y - 5;
+        maxAlt = hero.y;
+        console.log('🐛 Сгенерировано точек:', anchors.length, 'Высота:', Math.floor(hero.y));
+    }
+
     state = 'play';
+
+    state = 'play';
+
     sdkGameplayStart();  
     hide(el.menu); hide(el.over); hide(el.pauseScr); hide(el.settingsScr); show(el.hud);
     hudM = -1;

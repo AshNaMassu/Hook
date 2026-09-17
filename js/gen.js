@@ -94,21 +94,21 @@ function placeCoins(path, n) {
 }
 
 function maybeSpike(path, prevA, newA, diffG, idx) {
-    if (idx < SPIKES.spikeStartIdx) return;
-    if (rng() > SPIKES.spikeBaseChance + SPIKES.spikeDiffScale * diffG) return;
+    if (idx < SPIKES.startIdx) return;
+    if (rng() > SPIKES.baseChance + SPIKES.diffScale * diffG) return;
 
     const b = path[Math.floor(path.length * (0.25 + rng() * 0.5))];
 
     for (let k = 0; k < 7; k++) {
         const ang = rng() * TAU;
-        const off = SPIKES.spikeRadiusMin + rng() * (SPIKES.spikeRadiusMax - SPIKES.spikeRadiusMin);
+        const off = SPIKES.radiusMin + rng() * (SPIKES.radiusMax - SPIKES.radiusMin);
         const x = clamp(b.x + Math.cos(ang) * off, -GEN.spikeX, GEN.spikeX);
         const y = b.y + Math.sin(ang) * off;
 
         // Проверка до ВСЕХ якорей (не только соседних)
         let tooCloseToAnchor = false;
         for (const a of anchors) {
-            if (Math.hypot(x - a.x, y - a.y) < SPIKES.spikeMinDistToAnchor) {
+            if (Math.hypot(x - a.x, y - a.y) < SPIKES.minDistToAnchor) {
                 tooCloseToAnchor = true;
                 break;
             }
@@ -117,17 +117,17 @@ function maybeSpike(path, prevA, newA, diffG, idx) {
 
         let ok = true;
         for (const pt of path) {
-            if (Math.hypot(x - pt.x, y - pt.y) < SPIKES.spikeMinDistToPath) { ok = false; break; }
+            if (Math.hypot(x - pt.x, y - pt.y) < SPIKES.minDistToPath) { ok = false; break; }
         }
         if (!ok) continue;
 
         for (const s of spikes) {
-            if (Math.hypot(x - s.x, y - s.y) < SPIKES.spikeMinDistToOther) { ok = false; break; }
+            if (Math.hypot(x - s.x, y - s.y) < SPIKES.minDistToOther) { ok = false; break; }
         }
         if (!ok) continue;
 
         for (const c of coins) {
-            if (!c.taken && Math.hypot(x - c.x, y - c.y) < SPIKES.spikeMinDistToCoin) { ok = false; break; }
+            if (!c.taken && Math.hypot(x - c.x, y - c.y) < SPIKES.minDistToCoin) { ok = false; break; }
         }
         if (!ok) continue;
 

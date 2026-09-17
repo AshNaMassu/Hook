@@ -187,14 +187,14 @@ const LAVA = {
 /* ---------- Шипы ---------- */
 const SPIKES = {
     // Спавн
-    startIdx: 10,           // с какой точки начинать спавн
-    baseChance: 0.22,       // базовый шанс появления (22%)
-    diffScale: 0.4,         // рост шанса со сложностью (до +40%)
+    startIdx: 3,           // с какой точки начинать спавн
+    baseChance: 0.92,       // базовый шанс появления (22%)
+    diffScale: 0.94,         // рост шанса со сложностью (до +40%)
 
     // Минимальные расстояния
-    minDistToAnchor: 3.8,   // до якорей (вне радиуса захвата)
-    minDistToOther: 2.4,    // до других шипов
-    minDistToPath: 1.9,     // до траектории полёта
+    minDistToAnchor: 3.5,   // до якорей (вне радиуса захвата)
+    minDistToOther: 1.4,    // до других шипов
+    minDistToPath: 0.5,     // до траектории полёта
     minDistToCoin: 1.0,     // до монет
 
     // Позиция на траектории
@@ -333,6 +333,6 @@ const PHYSICS_PRECOMPUTED = {
     maxJumpDistNoMargin: (PF.wMax * PF.rMax) ** 2 / (2 * PF.g),   // ~9.7
     avgRadius: (PF.rMin + PF.rMax) / 2,       // 2.1
     avgSpeed: PF.wMin + (PF.wMax - PF.wMin) * 0.6,  // 4.5
-    speedRange: CAMERA.speedThreshold - CAMERA.speedMin,
+    speedRange: PF.wMax * PF.rMax - 0.5 - CAMERA.speedMin,
     anchorClampScaled: CAMERA.anchorClamp * CAMERA.followFactorX,
 };
