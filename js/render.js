@@ -309,7 +309,7 @@ function drawHero(c) {
     }
 
     // Прогресс-бар дальнего прыжка
-    if (!hero.attached && !dying && hero.flightProgress !== undefined && hero.flightProgress > 0.1) {
+    if (COMBO.longJump.enabled && !hero.attached && !dying && hero.flightProgress !== undefined && hero.flightProgress > 0.1) {
         const progress = Math.min(1, hero.flightProgress);
         const hue = progress * 120;  // зелёный (120) → красный (0)
         const color = `hsl(${hue}, 100%, 60%)`;

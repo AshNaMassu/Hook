@@ -113,7 +113,7 @@ function tryGrab() {
                 const flightRatio = flightHeight / maxFlightDist;
 
                 // МЕГА-ПРЫЖОК! (100%+ высоты)
-                if (flightRatio >= COMBO.megaJump.threshold) {
+                if (COMBO.megaJump.enabled && flightRatio >= COMBO.megaJump.threshold) {
                     const bonusCoins = COMBO.megaJump.bonusCoins || 15;
                     coinsRun += bonusCoins;
                     streakLongJump++;
@@ -133,7 +133,7 @@ function tryGrab() {
                     checkStreakReward('longJump', streakLongJump, best.x, best.y);
                 }
                 // ДАЛЬНИЙ! (75%+ высоты)
-                else if (flightRatio >= COMBO.longJump.threshold) {
+                else if (COMBO.longJump.enabled && flightRatio >= COMBO.longJump.threshold) {
                     streakLongJump++;
 
                     const bonusCoins = COMBO.longJump.bonusCoins || 5;

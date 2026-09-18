@@ -26,7 +26,7 @@ function hudSync() {
     }
     if (coinsRun !== hudC) {
         hudC = coinsRun;
-        el.coinsHud.textContent = '◈ ' + coinsRun;
+        el.coinsHud.textContent = '◈ ' + Math.ceil(coinsRun);
     }
     if (shields !== hudShields) {
         hudShields = shields;
@@ -154,7 +154,7 @@ function toMenu() {
 
     // Если вышли в меню с незавершённым ревайвом — монеты в кошелёк
     if (pendingReviveCoins > 0) {
-        wallet += pendingReviveCoins;
+        wallet += Math.ceil(pendingReviveCoins);
         pendingReviveCoins = 0;
         saveAllData();
     }
@@ -507,8 +507,8 @@ el.btnDoubleCoins.addEventListener('click', () => {
             () => {
                 // Успех — удваиваем монеты
                 coinsDoubled = true;
-                coinsRun *= 2;
-                pendingReviveCoins *= 2;
+                coinsRun = Math.ceil(coinsRun) * 2;
+                pendingReviveCoins = Math.ceil(pendingReviveCoins) * 2;
 
                 // Обновляем отображение
                 el.overCoins.textContent = '◈ +' + coinsRun;
@@ -529,8 +529,8 @@ el.btnDoubleCoins.addEventListener('click', () => {
     } else {
         // Без SDK — удваиваем сразу
         coinsDoubled = true;
-        coinsRun *= 2;
-        pendingReviveCoins *= 2;
+        coinsRun = Math.ceil(coinsRun) * 2;
+        pendingReviveCoins = Math.ceil(pendingReviveCoins) * 2;
         el.overCoins.textContent = '◈ +' + coinsRun;
         el.btnDoubleCoins.classList.add('hidden');
     }

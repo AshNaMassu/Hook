@@ -80,12 +80,25 @@ function canonicalShot(a, side, diffG) {
     return { x: px, y: py, sd, path };
 }
 
-function placeCoins(path, n) {
+function placeCoins(path, n, anchor) {
     for (let i = 0; i < n; i++) {
-        const f = 0.22 + 0.56 * (n === 1 ? 0.5 : i / (n - 1));
-        const p = path[Math.floor(f * (path.length - 1))];
-        const x = p.x + (rng() * 2 - 1) * 0.15;
-        const y = p.y + (rng() * 2 - 1) * 0.15;
+        let x, y;
+
+        // 50% шанс: возле якоря или на траектории
+        if (rng() < 0.4 && anchor) {
+            // Монета на радиусе вращения вокруг якоря
+            const angle = rng() * TAU;
+            const radius = lerp(PF.rMin, PF.rMax, rng());  // случайный радиус между min и max
+
+            x = anchor.x + Math.cos(angle) * radius;
+            y = anchor.y + Math.sin(angle) * radius;
+        } else {
+            // Монета на траектории
+            const f = 0.2 + 0.6 * (n === 1 ? 0.5 : i / (n - 1));
+            const p = path[Math.floor(f * (path.length - 1))];
+            x = p.x;
+            y = p.y;
+        }
 
         if (isSpaceFree(x, y, 0.8)) {
             coins.push({ x, y, phase: rng() * TAU, taken: false });
@@ -143,6 +156,44 @@ function maybeSpike(path, prevA, newA, diffG, idx) {
     }
 }
 
+function trimPathToTarget(path, target, maxDist) {
+    maxDist = maxDist || 2.0;
+    const trimmed = [];
+    for (const p of path) {
+        trimmed.push(p);
+        if (Math.hypot(p.x - target.x, p.y - target.y) < maxDist) {
+            break;
+        }
+    }
+    const last = trimmed[trimmed.length - 1];
+    if (Math.hypot(last.x - target.x, last.y - target.y) > 0.1) {
+        trimmed.push({ x: target.x, y: target.y });
+    }
+    return trimmed;
+}
+
+function generatePathBetween(from, to, steps) {
+    steps = steps || 25;
+    const path = [];
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    const dist = Math.hypot(dx, dy);
+    const T = Math.max(0.4, dist / (PF.wMax * PF.rMax));
+    const vx = dx / T;
+    const vy = (dy + 0.5 * PF.g * T * T) / T;
+    let px = from.x, py = from.y;
+    let cvx = vx, cvy = vy;
+    const dt = T / steps;
+    for (let i = 0; i <= steps; i++) {
+        path.push({ x: px, y: py });
+        cvy -= PF.g * dt;
+        px += cvx * dt;
+        py += cvy * dt;
+    }
+    return path;
+}
+
+
 function spawnNext() {
     const side = pickSide(), prev = topAnchor;
     prev.spinDir = side;
@@ -150,7 +201,7 @@ function spawnNext() {
     const idx = anchorIdx++;
     const diffG = Math.min(1, idx / 70);
     const calm = (idx % GEN.calmPeriod === GEN.calmOffset);
-    const bonus = (idx > 0 && idx % GEN.bonusPeriod >= GEN.bonusThreshold);
+    const bonus = BONUS.enabled && (idx > 0 && idx % BONUS.period === BONUS.position);
 
     const currentHeight = prev.y;
     let best = null;
@@ -204,7 +255,7 @@ function spawnNext() {
     const a = { x: best.x, y: best.y, idx, spinDir: 0 };
     anchors.push(a);
     topAnchor = a;
-    placeCoins(best.shot.path, bonus ? 5 : 3);
+    placeCoins(best.shot.path, bonus ? BONUS.coinsBonus : BONUS.coinsNormal, prev); 
     maybeSpike(best.shot.path, prev, a, diffG, idx);
     maybeShield(best.shot.path, idx);
 }

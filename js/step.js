@@ -200,17 +200,26 @@ function collectCoins(dt) {
         if (c.taken) continue;
         if (Math.hypot(c.x - hero.x, c.y - hero.y) < 0.6) {
             c.taken = true;
+
             const baseVal = 1;
-            const val = Math.round(baseVal * getComboMult());
-            
-            // Бонус за дальний прыжок (если собрали монету из длинной секции)
-            const bonus = 0;
+            const heightMult = HEIGHT_BONUS.enabled
+                ? Math.min(HEIGHT_BONUS.maxMult, 1.0 + (hero.y / 100) * HEIGHT_BONUS.per100m)
+                : 1.0;
+            const val = baseVal * getComboMult() * heightMult;
             
             if (state === 'play') {
-                coinsRun += val + bonus;
+                coinsRun += val;
                 Snd.coin();
-                let txt = '+' + val + '◈';
-                if (combo >= 3) txt += ' ×' + getComboMult();
+
+                // Основная часть: целое или с одной цифрой
+                let txt = '+' + (Number.isInteger(val) ? val : val.toFixed(1)) + '◈';
+
+                // Модификаторы в скобках
+                const mods = [];
+                if (combo >= 3) mods.push(' ×' + getComboMult());
+                if (HEIGHT_BONUS.enabled && heightMult > 1.1) mods.push(' ↑×' + heightMult.toFixed(1));
+                if (mods.length > 0) txt += ' (' + mods.join(',') + ')';
+
                 addFloat(c.x, c.y, txt, '#ffc23d', 16);
             }
             burst(c.x, c.y, 7, '#ffc23d', 2.6);
